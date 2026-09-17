@@ -1,0 +1,14 @@
+# Dependencies
+**/node_modules/
+
+# Frontend build output
+**/dist/
+
+# Local databases and environment files
+**/db/data.sqlite
+**/.env
+
+# Local tooling
+.vscode/
+.idea/
+*.log

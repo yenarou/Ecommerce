@@ -1,0 +1,23 @@
+services:
+  backend:
+    build:
+      context: ./Backend/backend
+    ports:
+      - "${BACKEND_PORT:-14000}:4000"
+    volumes:
+      - sqlite-data:/app/db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:14000/}
+    ports:
+      - "${FRONTEND_PORT:-15173}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  sqlite-data:
