@@ -25,19 +25,45 @@ public class Order
 
     public static Order Create(User user, Address address)
     {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user), "User cannot be null.");
+        }
+
+        if (address == null)
+        {
+            throw new ArgumentNullException(nameof(address), "Address cannot be null.");
+        }
+
         var now = DateTime.UtcNow;
         return new Order(Guid.NewGuid(), user, now, now, address, OrderStatus.Pending);
     }
 
     public void UpdateAddress(Address address)
     {
+        if (address == null)
+        {
+            throw new ArgumentNullException(nameof(address), "Address cannot be null.");
+        }
+
+        if (Status == OrderStatus.Delivered || Status == OrderStatus.Cancelled)
+        {
+            throw new InvalidOperationException($"Cannot update address for an order with status '{Status}'.");
+        }
+
         Address = address;
         UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateStatus(OrderStatus status)
     {
-        Status = status;
+        if (status == null)
+        {
+            throw new ArgumentNullException(nameof(status), "Order status cannot be null.");
+        }
+
+        // Use the TransitionTo method to validate state transitions
+        Status = Status.TransitionTo(status);
         UpdatedAt = DateTime.UtcNow;
     }
 }

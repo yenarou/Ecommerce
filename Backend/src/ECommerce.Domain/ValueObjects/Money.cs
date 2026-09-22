@@ -36,7 +36,7 @@ public sealed record Money
     {
         EnsureSameCurrency(other);
         if (Amount - other.Amount < 0)
-            throw new ArgumentOutOfRangeException("Resulting amount cannot be negative.");
+            throw new ArgumentOutOfRangeException(nameof(Money), other, "Insufficient funds.");
         return new Money(Amount - other.Amount, Currency);
     }
 
