@@ -15,10 +15,10 @@ public sealed record Email
     public static Email Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new DomainException("Email cannot be empty.");
+            throw new ArgumentNullException(value, "Email cannot be empty.");
 
         if (!Pattern.IsMatch(value))
-            throw new DomainException($"'{value}' is not a valid email address.");
+            throw new InvalidEmailException(value);
 
         return new Email(value.Trim().ToLowerInvariant());
     }

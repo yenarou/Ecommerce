@@ -21,11 +21,11 @@ public sealed record Address
 
     public static Address Create(string street, string city, string state, string zipCode, string country)
     {
-        if (string.IsNullOrWhiteSpace(street)) throw new DomainException("Street is required.");
-        if (string.IsNullOrWhiteSpace(city)) throw new DomainException("City is required.");
-        if (string.IsNullOrWhiteSpace(state)) throw new DomainException("State is required.");
-        if (string.IsNullOrWhiteSpace(zipCode)) throw new DomainException("Zip code is required.");
-        if (string.IsNullOrWhiteSpace(country)) throw new DomainException("Country is required.");
+        if (string.IsNullOrWhiteSpace(street)) throw new InvalidAddressException("Street");
+        if (string.IsNullOrWhiteSpace(city)) throw new InvalidAddressException("City");
+        if (string.IsNullOrWhiteSpace(state)) throw new InvalidAddressException("State");
+        if (string.IsNullOrWhiteSpace(zipCode)) throw new InvalidAddressException("Zip code");
+        if (string.IsNullOrWhiteSpace(country)) throw new InvalidAddressException("Country");
 
         return new Address(street.Trim(), city.Trim(), state.Trim(), zipCode.Trim(), country.Trim());
     }

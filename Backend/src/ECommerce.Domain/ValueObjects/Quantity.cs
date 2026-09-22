@@ -11,7 +11,7 @@ public sealed record Quantity
     public static Quantity Create(int value)
     {
         if (value <= 0)
-            throw new DomainException("Quantity must be greater than zero.");
+            throw new ArgumentOutOfRangeException(nameof(value), value, "Quantity must be greater than zero.");
 
         return new Quantity(value);
     }
@@ -21,7 +21,7 @@ public sealed record Quantity
     public Quantity Decrease(int amount)
     {
         if (amount > Value)
-            throw new DomainException("Cannot decrease quantity below zero.");
+            throw new InsufficientQuantityException(Value, amount);
         return Create(Value - amount);
     }
 

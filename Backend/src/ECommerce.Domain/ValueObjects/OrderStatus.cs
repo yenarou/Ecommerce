@@ -35,14 +35,14 @@ public sealed class OrderStatus : IEquatable<OrderStatus>
     public static OrderStatus FromString(string value)
     {
         if (!All.TryGetValue(value, out var status))
-            throw new DomainException($"'{value}' is not a valid order status.");
+            throw new ArgumentOutOfRangeException(nameof(value), status, $"'{value}' is not a valid order status.");
         return status;
     }
 
     public OrderStatus TransitionTo(OrderStatus next)
     {
         if (!AllowedTransitions[Value].Contains(next.Value))
-            throw new DomainException($"Cannot transition from '{Value}' to '{next.Value}'.");
+            throw new InvalidOrderStatusTransition(Value, next.Value);
         return next;
     }
 
