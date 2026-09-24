@@ -5,8 +5,7 @@ namespace ECommerce.Domain.Repositories;
 public interface ICategoryRepository
 {
     Task<Category?> GetById(Guid categoryId);
-    #warning Usar paginado
-    Task<List<Category>?> GetAll(); 
+    Task<List<Category>?> GetAll();
     Task Save(Category category);
     Task Delete(Guid categoryId);
 }

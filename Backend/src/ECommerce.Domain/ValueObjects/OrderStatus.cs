@@ -10,17 +10,13 @@ public sealed class OrderStatus : IEquatable<OrderStatus>
     public static readonly OrderStatus Delivered = new(nameof(Delivered));
     public static readonly OrderStatus Cancelled = new(nameof(Cancelled));
 
-    public string Value { get; }
-
-    private OrderStatus(string value) => Value = value;
-
     private static readonly Dictionary<string, OrderStatus> All = new()
     {
         [Pending.Value] = Pending,
         [Confirmed.Value] = Confirmed,
         [Shipped.Value] = Shipped,
         [Delivered.Value] = Delivered,
-        [Cancelled.Value] = Cancelled,
+        [Cancelled.Value] = Cancelled
     };
 
     private static readonly Dictionary<string, string[]> AllowedTransitions = new()
@@ -29,8 +25,20 @@ public sealed class OrderStatus : IEquatable<OrderStatus>
         [Confirmed.Value] = new[] { Shipped.Value, Cancelled.Value },
         [Shipped.Value] = new[] { Delivered.Value },
         [Delivered.Value] = Array.Empty<string>(),
-        [Cancelled.Value] = Array.Empty<string>(),
+        [Cancelled.Value] = Array.Empty<string>()
     };
+
+    private OrderStatus(string value)
+    {
+        Value = value;
+    }
+
+    public string Value { get; }
+
+    public bool Equals(OrderStatus? other)
+    {
+        return other is not null && Value == other.Value;
+    }
 
     public static OrderStatus FromString(string value)
     {
@@ -46,8 +54,18 @@ public sealed class OrderStatus : IEquatable<OrderStatus>
         return next;
     }
 
-    public bool Equals(OrderStatus? other) => other is not null && Value == other.Value;
-    public override bool Equals(object? obj) => Equals(obj as OrderStatus);
-    public override int GetHashCode() => Value.GetHashCode();
-    public override string ToString() => Value;
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as OrderStatus);
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }

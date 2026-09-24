@@ -4,12 +4,6 @@ namespace ECommerce.Domain.ValueObjects;
 
 public sealed record Address
 {
-    public string Street { get; }
-    public string City { get; }
-    public string State { get; }
-    public string ZipCode { get; }
-    public string Country { get; }
-
     private Address(string street, string city, string state, string zipCode, string country)
     {
         Street = street;
@@ -18,6 +12,12 @@ public sealed record Address
         ZipCode = zipCode;
         Country = country;
     }
+
+    public string Street { get; }
+    public string City { get; }
+    public string State { get; }
+    public string ZipCode { get; }
+    public string Country { get; }
 
     public static Address Create(string street, string city, string state, string zipCode, string country)
     {
@@ -30,5 +30,8 @@ public sealed record Address
         return new Address(street.Trim(), city.Trim(), state.Trim(), zipCode.Trim(), country.Trim());
     }
 
-    public override string ToString() => $"{Street}, {City}, {State} {ZipCode}, {Country}";
+    public override string ToString()
+    {
+        return $"{Street}, {City}, {State} {ZipCode}, {Country}";
+    }
 }

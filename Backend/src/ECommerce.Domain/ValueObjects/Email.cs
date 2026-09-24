@@ -8,9 +8,12 @@ public sealed record Email
     private static readonly Regex Pattern =
         new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled);
 
-    public string Value { get; }
+    private Email(string value)
+    {
+        Value = value;
+    }
 
-    private Email(string value) => Value = value;
+    public string Value { get; }
 
     public static Email Create(string value)
     {
@@ -23,5 +26,8 @@ public sealed record Email
         return new Email(value.Trim().ToLowerInvariant());
     }
 
-    public override string ToString() => Value;
+    public override string ToString()
+    {
+        return Value;
+    }
 }

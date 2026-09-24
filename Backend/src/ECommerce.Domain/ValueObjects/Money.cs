@@ -4,14 +4,14 @@ namespace ECommerce.Domain.ValueObjects;
 
 public sealed record Money
 {
-    public decimal Amount { get; }
-    public string Currency { get; }
-
     private Money(decimal amount, string currency)
     {
         Amount = amount;
         Currency = currency;
     }
+
+    public decimal Amount { get; }
+    public string Currency { get; }
 
     public static Money Create(decimal amount, string currency)
     {
@@ -24,7 +24,10 @@ public sealed record Money
         return new Money(amount, currency.ToUpperInvariant());
     }
 
-    public static Money Zero(string currency) => Create(0, currency);
+    public static Money Zero(string currency)
+    {
+        return Create(0, currency);
+    }
 
     public Money Add(Money other)
     {
@@ -46,5 +49,8 @@ public sealed record Money
             throw new DifferentCurrenciesException(Currency, other.Currency);
     }
 
-    public override string ToString() => $"{Amount} {Currency}";
+    public override string ToString()
+    {
+        return $"{Amount} {Currency}";
+    }
 }

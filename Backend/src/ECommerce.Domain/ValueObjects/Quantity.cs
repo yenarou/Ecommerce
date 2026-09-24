@@ -4,9 +4,12 @@ namespace ECommerce.Domain.ValueObjects;
 
 public sealed record Quantity
 {
-    public int Value { get; }
+    private Quantity(int value)
+    {
+        Value = value;
+    }
 
-    private Quantity(int value) => Value = value;
+    public int Value { get; }
 
     public static Quantity Create(int value)
     {
@@ -16,7 +19,10 @@ public sealed record Quantity
         return new Quantity(value);
     }
 
-    public Quantity Increase(int amount) => Create(Value + amount);
+    public Quantity Increase(int amount)
+    {
+        return Create(Value + amount);
+    }
 
     public Quantity Decrease(int amount)
     {
@@ -25,5 +31,8 @@ public sealed record Quantity
         return Create(Value - amount);
     }
 
-    public override string ToString() => Value.ToString();
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
 }
