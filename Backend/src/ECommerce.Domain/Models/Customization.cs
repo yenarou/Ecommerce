@@ -17,7 +17,7 @@ public class Customization
         AdditionalPrice = additionalPrice;
     }
 
-    public static Customization Create(string description, decimal additionalPrice)
+    internal static Customization Create(string description, decimal additionalPrice)
     {
         if (string.IsNullOrWhiteSpace(description))
         {

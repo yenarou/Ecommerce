@@ -3,25 +3,27 @@ namespace ECommerce.Domain.Models;
 public class OrderItem
 {
     public Guid Id { get; private set;}
-    public Cart Cart { get; private set;}
+    public Order Order { get; private set;}
     public Product Product { get; private set;}
+    public Customization? Customization { get; private set;}
     public int Quantity { get; private set;}
     
     private OrderItem() { }
 
-    private OrderItem(Guid id, Cart cart, Product product, int quantity)
+    private OrderItem(Guid id, Order order, Product product, int quantity, Customization? customization = null)
     {
         Id = id;
-        Cart = cart;
+        Order = order;
         Product = product;
         Quantity = quantity;
+        Customization = customization;
     }
 
-    public static OrderItem Create(Cart cart, Product product, int quantity)
+    internal static OrderItem Create(Order order, Product product, int quantity, Customization? customization = null)
     {
-        if (cart == null)
+        if (order == null)
         {
-            throw new ArgumentNullException(nameof(cart), "Cart cannot be null.");
+            throw new ArgumentNullException(nameof(order), "Cart cannot be null.");
         }
 
         if (product == null)
@@ -34,7 +36,7 @@ public class OrderItem
             throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
         }
 
-        return new OrderItem(Guid.NewGuid(), cart, product, quantity);
+        return new OrderItem(Guid.NewGuid(), order, product, quantity);
     }
 
     public void UpdateQuantity(int quantity)

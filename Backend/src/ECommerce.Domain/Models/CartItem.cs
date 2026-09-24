@@ -6,18 +6,20 @@ public class CartItem
     public Cart Cart { get; private set;}
     public Product Product { get; private set;}
     public int Quantity { get; private set;}
+    public Customization? Customization { get; private set;}
     
     private CartItem() { }
 
-    private CartItem(Guid id, Cart cart, Product product, int quantity)
+    private CartItem(Guid id, Cart cart, Product product, int quantity, Customization? customization = null)
     {
         Id = id;
         Cart = cart;
         Product = product;
         Quantity = quantity;
+        Customization = customization;       
     }
 
-    public static CartItem Create(Cart cart, Product product, int quantity)
+    internal static CartItem Create(Cart cart, Product product, int quantity, Customization customization = null)
     {
         if (cart == null)
         {

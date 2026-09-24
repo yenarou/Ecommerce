@@ -9,6 +9,7 @@ public class Cart
     public DateTime CreatedAt { get; private set;}
     public DateTime UpdatedAt { get; private set;}
     public CartStatus Status { get; private set;}
+    public ICollection<CartItem> Items { get; private set;}
 
     private Cart() { }
 
@@ -30,6 +31,18 @@ public class Cart
 
         var now = DateTime.UtcNow;
         return new Cart(Guid.NewGuid(), user, now, now, CartStatus.Active);
+    }
+
+    public void AddCartItem(Product product, int quantity)
+    {
+        if (Status == CartStatus.Converted)
+        {
+            throw new InvalidOperationException("Cannot add items to a converted cart.");
+        }
+        
+        var item = CartItem.Create(this, product, quantity);
+        
+        Items.Add(item);
     }
 
     public void UpdateTimestamp()
