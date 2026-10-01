@@ -27,7 +27,14 @@ public class PostgreSqlUserRepository(ApplicationDbContext context) : IUserRepos
 
     public async Task Save(User user)
     {
-        await context.Users.AddAsync(user);
+        var exists = await context.Users
+            .AnyAsync(existing => existing.Id == user.Id);
+
+        if (exists)
+            context.Users.Update(user);
+        else
+            await context.Users.AddAsync(user);
+
         await context.SaveChangesAsync();
     }
 

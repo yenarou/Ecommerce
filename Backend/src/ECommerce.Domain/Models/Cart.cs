@@ -15,6 +15,7 @@ public class Cart
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
         Status = status;
+        Items = new List<CartItem>();
     }
 
     public Guid Id { get; private set; }

@@ -16,6 +16,7 @@ public class Order
         UpdatedAt = updatedAt;
         Address = address;
         Status = status;
+        Items = new List<OrderItem>();
     }
 
     public Guid Id { get; private set; }
