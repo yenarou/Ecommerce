@@ -13,6 +13,7 @@ public class Product
         Stock = stock;
         Category = category;
         CreatedAt = DateTime.UtcNow;
+        IsPublished = false;
     }
 
     public Guid Id { get; private set; }
@@ -22,6 +23,8 @@ public class Product
     public Quantity Stock { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Category Category { get; private set; }
+    public bool IsPublished { get; private set;
+}
 
     public static Product CreateProduct(string name, string description, Money price, Quantity stock, Category category)
     {
@@ -85,5 +88,15 @@ public class Product
         if (price == null) throw new ArgumentNullException(nameof(price), "Price cannot be null.");
 
         Price = price;
+    }
+    
+    public void Publish()
+    {
+        IsPublished = true;
+    }
+    
+    public void Unpublish()
+    {
+        IsPublished = false;
     }
 }

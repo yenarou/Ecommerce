@@ -3,10 +3,10 @@ using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Catalog;
 
-public class GetCatalogUseCase(
-    IShopItemRepository shopItemRepository)
+public class GetPublishedProductsCase(
+    IProductRepository productRepository)
 {
-    public async Task<ICollection<ShopItem>> Execute(    int page,
+    public async Task<ICollection<Product>> Execute(    int page,
         int size)
     {
         if (page < 1)
@@ -15,6 +15,6 @@ public class GetCatalogUseCase(
         if (size < 1)
             throw new ArgumentOutOfRangeException(nameof(size), size, "Size must be greater than 0.");
         
-        return await shopItemRepository.GetPage(page, size);
+        return await productRepository.GetPublishedPage(page, size);
     }
 }
