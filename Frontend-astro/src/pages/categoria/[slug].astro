@@ -1,0 +1,45 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import Sidebar from '../../components/Sidebar.astro'
+import ProductCard from '../../components/ProductCard.astro'
+import { fetchCategories } from '../../api/catalog'
+import '../../styles/CategoryDetail.css'
+
+export async function getStaticPaths() {
+  const categories = await fetchCategories()
+  return categories.map((category: any) => ({
+    params: { slug: category.slug },
+    props: { category },
+  }))
+}
+
+const { category } = Astro.props as { category: any }
+const products: any[] = category.products ?? []
+---
+<Layout title={`${category.name} | Hilo y Alma`}>
+  <div class="container category-detail">
+    <nav class="category-detail__crumbs" aria-label="Ruta de navegación">
+      <a href="/">Inicio</a> <span aria-hidden="true">/</span> {category.name}
+    </nav>
+
+    <div class="category-detail__layout">
+      <Sidebar />
+      <main class="category-detail__main">
+        <h1 class="category-detail__title">{category.name}</h1>
+        <p class="category-detail__description">{category.description}</p>
+
+        <hr class="stitch-divider" />
+
+        {products.length === 0 ? (
+          <p class="category-detail__empty">
+            Todavía no hay piezas publicadas en esta colección.
+          </p>
+        ) : (
+          <div class="category-detail__grid">
+            {products.map((product) => <ProductCard product={product} />)}
+          </div>
+        )}
+      </main>
+    </div>
+  </div>
+</Layout>
