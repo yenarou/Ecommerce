@@ -2,7 +2,7 @@
 import { fetchCategories } from '../api/catalog'
 import './Sidebar.css'
 
-const categories = await fetchCategories()
+const categories: any[] = await fetchCategories()
 ---
 <aside class="sidebar" aria-label="Filtros y colecciones">
   <div class="sidebar__block">

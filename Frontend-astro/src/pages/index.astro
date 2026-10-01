@@ -6,7 +6,7 @@ import ProductCard from '../components/ProductCard.astro'
 import { fetchProducts } from '../api/catalog'
 import '../styles/Home.css'
 
-const { items: featured } = await fetchProducts({ page: 1, pageSize: 6 })
+const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 6 })
 ---
 <Layout>
   <div class="container home">
