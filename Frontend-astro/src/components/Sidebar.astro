@@ -1,0 +1,18 @@
+---
+import { fetchCategories } from '../api/catalog'
+import './Sidebar.css'
+
+const categories = await fetchCategories()
+---
+<aside class="sidebar" aria-label="Filtros y colecciones">
+  <div class="sidebar__block">
+    <h2 class="sidebar__title">Colecciones</h2>
+    <ul class="sidebar__list">
+      {categories.map((cat) => (
+        <li>
+          <a href={`/categoria/${cat.slug}`} class="sidebar__link">{cat.name}</a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</aside>
