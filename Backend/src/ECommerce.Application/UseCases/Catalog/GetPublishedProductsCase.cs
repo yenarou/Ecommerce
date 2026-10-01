@@ -1,3 +1,5 @@
+using ECommerce.Application.DTOs.Responses;
+using ECommerce.Application.Mappers;
 using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
 
@@ -6,7 +8,7 @@ namespace ECommerce.Application.UseCases.Catalog;
 public class GetPublishedProductsCase(
     IProductRepository productRepository)
 {
-    public async Task<ICollection<Product>> Execute(    int page,
+    public async Task<PaginatedCollectionResponse<ProductResponse>> Execute(    int page,
         int size)
     {
         if (page < 1)
@@ -15,6 +17,13 @@ public class GetPublishedProductsCase(
         if (size < 1)
             throw new ArgumentOutOfRangeException(nameof(size), size, "Size must be greater than 0.");
         
-        return await productRepository.GetPublishedPage(page, size);
+        var products = await productRepository.GetPublishedPage(page, size);
+        
+        return  new PaginatedCollectionResponse<ProductResponse>(
+            Page: 2,
+            Size: 20,
+            Total: 157,
+            Items: ProductMapper.ToResponse(products));
+        
     }
 }

@@ -19,4 +19,13 @@ public static class ProductMapper
             product.Category.Name
         );
     }
+    
+    public static 
+        ICollection<ProductResponse> ToResponse(
+        ICollection<Product> products)
+    {
+        return products
+            .Select(ToResponse)
+            .ToList();
+    }
 }
