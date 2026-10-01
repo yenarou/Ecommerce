@@ -1,5 +1,6 @@
 ---
 import './TopBar.css'
+import CartCount from './CartCount.jsx'
 ---
 <header class="topbar">
   <div class="container topbar__inner">
@@ -11,7 +12,7 @@ import './TopBar.css'
     <a href="/carrito" class="topbar__cart">
       <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
       <span>Carrito</span>
-      <span class="topbar__cart-count">0</span>
+      <CartCount client:only="react" />
     </a>
   </div>
 </header>

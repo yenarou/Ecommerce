@@ -1,0 +1,82 @@
+import { useMemo } from 'react'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+
+const CART_ID = 'cart-local-demo'
+
+function makeId() {
+  return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`
+}
+
+const useCartStore = create(
+  persist(
+    (set) => ({
+      items: [],
+
+      addItem: (product, customization, quantity, customizationText = '') =>
+        set((state) => {
+          const text = customization ? customizationText.trim() : ''
+          const existing = state.items.find(
+            (it) =>
+              it.product_id === product.id &&
+              it.customization_id === (customization?.id ?? null) &&
+              it.customization_text === text
+          )
+          if (existing) {
+            return {
+              items: state.items.map((it) =>
+                it.id === existing.id ? { ...it, quantity: it.quantity + quantity } : it
+              ),
+            }
+          }
+          return {
+            items: [
+              ...state.items,
+              {
+                id: makeId(),
+                cart_id: CART_ID,
+                product_id: product.id,
+                customization_id: customization?.id ?? null,
+                customization_text: text,
+                quantity,
+                product,
+                customization: customization ?? null,
+              },
+            ],
+          }
+        }),
+
+      updateQuantity: (itemId, quantity) =>
+        set((state) => ({
+          items: state.items
+            .map((it) => (it.id === itemId ? { ...it, quantity } : it))
+            .filter((it) => it.quantity > 0),
+        })),
+
+      removeItem: (itemId) =>
+        set((state) => ({ items: state.items.filter((it) => it.id !== itemId) })),
+
+      clearCart: () => set({ items: [] }),
+    }),
+    { name: 'cart' }
+  )
+)
+
+export function useCart() {
+  const items = useCartStore((s) => s.items)
+  const addItem = useCartStore((s) => s.addItem)
+  const updateQuantity = useCartStore((s) => s.updateQuantity)
+  const removeItem = useCartStore((s) => s.removeItem)
+  const clearCart = useCartStore((s) => s.clearCart)
+
+  const totals = useMemo(() => {
+    const subtotal = items.reduce((sum, it) => {
+      const unit = it.product.price + (it.customization?.additional_price ?? 0)
+      return sum + unit * it.quantity
+    }, 0)
+    const itemCount = items.reduce((sum, it) => sum + it.quantity, 0)
+    return { subtotal, itemCount }
+  }, [items])
+
+  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, totals }
+}
