@@ -5,7 +5,6 @@ namespace ECommerce.Domain.Repositories;
 public interface IUserRepository
 {
     Task<User?> GetById(Guid userId);
-    Task<List<User>> GetActiveUsers();
     Task<User?> GetByEmail(string email);
     Task<User?> GetByGoogleId(string googleId);
     Task Save(User user);
