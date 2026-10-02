@@ -1,0 +1,12 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import ProductDetail from '../ProductDetail.jsx'
+
+export const prerender = false
+
+const { id } = Astro.params
+---
+
+<Layout title="Producto | Hilo y Alma">
+  <ProductDetail id={id} client:load />
+</Layout>
