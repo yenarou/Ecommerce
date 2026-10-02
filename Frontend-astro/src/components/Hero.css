@@ -41,7 +41,7 @@
   border: 2px solid var(--color-ink);
   border-radius: var(--radius-md);
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   box-shadow: 12px 12px 0 var(--color-mustard);
 }
 

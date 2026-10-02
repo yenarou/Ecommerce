@@ -113,7 +113,7 @@ export default function Checkout() {
           </div>
 
           <button type="submit" className="btn btn-primary checkout-form__submit">
-            Confirmar pedido — ${totals.subtotal.toFixed(2)} MXN
+            Confirmar pedido = ${totals.subtotal.toFixed(2)} MXN
           </button>
         </form>
 

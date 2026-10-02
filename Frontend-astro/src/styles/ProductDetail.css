@@ -41,14 +41,14 @@
   border: 2px dashed var(--color-line-strong);
   border-radius: var(--radius-md);
   overflow: hidden;
-  aspect-ratio: 1 / 3;
+  aspect-ratio: 1 / 1;
 }
 
 .product-detail__main-image img,
 .product-detail__thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .product-detail__name {

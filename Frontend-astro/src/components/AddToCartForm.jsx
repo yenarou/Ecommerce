@@ -49,7 +49,7 @@ export default function AddToCartForm({ product }) {
 
       <div className="product-detail__actions">
         <button className="btn btn-primary" onClick={handleAddToCart} disabled={product.stock === 0}>
-          Agregar al carrito — ${(unitPrice * quantity).toFixed(2)}
+          Agregar al carrito = ${(unitPrice * quantity).toFixed(2)}
         </button>
       </div>
 
