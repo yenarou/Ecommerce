@@ -1,0 +1,53 @@
+.auth-page {
+  max-width: 440px;
+  padding-block: var(--space-6);
+}
+
+.auth-page__title {
+  font-size: var(--step-3);
+  margin-bottom: var(--space-4);
+}
+
+.auth-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  margin-bottom: var(--space-3);
+}
+
+.auth-form__field label {
+  font-size: var(--step--1);
+  font-weight: 500;
+}
+
+.auth-form__field input {
+  padding: 0.6em 0.8em;
+  border: 2px solid var(--color-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-paper-soft);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+}
+
+.auth-form__error {
+  color: var(--color-thread-dark);
+  font-size: var(--step--1);
+  margin-bottom: var(--space-3);
+}
+
+.auth-form__submit,
+.auth-google {
+  width: 100%;
+}
+
+.auth-page__divider {
+  text-align: center;
+  margin-block: var(--space-3);
+  color: var(--color-ink-soft);
+}
+
+.auth-page__switch {
+  margin-top: var(--space-4);
+  text-align: center;
+  font-size: var(--step--1);
+}
