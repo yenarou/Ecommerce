@@ -1,12 +1,60 @@
 ---
 import Layout from '../../layouts/Layout.astro'
-import ProductDetail from '../ProductDetail.jsx'
+import AddToCartForm from '../../components/AddToCartForm.jsx'
+import { fetchProducts, fetchProductById } from '../../api/catalog'
+import '../../styles/ProductDetail.css'
 
-export const prerender = false
+export async function getStaticPaths() {
+  const { items } = await fetchProducts({ page: 1, pageSize: 1000 })
+  return Promise.all(
+    items.map(async (item: any) => ({
+      params: { id: item.id },
+      props: { product: await fetchProductById(item.id) },
+    }))
+  )
+}
 
-const { id } = Astro.params
+const { product } = Astro.props as { product: any }
+const category = product.category
 ---
+<Layout title={`${product.name} | Hilo y Alma`}>
+  <div class="container product-detail">
+    <nav class="product-detail__crumbs" aria-label="Ruta de navegación">
+      <a href="/">Inicio</a> <span aria-hidden="true">/</span>{' '}
+      {category && <a href={`/categoria/${category.slug}`}>{category.name}</a>}{' '}
+      <span aria-hidden="true">/</span> {product.name}
+    </nav>
 
-<Layout title="Producto | Hilo y Alma">
-  <ProductDetail id={id} client:load />
+    <div class="product-detail__layout">
+      <div class="product-detail__gallery">
+        <div class="product-detail__main-image">
+          <img src={product.image_url} alt={product.name} />
+        </div>
+        <div class="product-detail__thumb">
+          <img src={product.image_url_alt} alt="" />
+        </div>
+      </div>
+
+      <div class="product-detail__info">
+        <h1 class="product-detail__name">{product.name}</h1>
+        <p class="price product-detail__price">${product.price.toFixed(2)} MXN</p>
+        <p class="product-detail__description">{product.description}</p>
+
+        <dl class="product-detail__facts">
+          <div>
+            <dt>Tiempo de tejido</dt>
+            <dd>{product.days_to_make} días</dd>
+          </div>
+          <div>
+            <dt>Disponibilidad</dt>
+            <dd>{product.stock > 0 ? `${product.stock} piezas` : 'Agotado'}</dd>
+          </div>
+        </dl>
+
+        <hr class="stitch-divider" />
+
+        <AddToCartForm client:load product={product} />
+      </div>
+    </div>
+  </div>
 </Layout>
