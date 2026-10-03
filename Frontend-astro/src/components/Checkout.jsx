@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCart } from '../stores/cart'
 import { createOrder } from '../api/catalog'
 import '../styles/Checkout.css'
+  import { useAuth } from '../stores/auth'
 
 const initialForm = {
   fullName: '',
@@ -16,6 +17,7 @@ export default function Checkout() {
   const { items, totals, clearCart } = useCart()
   const [form, setForm] = useState(initialForm)
   const [placed, setPlaced] = useState(false)
+  const user = useAuth((s) => s.user)
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -24,7 +26,7 @@ export default function Checkout() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const userId = '11111111-1111-1111-1111-111111111111' // usuario demo del seed, hasta que tengamos login
+    const userId = user?.userId ?? '11111111-1111-1111-1111-111111111111'
     const orderItems = items.map((it) => ({
     productId: it.product_id,
     customizationId: it.customization_id,
