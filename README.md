@@ -8,22 +8,22 @@ Desde esta carpeta ejecuta:
 docker compose up --build
 ```
 
-Abre `http://localhost:15173` para usar la aplicación. La API GraphQL queda disponible en `http://localhost:14000/`.
+Abre `http://localhost:15174` para usar la aplicación. La API GraphQL queda disponible en `http://localhost:14001/graphql`.
 
-La base SQLite se guarda en el volumen Docker `webproyecto_sqlite-data` y se inicializa automáticamente la primera vez.
+PostgreSQL y MongoDB se ejecutan como servicios y conservan sus datos en volúmenes Docker.
 
 ## Puertos
 
-Los puertos publicados por defecto son `15173` para el frontend y `14000` para GraphQL. Se pueden cambiar en PowerShell:
+Los puertos publicados por defecto son `15174` para Astro y `14001` para GraphQL. Se pueden cambiar en PowerShell:
 
 ```powershell
-$env:BACKEND_PORT="24000"
-$env:FRONTEND_PORT="25173"
-$env:VITE_API_URL="http://localhost:24000/"
+$env:BACKEND_PORT="24001"
+$env:FRONTEND_PORT="25174"
+$env:PUBLIC_API_URL="http://localhost:24001/graphql"
 docker compose up --build
 ```
 
-Para regenerar la base con los datos semilla, elimina el volumen:
+Para eliminar los datos de ambas bases, elimina los volúmenes:
 
 ```bash
 docker compose down -v

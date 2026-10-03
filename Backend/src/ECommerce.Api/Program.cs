@@ -48,15 +48,22 @@ builder.Services.AddScoped<GetCategoryUseCase>();
 builder.Services.AddScoped<GetProductDetailsUseCase>();
 builder.Services.AddScoped<GetPublishedProductsCase>();
 
+
+builder.Services.AddControllers();
+
 builder.Services
     .AddGraphQLServer()
+    .AddMutationType<AuthMutation>()
     .AddQueryType<Query>()
     .AddType<ProductType>()
     .AddType<CategoryType>();
 
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.MapGraphQL();
 

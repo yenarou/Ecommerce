@@ -1,23 +1,61 @@
 services:
   backend:
     build:
-      context: ./Backend/backend
+      context: ./Backend
+      dockerfile: Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=ECommerce;Username=postgres;Password=${POSTGRES_PASSWORD:-cisco}
+      ConnectionStrings__MongoDB: mongodb://mongo:27017
     ports:
-      - "${BACKEND_PORT:-14000}:4000"
-    volumes:
-      - sqlite-data:/app/db
+      - "${BACKEND_PORT:-14001}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
     build:
-      context: ./Frontend
+      context: ./Frontend-astro
+      dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:14000/}
+        PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:14001/graphql}
+    environment:
+      API_INTERNAL_URL: http://backend:8080/graphql
     ports:
-      - "${FRONTEND_PORT:-15173}:80"
+      - "${FRONTEND_PORT:-15174}:80"
     depends_on:
       - backend
     restart: unless-stopped
 
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ECommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cisco}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ECommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:8.0
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
 volumes:
-  sqlite-data:
+  postgres-data:
+  mongo-data:

@@ -81,7 +81,7 @@ export async function fetchProducts({ page = 1, pageSize = 12, categorySlug } = 
 
 export async function fetchProductById(id) {
   const data = await gql(`
-    query($id: ID!) {
+    query($id: UUID!) {
       product(id: $id) {
         id name description price stock imageUrl imageUrlAlt daysToMake
         category { slug name }

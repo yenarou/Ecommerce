@@ -2,21 +2,16 @@
 import Layout from '../../layouts/Layout.astro'
 import Sidebar from '../../components/Sidebar.astro'
 import ProductCard from '../../components/ProductCard.astro'
-import { fetchCategories } from '../../api/catalog'
+import { fetchCategoryBySlug } from '../../api/catalog'
 import '../../styles/CategoryDetail.css'
 
-export async function getStaticPaths() {
-  const categories = await fetchCategories()
-  return categories.map((category: any) => ({
-    params: { slug: category.slug },
-    props: { category },
-  }))
-}
-
-const { category } = Astro.props as { category: any }
-const products: any[] = category.products ?? []
+const { slug } = Astro.params
+const category = slug ? await fetchCategoryBySlug(slug) : null
+if (!category) Astro.response.status = 404
+const products: any[] = category?.products ?? []
 ---
-<Layout title={`${category.name} | Hilo y Alma`}>
+<Layout title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}>
+  {category ? (
   <div class="container category-detail">
     <nav class="category-detail__crumbs" aria-label="Ruta de navegación">
       <a href="/">Inicio</a> <span aria-hidden="true">/</span> {category.name}
@@ -42,4 +37,7 @@ const products: any[] = category.products ?? []
       </main>
     </div>
   </div>
+  ) : (
+    <main class="container"><h1>Colección no encontrada</h1></main>
+  )}
 </Layout>

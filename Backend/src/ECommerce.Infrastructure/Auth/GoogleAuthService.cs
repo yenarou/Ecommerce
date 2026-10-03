@@ -50,33 +50,7 @@ public class GoogleAuthService : IGoogleAuthService
             tokenResponse.RefreshToken ?? string.Empty,
             tokenResponse.ExpiresIn);
     }
-
-    public async Task<OAuthTokensDto> ExchangeAuthorizationClassroomCodeAsync(
-        string authorizationCode)
-    {
-        var response = await _httpClient.PostAsync(
-            "https://oauth2.googleapis.com/token",
-            new FormUrlEncodedContent(
-            [
-                new KeyValuePair<string, string>("code", authorizationCode),
-                new KeyValuePair<string, string>("client_id", _options.ClientId),
-                new KeyValuePair<string, string>("client_secret", _options.ClientSecret),
-                new KeyValuePair<string, string>("redirect_uri", _options.ClassroomRedirectUri),
-                new KeyValuePair<string, string>("grant_type", "authorization_code")
-            ]));
-
-        response.EnsureSuccessStatusCode();
-
-        var tokenResponse =
-            await response.Content.ReadFromJsonAsync<TokenResponse>()
-            ?? throw new Exception("Invalid token response.");
-
-        return new OAuthTokensDto(
-            tokenResponse.AccessToken,
-            tokenResponse.RefreshToken ?? string.Empty,
-            tokenResponse.ExpiresIn);
-    }
-
+    
     public async Task<GoogleUserInfo> GetUserInfoAsync(string accessToken)
     {
         using var request = new HttpRequestMessage(
