@@ -1,23 +1,16 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import AddToCartForm from '../../components/AddToCartForm.jsx'
-import { fetchProducts, fetchProductById } from '../../api/catalog'
+import { fetchProductById } from '../../api/catalog'
 import '../../styles/ProductDetail.css'
 
-export async function getStaticPaths() {
-  const { items } = await fetchProducts({ page: 1, pageSize: 1000 })
-  return Promise.all(
-    items.map(async (item: any) => ({
-      params: { id: item.id },
-      props: { product: await fetchProductById(item.id) },
-    }))
-  )
-}
-
-const { product } = Astro.props as { product: any }
-const category = product.category
+const { id } = Astro.params
+const product = id ? await fetchProductById(id) : null
+if (!product) Astro.response.status = 404
+const category = product?.category
 ---
-<Layout title={`${product.name} | Hilo y Alma`}>
+<Layout title={product ? `${product.name} | Hilo y Alma` : 'Producto no encontrado'}>
+  {product ? (
   <div class="container product-detail">
     <nav class="product-detail__crumbs" aria-label="Ruta de navegación">
       <a href="/">Inicio</a> <span aria-hidden="true">/</span>{' '}
@@ -57,4 +50,7 @@ const category = product.category
       </div>
     </div>
   </div>
+  ) : (
+    <main class="container"><h1>Producto no encontrado</h1></main>
+  )}
 </Layout>

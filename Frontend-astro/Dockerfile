@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-ARG PUBLIC_API_URL=http://localhost:14000/graphql
+ARG PUBLIC_API_URL=http://localhost:14001/graphql
 ENV PUBLIC_API_URL=$PUBLIC_API_URL
 RUN npm run build
 

@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using ECommerce.Application.DTOs.Requests;
+using ECommerce.Application.UseCases.Auth;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Tareino.Application.DTO.Requests;
-using Tareino.Application.UseCases.Auth;
 
-namespace Tareino.API.Controllers.Auth;
+namespace ECommerce.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]
 public class EmailAuthController(RegisterWithEmailUseCase registerUseCase, LoginWithEmailUseCase loginUseCase)
-    : ApiControllerBase
+    : ControllerBase
 {
     [HttpPost("register")]
     [EnableRateLimiting("auth")]
