@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using ECommerce.Infrastructure.Repositories.PostgreSQL.Configurations;
 
 namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
 
@@ -11,9 +12,16 @@ public class ApplicationDbContext(
     public DbSet<Cart> Carts => Set<Cart>();
     public DbSet<Order> Orders => Set<Order>();
     
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(
-            typeof(ApplicationDbContext).Assembly);
+        modelBuilder.Ignore<Cart>();
+        modelBuilder.Ignore<CartItem>();
+        modelBuilder.Ignore<Order>();
+        modelBuilder.Ignore<OrderItem>();
+        modelBuilder.Ignore<Product>();
+        modelBuilder.Ignore<Category>();
+        modelBuilder.Ignore<Customization>();
+
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
     }
 }

@@ -2,6 +2,7 @@
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
+using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
 
@@ -12,11 +13,11 @@ public class PostgreSqlUserRepository(ApplicationDbContext context) : IUserRepos
         return await context.Users
             .FirstOrDefaultAsync(user => user.Id == userId);
     }
-    
-    public async Task<User?> GetByEmail(string email)
+        public async Task<User?> GetByEmail(string email)
     {
+        var normalized = Email.Create(email);
         return await context.Users
-            .FirstOrDefaultAsync(user => user.Email.Value == email);
+            .FirstOrDefaultAsync(user => user.Email == normalized);
     }
 
     public async Task<User?> GetByGoogleId(string googleId)

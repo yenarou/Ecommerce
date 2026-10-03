@@ -1,12 +1,12 @@
 const API_BASE = (import.meta.env.PUBLIC_API_URL || 'http://localhost:14001/graphql').replace(/\/graphql\/?$/, '')
 const AUTH_URL = import.meta.env.PUBLIC_AUTH_URL || API_BASE
 
-const USE_MOCK = true
+const USE_MOCK = false
 
 function mockAuth(username) {
   return {
     token: 'token-de-prueba',
-    userId: '11111111-1111-1111-1111-111111111111', // usuario demo
+    userId: '11111111-1111-1111-1111-111111111111', 
     username,
   }
 }
@@ -14,7 +14,7 @@ function mockAuth(username) {
 async function post(path, body) {
   let res
   try {
-    res = await fetch(`${AUTH_URL}/api/v1/auth/${path}`, {
+    res = await fetch(`/api/auth/${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
