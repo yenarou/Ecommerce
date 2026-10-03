@@ -1,6 +1,0 @@
-/* Global layout is defined by styles/tokens.css. */
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
