@@ -71,6 +71,28 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             .ToListAsync();
     }
 
+    public async Task<ICollection<Product>> FilterPublished(
+        CatalogFilter catalogFilter)
+    {
+        if (catalogFilter == null)
+            throw new ArgumentNullException(nameof(catalogFilter));
+
+        var filter = Builders<Product>.Filter.Eq(
+            product => product.IsPublished,
+            true);
+
+        if (catalogFilter.CategoryId.HasValue)
+        {
+            filter &= Builders<Product>.Filter.Eq(
+                product => product.Category.Id,
+                catalogFilter.CategoryId.Value);
+        }
+
+        return await _products
+            .Find(filter)
+            .ToListAsync();
+    }
+
     public async Task Save(Product product)
     {
         var filter = Builders<Product>.Filter.Eq(

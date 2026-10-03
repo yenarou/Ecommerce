@@ -5,7 +5,7 @@ using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Catalog;
 
-public class GetProductDetails(IProductRepository productRepository)
+public class GetProductDetailsUseCase(IProductRepository productRepository)
 {
     public async Task<ProductResponse> Execute(Guid productId)
     {

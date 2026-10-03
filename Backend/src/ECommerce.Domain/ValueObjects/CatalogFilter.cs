@@ -1,8 +1,8 @@
 ﻿namespace ECommerce.Domain.ValueObjects;
 
 public record CatalogFilter(
-    string? Search,
-    Guid? CategoryId,
-    decimal? MinPrice,
-    decimal? MaxPrice
+    string? Search = null,
+    Guid? CategoryId = null,
+    decimal? MinPrice = null,
+    decimal? MaxPrice = null
 );

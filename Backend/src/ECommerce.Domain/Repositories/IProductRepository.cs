@@ -10,6 +10,7 @@ public interface IProductRepository
     Task<ICollection<Product>> GetAllPublished();
     Task<ICollection<Product>> GetPublishedPage(int page, int size);
     Task<ICollection<Product>> FilterPublished(CatalogFilter catalogFilter, int page, int size);
+    Task<ICollection<Product>> FilterPublished(CatalogFilter catalogFilter);
     Task Save(Product product);
     Task Delete(Guid productId);
 }

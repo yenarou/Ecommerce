@@ -1,4 +1,4 @@
-namespace Tareino.Application.Interfaces;
+namespace ECommerce.Application.Interfaces;
 
 public interface IPasswordHasher
 {
