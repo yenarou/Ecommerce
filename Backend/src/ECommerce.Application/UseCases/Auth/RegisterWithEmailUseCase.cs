@@ -16,6 +16,10 @@ public class RegisterWithEmailUseCase(
 {
     public async Task<AuthResponse> Execute(RegisterWithEmailRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+            throw new ArgumentException("La contraseña debe tener al menos 6 caracteres.");
+        if (string.IsNullOrWhiteSpace(request.Email))
+            throw new ArgumentException("El correo electrónico es obligatorio.");
         var existingUser = await userRepository.GetByEmail(request.Email);
         if (existingUser != null) throw new EmailAlreadyRegisteredException(request.Email);
 

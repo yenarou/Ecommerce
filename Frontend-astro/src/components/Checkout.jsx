@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useCart } from '../stores/cart'
 import { createOrder } from '../api/catalog'
 import '../styles/Checkout.css'
-  import { useAuth } from '../stores/auth'
+import { useAuth } from '../stores/auth'
+import { getMe } from '../api/auth'
 
 const initialForm = {
   fullName: '',
@@ -18,6 +19,7 @@ export default function Checkout() {
   const [form, setForm] = useState(initialForm)
   const [placed, setPlaced] = useState(false)
   const user = useAuth((s) => s.user)
+  const logout = useAuth((s) => s.logout)
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -26,6 +28,18 @@ export default function Checkout() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    let me
+       try {
+         me = await getMe(user.token)
+       } catch {
+         alert('No se pudo validar tu sesión. Intenta de nuevo.')
+         return
+       }
+       if (!me) {
+         logout()
+         window.location.href = '/login'
+         return
+       }
     const userId = user?.userId ?? '11111111-1111-1111-1111-111111111111'
     const orderItems = items.map((it) => ({
     productId: it.product_id,
@@ -44,7 +58,7 @@ export default function Checkout() {
       </div>
     )
   }
-  
+
   if (items.length === 0 && !placed) {
     return (
       <div className="container checkout-page">
