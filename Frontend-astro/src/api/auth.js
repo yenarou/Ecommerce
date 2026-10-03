@@ -1,47 +1,47 @@
-import { gql } from './client'
+const AUTH_URL = import.meta.env.PUBLIC_AUTH_URL || 'http://localhost:5095'
 
-// poner USE_MOCK en false 
+// Cuando Genaro confirme que ya funciona: poner USE_MOCK en false.
 const USE_MOCK = true
-
-const AUTH_FIELDS = 'token userId username'
 
 function mockAuth(username) {
   return {
     token: 'token-de-prueba',
-    userId: '11111111-1111-1111-1111-111111111111', 
+    userId: '11111111-1111-1111-1111-111111111111',
     username,
   }
 }
 
+async function post(path, body) {
+  const res = await fetch(`${AUTH_URL}/api/v1/auth/${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    let message = 'Error de autenticación'
+    try {
+      const data = await res.json()
+      message = data.message || data.title || message
+    } catch {}
+    throw new Error(message)
+  }
+  return res.json()
+}
+
 export async function login(email, password) {
   if (USE_MOCK) return mockAuth(email.split('@')[0])
-  const data = await gql(
-    `mutation($email: String!, $password: String!) {
-      login(email: $email, password: $password) { ${AUTH_FIELDS} }
-    }`,
-    { email, password }
-  )
-  return data.login
+  return post('login', { email, password })
 }
 
 export async function register(username, email, password) {
   if (USE_MOCK) return mockAuth(username)
-  const data = await gql(
-    `mutation($username: String!, $email: String!, $password: String!) {
-      register(username: $username, email: $email, password: $password) { ${AUTH_FIELDS} }
-    }`,
-    { username, email, password }
-  )
-  return data.register
+  return post('register', { username, email, password })
 }
 
-export async function loginWithGoogle(code, redirectUri) {
-  if (USE_MOCK) return mockAuth('usuario-google')
-  const data = await gql(
-    `mutation($code: String!, $redirectUri: String) {
-      loginWithGoogle(code: $code, redirectUri: $redirectUri) { ${AUTH_FIELDS} }
-    }`,
-    { code, redirectUri }
-  )
-  return data.loginWithGoogle
+export async function getGoogleUrl() {
+  if (USE_MOCK) return null
+  const res = await fetch(`${AUTH_URL}/api/v1/auth/google/url`)
+  if (!res.ok) throw new Error('No se pudo obtener el enlace de Google')
+  const data = await res.json()
+  return typeof data === 'string' ? data : data.url
 }

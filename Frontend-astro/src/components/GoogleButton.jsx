@@ -1,23 +1,29 @@
-const CLIENT_ID = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID
+import { useState } from 'react'
+import { getGoogleUrl } from '../api/auth'
 
 export default function GoogleButton() {
-  function handleClick() {
-    if (!CLIENT_ID) {
-      alert('Falta configurar PUBLIC_GOOGLE_CLIENT_ID en el .env')
-      return
+  const [error, setError] = useState('')
+
+  async function handleClick() {
+    setError('')
+    try {
+      const url = await getGoogleUrl()
+      if (!url) {
+        setError('El inicio con Google aún no está disponible.')
+        return
+      }
+      window.location.href = url
+    } catch (err) {
+      setError(err.message)
     }
-    const params = new URLSearchParams({
-      client_id: CLIENT_ID,
-      redirect_uri: `${window.location.origin}/auth/google`,
-      response_type: 'code',
-      scope: 'openid email profile',
-    })
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params}`
   }
 
   return (
-    <button type="button" className="btn auth-google" onClick={handleClick}>
-      Continuar con Google
-    </button>
+    <>
+      <button type="button" className="btn auth-google" onClick={handleClick}>
+        Continuar con Google
+      </button>
+      {error && <p className="auth-form__error" role="alert">{error}</p>}
+    </>
   )
 }
