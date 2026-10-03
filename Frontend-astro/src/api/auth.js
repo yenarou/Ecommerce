@@ -24,12 +24,16 @@ async function post(path, body) {
     throw new Error('No se pudo conectar con el servidor. Intenta de nuevo.')
   }
 
-  if (!res.ok) {
-    console.error(`Auth ${path} respondió ${res.status}`)
+    if (!res.ok) {
+    let message = null
+    try {
+      message = (await res.json()).message
+    } catch {}
     throw new Error(
-      path === 'login'
-        ? 'No se pudo iniciar sesión. Revisa tu correo y contraseña.'
-        : 'No se pudo crear la cuenta. Revisa tus datos o prueba con otro correo.'
+      message ||
+        (path === 'login'
+          ? 'No se pudo iniciar sesión. Revisa tu correo y contraseña.'
+          : 'No se pudo crear la cuenta. Revisa tus datos o prueba con otro correo.')
     )
   }
   return res.json()
@@ -45,11 +49,20 @@ export async function register(username, email, password) {
   return post('register', { username, email, password })
 }
 
-// Google quedó pausado por decisión del equipo
 export async function getGoogleUrl() {
   if (USE_MOCK) return null
   const res = await fetch(`${AUTH_URL}/api/v1/auth/google/url`)
   if (!res.ok) throw new Error('No se pudo obtener el enlace de Google')
   const data = await res.json()
   return data.url
+}
+
+export async function getMe(token) {
+  if (USE_MOCK) return { username: 'mock' }
+  const res = await fetch('/api/auth/me', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (res.status === 401) return null
+  if (!res.ok) throw new Error('No se pudo validar la sesión')
+  return res.json()
 }

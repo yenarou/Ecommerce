@@ -1,14 +1,18 @@
-
+using System.Text;
 using ECommerce.Api.GraphQL.Mocks;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Application.UseCases.Catalog;
+using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Auth;
 using ECommerce.Infrastructure.Persistence.MongoDB.Repositories;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +24,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Infrastructure - Persistence - MongoDB
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(
     builder.Configuration.GetConnectionString("MongoDB")));
-builder.Services.AddScoped(sp => 
+builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IMongoClient>().GetDatabase("ECommerce"));
 
 // Repositories
@@ -48,10 +52,29 @@ builder.Services.AddScoped<GetCategoryUseCase>();
 builder.Services.AddScoped<GetProductDetailsUseCase>();
 builder.Services.AddScoped<GetPublishedProductsCase>();
 
-
 builder.Services.AddControllers();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<GoogleOptions>(builder.Configuration.GetSection("Google"));
+
+// Autenticación: el backend valida el token (JWT) en las rutas con [Authorize]
+var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey)),
+            ValidateLifetime = true,
+        };
+    });
+builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
@@ -60,8 +83,25 @@ builder.Services
     .AddType<ProductType>()
     .AddType<CategoryType>();
 
-
 var app = builder.Build();
+
+// Errores con código y mensaje claros (en lugar de un 500 genérico)
+app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
+{
+    var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+    var (status, message) = error switch
+    {
+        EmailAlreadyRegisteredException => (409, "Ese correo ya está registrado."),
+        InvalidCredentialsException or UserNotFoundException => (401, "Correo o contraseña incorrectos."),
+        InvalidEmailException => (400, "El correo no es válido."),
+        ArgumentException => (400, "Los datos enviados no son válidos."),
+        _ => (500, "Error interno del servidor.")
+    };
+
+    context.Response.StatusCode = status;
+    await context.Response.WriteAsJsonAsync(new { message });
+}));
+
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -75,6 +115,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
