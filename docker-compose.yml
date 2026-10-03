@@ -3,17 +3,31 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
+
     environment:
       ASPNETCORE_URLS: http://+:8080
+
       ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=ECommerce;Username=postgres;Password=${POSTGRES_PASSWORD:-cisco}
+
       ConnectionStrings__MongoDB: mongodb://mongo:27017
+
+      Google__ClientId: 981773204254-48aqrpivdr6mfs7aiqj93vue907q65uv.apps.googleusercontent.com
+
+      Google__ClientSecret: ${GOOGLE_CLIENT_SECRET}
+
+      Google__WebRedirectUri: http://localhost:14001/api/v1/auth/google/callback
+
+      Google__ApiRedirectUri: http://localhost:15174/api/auth/callback
+
     ports:
       - "${BACKEND_PORT:-14001}:8080"
+
     depends_on:
       postgres:
         condition: service_healthy
       mongo:
         condition: service_healthy
+
     restart: unless-stopped
 
   frontend:

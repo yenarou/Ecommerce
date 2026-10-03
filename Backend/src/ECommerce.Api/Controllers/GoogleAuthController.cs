@@ -21,9 +21,17 @@ public class GoogleAuthController(
     {
         var authResponse =
             await authenticateWithGoogleUseCase.Execute(
-                new AuthenticateWithGoogleRequest(code, _googleOptions.WebRedirectUri));
+                new AuthenticateWithGoogleRequest(
+                    code,
+                    _googleOptions.WebRedirectUri));
 
-        return Ok(authResponse);
+        var frontendCallback =
+            $"{_googleOptions.ApiRedirectUri}" +
+            $"?userId={Uri.EscapeDataString(authResponse.UserId.ToString())}" +
+            $"&username={Uri.EscapeDataString(authResponse.Username)}" +
+            $"#token={Uri.EscapeDataString(authResponse.Token)}";
+
+        return Redirect(frontendCallback);
     }
 
     [HttpGet("url")]

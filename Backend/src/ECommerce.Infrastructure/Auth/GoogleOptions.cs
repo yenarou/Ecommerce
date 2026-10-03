@@ -5,4 +5,5 @@ public class GoogleOptions
     public string ClientId { get; init; } = string.Empty;
     public string ClientSecret { get; init; } = string.Empty;
     public string WebRedirectUri { get; init; } = string.Empty;
+    public string ApiRedirectUri { get; init; } = string.Empty;
 }

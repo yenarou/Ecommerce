@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { login } from '../api/auth'
 import { useAuth } from '../stores/auth'
+import GoogleButton from './GoogleButton.jsx'
 import '../styles/Auth.css'
 
 export default function LoginForm() {
@@ -48,6 +49,9 @@ export default function LoginForm() {
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
       </form>
+
+      <p className="auth-page__divider">o</p>
+      <GoogleButton />
 
       <p className="auth-page__switch">
         ¿No tienes cuenta? <a href="/registro">Regístrate</a>

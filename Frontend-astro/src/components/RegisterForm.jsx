@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { register } from '../api/auth'
 import { useAuth } from '../stores/auth'
+import GoogleButton from './GoogleButton.jsx'
 import '../styles/Auth.css'
 
 export default function RegisterForm() {
@@ -66,6 +67,9 @@ export default function RegisterForm() {
           {loading ? 'Creando cuenta...' : 'Crear cuenta'}
         </button>
       </form>
+
+      <p className="auth-page__divider">o</p>
+      <GoogleButton />
 
       <p className="auth-page__switch">
         ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
