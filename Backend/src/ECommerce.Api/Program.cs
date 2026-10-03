@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using ExceptionHandlerMiddleware = ECommerce.Api.Middleware.ExceptionHandlerMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,7 +91,6 @@ builder.Services.AddAuthorization();
 
 builder.Services
     .AddGraphQLServer()
-    .AddMutationType<AuthMutation>()
     .AddQueryType<Query>()
     .AddType<ProductType>()
     .AddType<CategoryType>();
@@ -129,6 +129,8 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 
 app.UseCors("Frontend");
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
