@@ -1,0 +1,22 @@
+---
+import './TopBar.css'
+import CartCount from './CartCount.jsx'
+import AuthLinks from './AuthLinks.jsx'
+---
+<header class="topbar">
+  <div class="container topbar__inner">
+    <a href="/" class="topbar__brand">
+      <span class="topbar__brand-mark" aria-hidden="true">✳</span>
+      <span>Hilo <em>y</em> Alma</span>
+    </a>
+
+    <div class="topbar__right">
+  <AuthLinks client:only="react" />
+  <a href="/carrito" class="topbar__cart">
+    <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
+    <span>Carrito</span>
+    <CartCount client:only="react" />
+  </a>
+    </div>
+</div>
+</header>
