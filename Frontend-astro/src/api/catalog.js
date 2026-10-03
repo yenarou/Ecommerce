@@ -92,7 +92,11 @@ export async function fetchProductById(id) {
   return normalizeProduct(data.product)
 }
 
+const USE_MOCK_ORDERS = true
 export async function createOrder(userId, items) {
+  if (USE_MOCK_ORDERS) {
+    return { id: `pedido-${Date.now()}`, status: 'pending', total: 0, items: [] }
+  }
   const data = await gql(`
     mutation($input: CreateOrderInput!) {
       createOrder(input: $input) {
