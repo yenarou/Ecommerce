@@ -1,0 +1,46 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from '../components/Hero.astro'
+import Sidebar from '../components/Sidebar.astro'
+import ProductCard from '../components/ProductCard.astro'
+import { fetchProducts } from '../api/catalog'
+import '../styles/Home.css'
+
+const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 6 })
+---
+<Layout>
+  <div class="container home">
+    <Hero />
+
+    <div class="home__layout">
+      <Sidebar />
+
+      <main class="home__main">
+        <h2 class="home__section-title">Piezas destacadas</h2>
+        <div class="home__grid">
+          {featured.map((product) => <ProductCard product={product} />)}
+        </div>
+      </main>
+    </div>
+
+    <hr class="stitch-divider" />
+
+    <section class="home__context">
+      <div>
+        <h2>Hecho por encargo</h2>
+        <p>
+          Cada figura empieza a tejerse cuando confirmas tu
+          pedido. Por eso el tiempo de entrega varía según la pieza y las
+          personalizaciones que elijas, lo verás reflejado en cada producto.
+        </p>
+      </div>
+      <div>
+        <h2>Personaliza tu producto</h2>
+        <p>
+          Desde la página de cada producto puedes escribir una indicación de
+          personalización y elegir un empaque de regalo antes de pasar al carrito.
+        </p>
+      </div>
+    </section>
+  </div>
+</Layout>

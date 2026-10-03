@@ -39,3 +39,4 @@ TestResults/
 # Sistema
 .DS_Store
 Thumbs.db
+Backend/src/ECommerce.Api/appsettings.Development.json
