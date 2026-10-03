@@ -50,6 +50,8 @@ builder.Services.AddScoped<GetPublishedProductsCase>();
 
 
 builder.Services.AddControllers();
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<GoogleOptions>(builder.Configuration.GetSection("Google"));
 
 builder.Services
     .AddGraphQLServer()
@@ -60,6 +62,17 @@ builder.Services
 
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreated();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "No se pudieron crear las tablas");
+    }
+}
 
 app.UseHttpsRedirection();
 

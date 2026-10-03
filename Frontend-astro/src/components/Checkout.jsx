@@ -36,7 +36,15 @@ export default function Checkout() {
   setPlaced(true)
   clearCart()
   }
-
+  if (!user && !placed) {
+    return (
+      <div className="container checkout-page">
+        <p>Para confirmar tu pedido necesitas iniciar sesión.</p>
+        <a href="/login" className="btn btn-primary">Iniciar sesión</a>
+      </div>
+    )
+  }
+  
   if (items.length === 0 && !placed) {
     return (
       <div className="container checkout-page">
