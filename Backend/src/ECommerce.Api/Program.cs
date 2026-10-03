@@ -7,7 +7,7 @@ using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Auth;
 using ECommerce.Infrastructure.Persistence.MongoDB.Repositories;
-using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;

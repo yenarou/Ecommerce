@@ -1,6 +1,6 @@
 ﻿using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
-using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
