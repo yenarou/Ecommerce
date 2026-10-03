@@ -12,3 +12,30 @@
 .vscode/
 .idea/
 *.log
+
+# .NET
+**/bin/
+**/obj/
+
+# Rider
+.idea/
+*.sln.iml
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+
+# Code Coverage
+coverage/
+*.coverage
+*.coveragexml
+TestResults/
+
+# Sistema
+.DS_Store
+Thumbs.db
