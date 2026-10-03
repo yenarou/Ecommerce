@@ -1,8 +1,8 @@
 ﻿using ECommerce.Domain.Models;
-using Microsoft.EntityFrameworkCore;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Configurations;
+using Microsoft.EntityFrameworkCore;
 
-namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
+namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options)

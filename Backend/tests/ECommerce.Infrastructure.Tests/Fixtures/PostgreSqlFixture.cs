@@ -1,4 +1,4 @@
-﻿using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
+﻿using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 
