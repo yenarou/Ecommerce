@@ -9,5 +9,6 @@ public record ProductResponse(
     int Stock,
     DateTime CreatedAt,
     Guid CategoryId,
-    string CategoryName
+    string CategoryName,
+    List<ImageResponse> Images
 );

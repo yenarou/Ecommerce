@@ -16,7 +16,14 @@ public static class ProductMapper
             product.Stock.Value,
             product.CreatedAt,
             product.Category.Id,
-            product.Category.Name
+            product.Category.Name,
+            product.Images
+                .Select(image => new ImageResponse(
+                    image.Id,
+                    image.Url,
+                    image.Alt
+                ))
+                .ToList()
         );
     }
     

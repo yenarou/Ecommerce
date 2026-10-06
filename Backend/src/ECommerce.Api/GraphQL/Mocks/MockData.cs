@@ -1,4 +1,6 @@
-﻿namespace ECommerce.Api.GraphQL.Mocks;
+﻿using ECommerce.Application.DTOs.Responses;
+
+namespace ECommerce.Api.GraphQL.Mocks;
 public static class MockData
 {
     public static readonly Guid FigurasId =
@@ -34,86 +36,129 @@ public static class MockData
         )
     ];
 
+    
+    private const string ImageBaseUrl = "http://localhost:14001/images/products/";
+
     public static readonly List<ProductMock> Products =
-    [
-        new(
-            Guid.Parse("20000000-0000-0000-0000-000000000001"),
-            "Shy-Guy",
-            "Es un personaje tejido a mano de 15cm de alto.",
-            320,
-            5,
-            "/images/shyguy.png",
-            "/images/shyguy.png",
-            5,
-            "2026-09-01T10:00:00.000Z",
-            FigurasId
-        ),
+[
+    new(
+        Guid.Parse("20000000-0000-0000-0000-000000000001"),
+        "Shy-Guy",
+        "Es un personaje tejido a mano de 15cm de alto.",
+        320,
+        5,
+        [
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000001"),
+                $"{ImageBaseUrl}shyguy.png",
+                "Shy-Guy tejido a mano"
+            )
+        ],
+        5,
+        "2026-09-01T10:00:00.000Z",
+        FigurasId
+    ),
 
-        new(
-            Guid.Parse("20000000-0000-0000-0000-000000000002"),
-            "Mario",
-            "Fontanero tejido a mano.",
-            310,
-            3,
-            "/images/marioycapi.png",
-            "/images/mario.png",
-            4,
-            "2026-09-02T10:00:00.000Z",
-            FigurasId
-        ),
+    new(
+        Guid.Parse("20000000-0000-0000-0000-000000000002"),
+        "Mario",
+        "Fontanero tejido a mano.",
+        310,
+        3,
+        [
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000002"),
+                $"{ImageBaseUrl}marioycapi.png",
+                "Mario tejido a mano"
+            ),
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000003"),
+                $"{ImageBaseUrl}mario.png",
+                "Mario tejido a mano"
+            )
+        ],
+        4,
+        "2026-09-02T10:00:00.000Z",
+        FigurasId
+    ),
 
-        new(
-            Guid.Parse("20000000-0000-0000-0000-000000000003"),
-            "Snoop Dogg",
-            "Perro blanco y negro tejido.",
-            95,
-            20,
-            "/images/snoopy.png",
-            "/images/snoop.png",
-            1,
-            "2026-09-03T10:00:00.000Z",
-            LlaverosId
-        ),
+    new(
+        Guid.Parse("20000000-0000-0000-0000-000000000003"),
+        "Snoop Dogg",
+        "Perro blanco y negro tejido.",
+        95,
+        20,
+        [
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000004"),
+                $"{ImageBaseUrl}snoopy.png",
+                "Snoop Dogg tejido"
+            ),
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000005"),
+                $"{ImageBaseUrl}snoop.png",
+                "Snoop Dogg tejido"
+            )
+        ],
+        1,
+        "2026-09-03T10:00:00.000Z",
+        LlaverosId
+    ),
 
-        new(
-            Guid.Parse("20000000-0000-0000-0000-000000000004"),
-            "Flor del sol",
-            "Flor tejida.",
-            110,
-            0,
-            "/images/sunflower.png",
-            "/images/snoop.png",
-            1,
-            "2026-09-04T10:00:00.000Z",
-            LlaverosId
-        ),
+    new(
+        Guid.Parse("20000000-0000-0000-0000-000000000004"),
+        "Flor del sol",
+        "Flor tejida.",
+        110,
+        0,
+        [
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000006"),
+                $"{ImageBaseUrl}sunflower.png",
+                "Flor del sol tejida"
+            )
+        ],
+        1,
+        "2026-09-04T10:00:00.000Z",
+        LlaverosId
+    ),
 
-        new(
-            Guid.Parse("20000000-0000-0000-0000-000000000005"),
-            "Ramo de flores",
-            "Flores de crochet.",
-            560,
-            2,
-            "/images/flores.png",
-            "/images/flores.png",
-            6,
-            "2026-09-05T10:00:00.000Z",
-            DecoracionId
-        ),
+    new(
+        Guid.Parse("20000000-0000-0000-0000-000000000005"),
+        "Ramo de flores",
+        "Flores de crochet.",
+        560,
+        2,
+        [
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000007"),
+                $"{ImageBaseUrl}flores.png",
+                "Ramo de flores de crochet"
+            )
+        ],
+        6,
+        "2026-09-05T10:00:00.000Z",
+        DecoracionId
+    ),
 
-        new(
-            Guid.Parse("20000000-0000-0000-0000-000000000006"),
-            "Mandalas colgantes",
-            "Decoración de mandalas.",
-            310,
-            9,
-            "/images/mandalas.png",
-            "/images/snoop.png",
-            3,
-            "2026-09-06T10:00:00.000Z",
-            DecoracionId
-        )
-    ];
+    new(
+        Guid.Parse("20000000-0000-0000-0000-000000000006"),
+        "Mandalas colgantes",
+        "Decoración de mandalas.",
+        310,
+        9,
+        [
+            new(
+                Guid.Parse("30000000-0000-0000-0000-000000000008"),
+                $"{ImageBaseUrl}mandalas.png",
+                "Mandalas colgantes"
+            )
+        ],
+        3,
+        "2026-09-06T10:00:00.000Z",
+        DecoracionId
+    )
+];
 
     public static readonly List<CustomizationMock> Customizations =
     [
@@ -159,15 +204,13 @@ public record CustomizationMock(
     string? ImageUrl,
     double AdditionalPrice
 );
-
 public record ProductMock(
     Guid Id,
     string Name,
     string? Description,
     double Price,
     int Stock,
-    string? ImageUrl,
-    string? ImageUrlAlt,
+    List<ImageResponse> Images,
     int DaysToMake,
     string CreatedAt,
     Guid CategoryId

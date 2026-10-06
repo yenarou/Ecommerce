@@ -23,8 +23,8 @@ public class Product
     public Quantity Stock { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Category Category { get; private set; }
-    public bool IsPublished { get; private set;
-}
+    public bool IsPublished { get; private set; }
+    public ICollection<Image> Images { get; private set; } = new List<Image>();
 
     public static Product CreateProduct(string name, string description, Money price, Quantity stock, Category category)
     {
@@ -99,6 +99,18 @@ public class Product
     {
         IsPublished = false;
     }
+    
+    public void AddImage(string url, string alt)
+    {
+        var image = Image.Create(url, alt);
+        Images.Add(image);
+    }
 
+    public void RemoveImage(Image image)
+    {
+        if (image == null)
+            throw new ArgumentNullException(nameof(image));
 
+        Images.Remove(image);
+    }
 }
