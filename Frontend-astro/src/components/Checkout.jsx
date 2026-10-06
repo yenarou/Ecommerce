@@ -26,6 +26,12 @@ export default function Checkout() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  const sinStock = items.find((it) => it.quantity > it.product.stock)
+  if (sinStock) {
+    setError(`No hay suficiente stock de "${sinStock.product.name}"`)
+    return
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     let me

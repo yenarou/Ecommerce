@@ -34,7 +34,7 @@ export default function Cart() {
                   <div className="quantity-picker cart-item__quantity">
                     <button
                       type="button"
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}
                       aria-label="Disminuir cantidad"
                     >
                       −
@@ -44,7 +44,7 @@ export default function Cart() {
                       min="1"
                       max={item.product.stock}
                       value={item.quantity}
-                      onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+                      onChange={(e) => updateQuantity(item.id, Math.max(1, Number(e.target.value)))}
                     />
                     <button
                       type="button"

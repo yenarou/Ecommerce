@@ -2,11 +2,16 @@ import { useState } from 'react'
 import { useCart } from '../stores/cart'
 
 export default function AddToCartForm({ product }) {
-  const { addItem } = useCart()
+    const { addItem, items } = useCart()
 
   const [quantity, setQuantity] = useState(1)
   const [customizationId, setCustomizationId] = useState('none')
   const [justAdded, setJustAdded] = useState(false)
+
+    const inCart = items
+    .filter((it) => it.product_id === product.id)
+    .reduce((sum, it) => sum + it.quantity, 0)
+    const remaining = product.stock - inCart
 
   const options = product.customizationOptions ?? []
   const customization =
@@ -14,7 +19,7 @@ export default function AddToCartForm({ product }) {
   const unitPrice = product.price + (customization?.additional_price ?? 0)
 
   function handleQuantityChange(next) {
-    const clamped = Math.max(1, Math.min(product.stock, next))
+    const clamped = Math.max(1, Math.min(remaining, next))
     setQuantity(clamped)
   }
 
@@ -42,8 +47,8 @@ export default function AddToCartForm({ product }) {
         <label htmlFor="quantity">Cantidad</label>
         <div className="quantity-picker">
           <button type="button" onClick={() => handleQuantityChange(quantity - 1)} disabled={quantity <= 1} aria-label="Disminuir cantidad">−</button>
-          <input id="quantity" type="number" min="1" max={product.stock} value={quantity} onChange={(e) => handleQuantityChange(Number(e.target.value))} />
-          <button type="button" onClick={() => handleQuantityChange(quantity + 1)} disabled={quantity >= product.stock} aria-label="Aumentar cantidad">+</button>
+          <input id="quantity" type="number" min="1" max={remaining} value={quantity} onChange={(e) => handleQuantityChange(Number(e.target.value))} />
+          <button type="button" onClick={() => handleQuantityChange(quantity + 1)} disabled={quantity >= remaining} aria-label="Aumentar cantidad">+</button>
         </div>
       </div>
 

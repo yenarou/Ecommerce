@@ -17,41 +17,40 @@ const useCartStore = create(
         set((state) => {
           const text = customization ? customizationText.trim() : ''
           const existing = state.items.find(
-            (it) =>
-              it.product_id === product.id &&
-              it.customization_id === (customization?.id ?? null) &&
-              it.customization_text === text
-          )
-          if (existing) {
-            return {
-              items: state.items.map((it) =>
-                it.id === existing.id ? { ...it, quantity: it.quantity + quantity } : it
-              ),
-            }
-          }
-          return {
-            items: [
-              ...state.items,
-              {
-                id: makeId(),
-                cart_id: CART_ID,
-                product_id: product.id,
-                customization_id: customization?.id ?? null,
-                customization_text: text,
-                quantity,
-                product,
-                customization: customization ?? null,
-              },
-            ],
-          }
-        }),
+            (it) => it.product_id === product.id &&
+            it.customization_id === (customization?.id ?? null) &&
+            it.customization_text === text)
+            
+            const inCart = state.items
+            .filter((it) => it.product_id === product.id)
+            .reduce((sum, it) => sum + it.quantity, 0)
+            const available = product.stock - inCart
+            const toAdd = Math.min(quantity, available)
+            if (toAdd <= 0) return state 
+          
+            if (existing) {
+              return { items: state.items.map((it) =>
+                it.id === existing.id ? { ...it, quantity: it.quantity + toAdd } : it) }
+              }
+              return { items: [...state.items, {
+                id: makeId(), cart_id: CART_ID, product_id: product.id,
+                customization_id: customization?.id ?? null, customization_text: text,
+                quantity: toAdd, product, customization: customization ?? null }] }
+              }),
 
       updateQuantity: (itemId, quantity) =>
-        set((state) => ({
-          items: state.items
-            .map((it) => (it.id === itemId ? { ...it, quantity } : it))
-            .filter((it) => it.quantity > 0),
-        })),
+        set((state) => {
+          const item = state.items.find((it) => it.id === itemId)
+          if (!item) return state
+          const others = state.items
+          .filter((it) => it.product_id === item.product_id && it.id !== itemId)
+          .reduce((sum, it) => sum + it.quantity, 0)
+          const max = item.product.stock - others
+          const safe = Math.min(quantity, max)
+          return { items: state.items
+            .map((it) => (it.id === itemId ? { ...it, quantity: safe } : it))
+            .filter((it) => it.quantity > 0) }
+          }),
 
       removeItem: (itemId) =>
         set((state) => ({ items: state.items.filter((it) => it.id !== itemId) })),
