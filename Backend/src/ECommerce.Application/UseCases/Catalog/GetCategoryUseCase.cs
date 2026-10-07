@@ -13,7 +13,17 @@ public class GetCategoryUseCase(ICategoryRepository categoryRepository)
 
         return product is not null
             ? CategoryMapper.ToResponse(product)
-            #warning implement domain exception
+#warning implement domain exception
             : throw new ProductNotFoundException(categoryId.ToString());
+    }
+
+    public async Task<CategoryResponse?> Execute(string slug)
+    {
+        var product = await categoryRepository.GetBySlug(slug);
+
+        return product is not null
+            ? CategoryMapper.ToResponse(product)
+#warning implement domain exception
+            : throw new ProductNotFoundException(slug);
     }
 }

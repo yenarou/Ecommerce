@@ -1,12 +1,14 @@
 using System.Text;
-using ECommerce.Api.GraphQL.Mocks;
+using ECommerce.Api.GraphQL;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Application.UseCases.Catalog;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Auth;
+using ECommerce.Infrastructure.Persistence.MongoDB.Configuration;
 using ECommerce.Infrastructure.Persistence.MongoDB.Repositories;
+using ECommerce.Infrastructure.Persistence.MongoDB.Seed;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +16,9 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
 using ExceptionHandlerMiddleware = ECommerce.Api.Middleware.ExceptionHandlerMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,11 +27,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
 
+
+
 // Infrastructure - Persistence - MongoDB
+MongoDbConfiguration.Configure();
+
 builder.Services.AddSingleton<IMongoClient>(new MongoClient(
     builder.Configuration.GetConnectionString("MongoDB")));
 builder.Services.AddScoped(sp =>
     sp.GetRequiredService<IMongoClient>().GetDatabase("ECommerce"));
+
+builder.Services.AddScoped<MongoDbSeeder>();
 
 // Repositories
 builder.Services.AddScoped<ICartRepository, PostgreSqlCartRepository>();
@@ -34,6 +45,8 @@ builder.Services.AddScoped<ICategoryRepository, MongoDbCategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, PostgreSqlOrderRepository>();
 builder.Services.AddScoped<IProductRepository, MongoDbProductRepository>();
 builder.Services.AddScoped<IUserRepository, PostgreSqlUserRepository>();
+
+
 
 // Services
 builder.Services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
@@ -46,8 +59,6 @@ builder.Services.AddScoped<LoginWithEmailUseCase>();
 builder.Services.AddScoped<RegisterWithEmailUseCase>();
 
 // Use Cases - Catalog
-builder.Services.AddScoped<FilterCategoryPublishedProducts>();
-builder.Services.AddScoped<FilterPublishedProductsUseCase>();
 builder.Services.AddScoped<GetCategoriesUseCase>();
 builder.Services.AddScoped<GetCategoryUseCase>();
 builder.Services.AddScoped<GetProductDetailsUseCase>();
@@ -84,7 +95,7 @@ builder.Services
             ValidAudience = jwt.Audience,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey)),
-            ValidateLifetime = true,
+            ValidateLifetime = true
         };
     });
 builder.Services.AddAuthorization();
@@ -92,9 +103,10 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<Query>()
-    .AddType<ProductType>()
-    .AddType<CategoryType>();
-
+    .ModifyRequestOptions(options =>
+    {
+        options.IncludeExceptionDetails = true;
+    });
 var app = builder.Build();
 
 // Errores con código y mensaje claros (en lugar de un 500 genérico)
@@ -123,6 +135,21 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         app.Logger.LogError(ex, "No se pudieron crear las tablas");
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var seeder = scope.ServiceProvider
+            .GetRequiredService<MongoDbSeeder>();
+
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "No se pudieron insertar los datos iniciales de MongoDB");
     }
 }
 

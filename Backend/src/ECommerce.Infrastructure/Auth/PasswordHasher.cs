@@ -1,6 +1,5 @@
 using ECommerce.Application.Interfaces;
 using Microsoft.AspNetCore.Identity;
-using Tareino.Application.Interfaces;
 
 namespace ECommerce.Infrastructure.Auth;
 

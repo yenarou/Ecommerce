@@ -1,6 +1,4 @@
-﻿using HotChocolate.Types;
-
-namespace ECommerce.Api.GraphQL.Mocks;
+﻿namespace ECommerce.Api.GraphQL.Mocks;
 
 public class ProductType : ObjectType<ProductMock>
 {

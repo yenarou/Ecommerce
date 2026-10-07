@@ -1,6 +1,5 @@
 ﻿using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.Mappers;
-using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Catalog;

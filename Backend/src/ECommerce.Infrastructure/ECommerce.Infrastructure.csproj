@@ -1,18 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\ECommerce.Application\ECommerce.Application.csproj" />
+        <ProjectReference Include="..\ECommerce.Application\ECommerce.Application.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12" />
-      <PackageReference Include="MongoDB.Driver" Version="3.12.0" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Persistence\MongoDB\Configuration\" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.12"/>
+        <PackageReference Include="MongoDB.Driver" Version="3.12.0"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3"/>
     </ItemGroup>
 
     <PropertyGroup>

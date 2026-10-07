@@ -4,7 +4,8 @@ namespace ECommerce.Domain.Models;
 
 public class Product
 {
-    private Product(Guid id, string name, string description, Money price, Quantity stock, Category category)
+    
+    private Product(Guid id, string name, string description, Money price, Quantity stock, Category category, ICollection<Image> images)
     {
         Id = id;
         Name = name;
@@ -13,7 +14,8 @@ public class Product
         Stock = stock;
         Category = category;
         CreatedAt = DateTime.UtcNow;
-        IsPublished = false;
+        IsPublished = true;
+        Images = images;
     }
 
     public Guid Id { get; private set; }
@@ -24,9 +26,9 @@ public class Product
     public DateTime CreatedAt { get; private set; }
     public Category Category { get; private set; }
     public bool IsPublished { get; private set; }
-    public ICollection<Image> Images { get; private set; } = new List<Image>();
-
-    public static Product CreateProduct(string name, string description, Money price, Quantity stock, Category category)
+    public ICollection<Image> Images { get; private set; }
+    
+    public static Product Create(string name, string description, Money price, Quantity stock, Category category, ICollection<Image> images)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Product name cannot be null or empty.", nameof(name));
@@ -45,7 +47,7 @@ public class Product
 
         if (category == null) throw new ArgumentNullException(nameof(category), "Category cannot be null.");
 
-        return new Product(Guid.NewGuid(), name, description, price, stock, category);
+        return new Product(Guid.NewGuid(), name, description, price, stock, category, images);
     }
 
     public void UpdateName(string name)
@@ -89,17 +91,17 @@ public class Product
 
         Price = price;
     }
-    
+
     public void Publish()
     {
         IsPublished = true;
     }
-    
+
     public void Unpublish()
     {
         IsPublished = false;
     }
-    
+
     public void AddImage(string url, string alt)
     {
         var image = Image.Create(url, alt);

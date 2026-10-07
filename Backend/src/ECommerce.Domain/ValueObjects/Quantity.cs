@@ -13,7 +13,7 @@ public sealed record Quantity
 
     public static Quantity Create(int value)
     {
-        if (value <= 0)
+        if (value < 0)
             throw new ArgumentOutOfRangeException(nameof(value), value, "Quantity must be greater than zero.");
 
         return new Quantity(value);

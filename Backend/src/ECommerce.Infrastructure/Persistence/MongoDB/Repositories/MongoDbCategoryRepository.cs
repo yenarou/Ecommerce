@@ -16,6 +16,13 @@ public class MongoDbCategoryRepository(IMongoDatabase database) : ICategoryRepos
             .FirstOrDefaultAsync();
     }
 
+    public async Task<Category?> GetBySlug(string slug)
+    {
+        return await _categories
+            .Find(category => category.Slug == slug)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<ICollection<Category>> GetAll()
     {
         return await _categories

@@ -10,11 +10,12 @@ public static class CategoryMapper
         return new CategoryResponse(
             category.Id,
             category.Name,
+            category.Slug,
             category.Description
         );
     }
-    
-    public static 
+
+    public static
         ICollection<CategoryResponse> ToResponse(
             ICollection<Category> categories)
     {

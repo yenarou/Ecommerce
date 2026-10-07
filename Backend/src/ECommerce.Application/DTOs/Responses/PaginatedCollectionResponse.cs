@@ -1,7 +1,8 @@
 namespace ECommerce.Application.DTOs.Responses;
 
 public record PaginatedCollectionResponse<T>(
-    int Page,
-    int Size,
+    ICollection<T> Items,
     int Total,
-    ICollection<T> Items);
+    int Page,
+    int PageSize,
+    int TotalPages);

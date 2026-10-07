@@ -17,19 +17,19 @@ public static class ProductMapper
             product.CreatedAt,
             product.Category.Id,
             product.Category.Name,
-            product.Images
-                .Select(image => new ImageResponse(
-                    image.Id,
-                    image.Url,
-                    image.Alt
-                ))
-                .ToList()
+            (product.Images ?? [])
+            .Select(image => new ImageResponse(
+                image.Id,
+                image.Url,
+                image.Alt
+            ))
+            .ToList()
         );
     }
-    
-    public static 
+
+    public static
         ICollection<ProductResponse> ToResponse(
-        ICollection<Product> products)
+            ICollection<Product> products)
     {
         return products
             .Select(ToResponse)

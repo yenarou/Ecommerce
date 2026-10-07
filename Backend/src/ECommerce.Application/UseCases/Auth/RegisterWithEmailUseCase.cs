@@ -5,7 +5,6 @@ using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
-using Tareino.Application.Interfaces;
 
 namespace ECommerce.Application.UseCases.Auth;
 

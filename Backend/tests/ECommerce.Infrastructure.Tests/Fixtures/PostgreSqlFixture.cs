@@ -13,6 +13,7 @@ public class PostgreSqlFixture : IAsyncLifetime
             .WithPassword("postgres")
             .WithPortBinding(5432, 5432)
             .Build();
+
     public ApplicationDbContext Context { get; private set; } = null!;
 
     public async Task InitializeAsync()

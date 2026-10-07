@@ -1,5 +1,4 @@
-﻿
-using ECommerce.Application.DTOs.Requests;
+﻿using ECommerce.Application.DTOs.Requests;
 using ECommerce.Application.UseCases.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;

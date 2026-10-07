@@ -17,41 +17,12 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             .FirstOrDefaultAsync();
     }
 
-    public async Task<ICollection<Product>> GetAll()
-    {
-        return await _products
-            .Find(_ => true)
-            .ToListAsync();
-    }
-
-    public async Task<ICollection<Product>> GetAllPublished()
-    {
-        return await _products
-            .Find(product => product.IsPublished)
-            .ToListAsync();
-    }
-
-    public async Task<ICollection<Product>> GetPublishedPage(int page, int size)
-    {
-        if (page < 1)
-            throw new ArgumentOutOfRangeException(nameof(page));
-
-        if (size < 1)
-            throw new ArgumentOutOfRangeException(nameof(size));
-
-        return await _products
-            .Find(product => product.IsPublished)
-            .Skip((page - 1) * size)
-            .Limit(size)
-            .ToListAsync();
-    }
-
-    public async Task<ICollection<Product>> FilterPublished(
+    public async Task<PaginatedResult<Product>> FilterPublished(
         CatalogFilter catalogFilter,
         int page,
         int size)
     {
-        if (catalogFilter == null)
+        if (catalogFilter is null)
             throw new ArgumentNullException(nameof(catalogFilter));
 
         if (page < 1)
@@ -63,12 +34,18 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
         var filter = Builders<Product>.Filter.Eq(
             product => product.IsPublished,
             true);
-        
-        return await _products
+
+        var total = await _products.CountDocumentsAsync(filter);
+
+        var items = await _products
             .Find(filter)
             .Skip((page - 1) * size)
             .Limit(size)
             .ToListAsync();
+
+        return new PaginatedResult<Product>(
+            items,
+            (int)total);
     }
 
     public async Task<ICollection<Product>> FilterPublished(
@@ -82,11 +59,9 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             true);
 
         if (catalogFilter.CategoryId.HasValue)
-        {
             filter &= Builders<Product>.Filter.Eq(
                 product => product.Category.Id,
                 catalogFilter.CategoryId.Value);
-        }
 
         return await _products
             .Find(filter)
@@ -115,5 +90,34 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             productId);
 
         await _products.DeleteOneAsync(filter);
+    }
+
+    public async Task<ICollection<Product>> GetAll()
+    {
+        return await _products
+            .Find(_ => true)
+            .ToListAsync();
+    }
+
+    public async Task<ICollection<Product>> GetAllPublished()
+    {
+        return await _products
+            .Find(product => product.IsPublished)
+            .ToListAsync();
+    }
+
+    public async Task<ICollection<Product>> GetPublishedPage(int page, int size)
+    {
+        if (page < 1)
+            throw new ArgumentOutOfRangeException(nameof(page));
+
+        if (size < 1)
+            throw new ArgumentOutOfRangeException(nameof(size));
+
+        return await _products
+            .Find(product => product.IsPublished)
+            .Skip((page - 1) * size)
+            .Limit(size)
+            .ToListAsync();
     }
 }

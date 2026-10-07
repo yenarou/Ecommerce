@@ -1,6 +1,4 @@
-﻿
-
-using ECommerce.Application.DTOs.Requests;
+﻿using ECommerce.Application.DTOs.Requests;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Infrastructure.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +35,6 @@ public class GoogleAuthController(
     [HttpGet("url")]
     public IActionResult GetGoogleAuthUrl()
     {
-
         var url =
             $"https://accounts.google.com/o/oauth2/v2/auth" +
             $"?client_id={_googleOptions.ClientId}" +

@@ -23,7 +23,7 @@ public class Cart
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public CartStatus Status { get; private set; }
-    public ICollection<CartItem> Items { get; private set; }
+    public ICollection<CartItem> Items { get; }
 
     public static Cart Create(User user)
     {

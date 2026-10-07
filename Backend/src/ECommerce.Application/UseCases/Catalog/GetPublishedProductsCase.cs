@@ -1,29 +1,45 @@
 using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.Mappers;
-using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
+using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Application.UseCases.Catalog;
 
 public class GetPublishedProductsCase(
     IProductRepository productRepository)
 {
-    public async Task<PaginatedCollectionResponse<ProductResponse>> Execute(    int page,
-        int size)
+    public async Task<PaginatedCollectionResponse<ProductResponse>> Execute(
+        int page,
+        int size,
+        string? categorySlug = null)
     {
         if (page < 1)
-            throw new ArgumentOutOfRangeException(nameof(page), page, "Page must be greater than 0.");
+            throw new ArgumentOutOfRangeException(
+                nameof(page),
+                page,
+                "Page must be greater than 0.");
 
         if (size < 1)
-            throw new ArgumentOutOfRangeException(nameof(size), size, "Size must be greater than 0.");
-        
-        var products = await productRepository.GetPublishedPage(page, size);
-        
-        return  new PaginatedCollectionResponse<ProductResponse>(
-            Page: 2,
-            Size: 20,
-            Total: 157,
-            Items: ProductMapper.ToResponse(products));
-        
+            throw new ArgumentOutOfRangeException(
+                nameof(size),
+                size,
+                "Size must be greater than 0.");
+
+        var catalogFilter = new CatalogFilter(categorySlug);
+
+        var paginatedResult = await productRepository.FilterPublished(
+            catalogFilter,
+            page,
+            size);
+
+        var totalPages = (int)Math.Ceiling(
+            (double)paginatedResult.Total / size);
+
+        return new PaginatedCollectionResponse<ProductResponse>(
+            ProductMapper.ToResponse(paginatedResult.Items),
+            paginatedResult.Total,
+            page,
+            size,
+            totalPages);
     }
 }

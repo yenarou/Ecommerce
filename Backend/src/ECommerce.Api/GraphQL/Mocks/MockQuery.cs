@@ -1,7 +1,6 @@
-﻿
-namespace ECommerce.Api.GraphQL.Mocks;
+﻿namespace ECommerce.Api.GraphQL.Mocks;
 
-public class Query
+public class MocksQuery
 {
     public List<CategoryMock> Categories()
     {
@@ -27,14 +26,9 @@ public class Query
                 .FirstOrDefault(c => c.Slug == categorySlug);
 
             if (category is null)
-            {
                 products = [];
-            }
             else
-            {
-                products = products.Where(
-                    product => product.CategoryId == category.Id);
-            }
+                products = products.Where(product => product.CategoryId == category.Id);
         }
 
         products = products

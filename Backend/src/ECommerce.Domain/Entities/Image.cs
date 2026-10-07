@@ -2,22 +2,22 @@
 
 public class Image
 {
-    public Guid Id { get; private set; }
-    public string Url { get; private set; } = string.Empty;
-    public string Alt { get; private set; } = string.Empty;
-
     private Image()
     {
     }
-    
-    private Image (string url, string alt)
+
+    private Image(string url, string alt)
     {
         Id = Guid.NewGuid();
         Url = url;
         Alt = alt;
     }
 
-    internal static Image Create(string url, string alt)
+    public Guid Id { get; private set; }
+    public string Url { get; private set; } = string.Empty;
+    public string Alt { get; private set; } = string.Empty;
+
+    public static Image Create(string url, string alt)
     {
         if (string.IsNullOrWhiteSpace(url))
             throw new ArgumentException("Image URL cannot be null or empty.", nameof(url));
@@ -50,7 +50,7 @@ public class Image
 
         Url = url;
     }
-    
+
     public void UpdateAlt(string alt)
     {
         if (string.IsNullOrWhiteSpace(alt))

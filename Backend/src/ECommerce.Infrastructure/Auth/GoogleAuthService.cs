@@ -50,7 +50,7 @@ public class GoogleAuthService : IGoogleAuthService
             tokenResponse.RefreshToken ?? string.Empty,
             tokenResponse.ExpiresIn);
     }
-    
+
     public async Task<GoogleUserInfo> GetUserInfoAsync(string accessToken)
     {
         using var request = new HttpRequestMessage(

@@ -1,7 +1,7 @@
 ﻿using ECommerce.Domain.Models;
 using ECommerce.Domain.ValueObjects;
-using ECommerce.Infrastructure.Tests.Fixtures;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
+using ECommerce.Infrastructure.Tests.Fixtures;
 using FluentAssertions;
 
 namespace ECommerce.Infrastructure.Tests.Repositories.PostgreSQL;
