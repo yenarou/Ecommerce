@@ -10,7 +10,7 @@ public class UpdateCartUseCase(ICurrentUser currentUser, ICartRepository cartRep
 {
     public async Task Execute(CartRequest request)
     {
-        var user = currentUser.User;
+        var user = await currentUser.GetUserAsync();
         
         var cart = await cartRepository.GetActiveByUserId(user.Id);
         

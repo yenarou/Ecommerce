@@ -15,7 +15,7 @@ public class CreateOrderUseCase(ICurrentUser currentUser, IOrderRepository order
         if(address is null)
             throw new ArgumentNullException(nameof(address));
         
-        var user = currentUser.User;
+        var user = await currentUser.GetUserAsync();
         
         var cart = await cartRepository.GetActiveByUserId(user.Id);
         
