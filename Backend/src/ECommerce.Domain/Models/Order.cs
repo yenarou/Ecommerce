@@ -26,6 +26,8 @@ public class Order
     public Address Address { get; private set; }
     public OrderStatus Status { get; private set; }
     public ICollection<OrderItem> Items { get; private set; }
+    #warning 
+    public Money Total { get; private set; }
 
     public static Order Create(User user, Address address)
     {

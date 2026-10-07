@@ -1,3 +1,5 @@
+using ECommerce.Domain.ValueObjects;
+
 namespace ECommerce.Domain.Models;
 
 public class OrderItem
@@ -6,7 +8,7 @@ public class OrderItem
     {
     }
 
-    private OrderItem(Guid id, Order order, Product product, int quantity, Customization? customization = null)
+    private OrderItem(Guid id, Order order, Product product, Quantity quantity, Customization? customization = null)
     {
         Id = id;
         Order = order;
@@ -19,16 +21,14 @@ public class OrderItem
     public Order Order { get; private set; }
     public Product Product { get; private set; }
     public Customization? Customization { get; private set; }
-    public int Quantity { get; private set; }
+    public Quantity Quantity { get; private set; }
 
-    internal static OrderItem Create(Order order, Product product, int quantity, Customization? customization = null)
+    internal static OrderItem Create(Order order, Product product, Quantity quantity, Customization? customization = null)
     {
         if (order == null) throw new ArgumentNullException(nameof(order), "Cart cannot be null.");
 
         if (product == null) throw new ArgumentNullException(nameof(product), "Product cannot be null.");
-
-        if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
-
+        
         return new OrderItem(Guid.NewGuid(), order, product, quantity);
     }
 
@@ -36,6 +36,13 @@ public class OrderItem
     {
         if (quantity <= 0) throw new ArgumentException("Quantity must be greater than zero.", nameof(quantity));
 
-        Quantity = quantity;
+        Quantity = Quantity.Create(quantity);
+    }
+    
+    public void AddCustomization(string description, bool wrap = false)
+    {
+        var customization = Models.Customization.Create(description, wrap: wrap);
+        
+        Customization = customization;
     }
 }

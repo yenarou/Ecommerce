@@ -6,7 +6,7 @@ public class Customization
     {
     }
 
-    private Customization(Guid id, string description, DateTime createdAt, decimal additionalPrice)
+    private Customization(Guid id, string description, DateTime createdAt, decimal additionalPrice, bool wrap)
     {
         Id = id;
         Description = description;
@@ -17,9 +17,10 @@ public class Customization
     public Guid Id { get; private set; }
     public string Description { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public bool IsWrap { get; private set; }
     public decimal AdditionalPrice { get; private set; }
 
-    internal static Customization Create(string description, decimal additionalPrice)
+    public static Customization Create(string description, bool wrap = false, decimal additionalPrice = 0)
     {
         if (string.IsNullOrWhiteSpace(description))
             throw new ArgumentException("Customization description cannot be null or empty.", nameof(description));
@@ -30,7 +31,7 @@ public class Customization
         if (additionalPrice < 0)
             throw new ArgumentException("Additional price cannot be negative.", nameof(additionalPrice));
 
-        return new Customization(Guid.NewGuid(), description, DateTime.UtcNow, additionalPrice);
+        return new Customization(Guid.NewGuid(), description, DateTime.UtcNow, additionalPrice, wrap);
     }
 
     public void Update(string description, decimal additionalPrice)

@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
+using ECommerce.Domain.ValueObjects;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,14 @@ public class PostgreSqlCartRepository(ApplicationDbContext context) : ICartRepos
             .Include(cart => cart.Items)
             .Where(cart => cart.User.Id == userId)
             .ToListAsync();
+    }
+
+    public async Task<Cart?> GetActiveByUserId(Guid userId)
+    {
+        return await context.Carts
+            .Include(cart => cart.Items)
+            .Where(cart => cart.User.Id == userId && cart.Status == CartStatus.Active)
+            .FirstOrDefaultAsync();
     }
 
     public async Task Save(Cart cart)

@@ -33,12 +33,14 @@ public class Cart
         return new Cart(Guid.NewGuid(), user, now, now, CartStatus.Active);
     }
 
-    public void AddCartItem(Product product, int quantity)
+    public void AddCartItem(Product product, Quantity quantity, Customization? customization = null)
     {
         if (Status == CartStatus.Converted)
             throw new InvalidOperationException("Cannot add items to a converted cart.");
 
         var item = CartItem.Create(this, product, quantity);
+        
+        item.UpdateCustomization(customization);
 
         Items.Add(item);
     }
@@ -57,5 +59,11 @@ public class Cart
 
         Status = CartStatus.Converted;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateItems(ICollection<CartItem> items)
+    {
+        UpdateTimestamp();
+        Items = items;
     }
 }
