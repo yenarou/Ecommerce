@@ -1,5 +1,6 @@
 using System.Text;
 using ECommerce.Api.GraphQL;
+using ECommerce.Api.GraphQL.Mutations;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Application.UseCases.Catalog;
@@ -16,9 +17,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
-using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Bson;
+
 using ExceptionHandlerMiddleware = ECommerce.Api.Middleware.ExceptionHandlerMiddleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -103,6 +102,7 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<Query>()
+    .AddMutationType<CheckoutMutation>()
     .ModifyRequestOptions(options =>
     {
         options.IncludeExceptionDetails = true;
