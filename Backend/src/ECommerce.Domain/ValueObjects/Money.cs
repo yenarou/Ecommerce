@@ -34,6 +34,14 @@ public sealed record Money
         EnsureSameCurrency(other);
         return new Money(Amount + other.Amount, Currency);
     }
+    
+    public Money Add(Decimal value)
+    {
+        Money other = Money.Create(value, Currency);
+        
+        EnsureSameCurrency(other);
+        return new Money(Amount + other.Amount, Currency);
+    }
 
     public Money Subtract(Money other)
     {
