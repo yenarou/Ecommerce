@@ -4,6 +4,7 @@ using ECommerce.Api.GraphQL.Mutations;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Application.UseCases.Catalog;
+using ECommerce.Application.UseCases.Checkout;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Auth;
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IUserRepository, PostgreSqlUserRepository>();
 builder.Services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 // Use Cases - Auth
 builder.Services.AddScoped<AuthenticateWithGoogleUseCase>();
@@ -62,6 +64,11 @@ builder.Services.AddScoped<GetCategoriesUseCase>();
 builder.Services.AddScoped<GetCategoryUseCase>();
 builder.Services.AddScoped<GetProductDetailsUseCase>();
 builder.Services.AddScoped<GetPublishedProductsCase>();
+
+// Use Cases - Checkout
+builder.Services.AddScoped<CreateOrderUseCase>();
+builder.Services.AddScoped<UpdateCartUseCase>();
+
 
 builder.Services.AddControllers();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
