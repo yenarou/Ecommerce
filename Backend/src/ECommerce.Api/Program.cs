@@ -10,7 +10,7 @@ using ECommerce.Infrastructure.Persistence.MongoDB.Configuration;
 using ECommerce.Infrastructure.Persistence.MongoDB.Repositories;
 using ECommerce.Infrastructure.Persistence.MongoDB.Seed;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
-using ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;

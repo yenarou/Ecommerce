@@ -3,7 +3,7 @@ using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
+namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRepository
 {

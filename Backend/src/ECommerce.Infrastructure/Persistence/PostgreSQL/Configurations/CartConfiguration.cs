@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Configurations;
+namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Configurations;
 
 public class CartConfiguration : IEntityTypeConfiguration<Cart>
 {

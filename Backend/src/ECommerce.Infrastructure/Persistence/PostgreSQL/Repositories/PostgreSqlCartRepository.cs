@@ -1,10 +1,10 @@
 ﻿using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
-using ECommerce.Infrastructure.Repositories.PostgreSQL.Context;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace ECommerce.Infrastructure.Repositories.PostgreSQL.Repositories;
+namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 public class PostgreSqlCartRepository(ApplicationDbContext context) : ICartRepository
 {
