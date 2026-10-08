@@ -1,30 +1,17 @@
 import { gql } from './client'
 
-function normalizeCustomization(c) {
-  if (!c) return null
-  return {
-    id: c.id,
-    description: c.description,
-    image_url: c.imageUrl,
-    additional_price: c.additionalPrice,
-  }
-}
-
 function normalizeProduct(p) {
   if (!p) return null
   return {
     id: p.id,
+    categoryId: p.categoryId,
     name: p.name,
     description: p.description,
     price: p.price,
+    currency: p.currency || 'MXN',
     stock: p.stock,
-    image_url: p.imageUrl,
-    image_url_alt: p.imageUrlAlt,
-    days_to_make: p.daysToMake,
-    category: p.category, // { slug, name } cuando venga incluido
-    customizationOptions: p.customizationOptions
-      ? p.customizationOptions.map(normalizeCustomization)
-      : undefined,
+    images: p.images || [],
+    category: p.category || { name: p.categoryName }, // Adaptar a lo que venga
   }
 }
 
@@ -35,7 +22,6 @@ function normalizeCategory(c) {
     slug: c.slug,
     name: c.name,
     description: c.description,
-    products: c.products ? c.products.map(normalizeProduct) : undefined,
   }
 }
 
@@ -43,8 +29,7 @@ export async function fetchCategories() {
   const data = await gql(`
     query {
       categories {
-        slug name description
-        products { id name price stock imageUrl daysToMake }
+        id slug name description
       }
     }
   `)
@@ -55,20 +40,33 @@ export async function fetchCategoryBySlug(slug) {
   const data = await gql(`
     query($slug: String!) {
       category(slug: $slug) {
-        slug name description
-        products { id name price stock imageUrl daysToMake }
+        id slug name description
       }
     }
   `, { slug })
-  return normalizeCategory(data.category)
+  const category = normalizeCategory(data.category)
+  if (!category) return null
+
+  const firstPage = await fetchProducts({ page: 1, pageSize: 50 })
+  const products = [...firstPage.items]
+
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await fetchProducts({ page, pageSize: 50 })
+    products.push(...nextPage.items)
+  }
+
+  return {
+    ...category,
+    products: products.filter(product => product.categoryId === category.id),
+  }
 }
 
 export async function fetchProducts({ page = 1, pageSize = 12, categorySlug } = {}) {
   const data = await gql(`
     query($page: Int, $pageSize: Int, $categorySlug: String) {
       products(page: $page, pageSize: $pageSize, categorySlug: $categorySlug) {
-        total totalPages page
-        items { id name price stock imageUrl daysToMake }
+        total totalPages page pageSize
+        items { id categoryId name price stock images { url alt } categoryName }
       }
     }
   `, { page, pageSize, categorySlug })
@@ -83,9 +81,8 @@ export async function fetchProductById(id) {
   const data = await gql(`
     query($id: UUID!) {
       product(id: $id) {
-        id name description price stock imageUrl imageUrlAlt daysToMake
-        category { slug name }
-        customizationOptions { id description additionalPrice }
+        id categoryId name description price stock images { id url alt }
+        categoryName
       }
     }
   `, { id })

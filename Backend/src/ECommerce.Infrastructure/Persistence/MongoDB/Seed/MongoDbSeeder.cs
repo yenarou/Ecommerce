@@ -16,44 +16,38 @@ public sealed class MongoDbSeeder(
         var categories = database.GetCollection<Category>("categories");
         var products = database.GetCollection<Product>("products");
 
-        logger.LogInformation("Eliminando colecciones existentes...");
+        var existingProducts = await products.CountDocumentsAsync(
+            FilterDefinition<Product>.Empty);
+        if (existingProducts > 0)
+        {
+            logger.LogInformation(
+                "Se conservan los {Count} productos existentes; no se ejecuta el seeding.",
+                existingProducts);
+            return;
+        }
 
-        await database.DropCollectionAsync("categories");
-        await database.DropCollectionAsync("products");
+        logger.LogInformation("Creando o reutilizando categorías...");
 
-        logger.LogInformation("Colecciones eliminadas.");
-
-        categories = database.GetCollection<Category>("categories");
-        products = database.GetCollection<Product>("products");
-
-        logger.LogInformation("Creando categorías...");
-
-        var figuras = Category.Create(
+        var figuras = await GetOrCreateCategoryAsync(
+            categories,
             "figuras",
             "Figuras",
             "Figuras de peluche tejidas, ideales para regalo o colección."
         );
 
-        var llaveros = Category.Create(
+        var llaveros = await GetOrCreateCategoryAsync(
+            categories,
             "llaveros",
             "Llaveros",
             "Piezas pequeñas para mochila, bolsa o llaves."
         );
 
-        var decoracion = Category.Create(
+        var decoracion = await GetOrCreateCategoryAsync(
+            categories,
             "decoracion",
             "Decoración",
             "Piezas para repisa, escritorio o pared."
         );
-
-        await categories.InsertManyAsync(
-        [
-            figuras,
-            llaveros,
-            decoracion
-        ]);
-
-        logger.LogInformation("Se insertaron 3 categorías.");
 
         logger.LogInformation("Creando productos...");
 
@@ -160,5 +154,23 @@ public sealed class MongoDbSeeder(
 
         logger.LogInformation(
             "Seeding de MongoDB completado correctamente.");
+    }
+
+    private static async Task<Category> GetOrCreateCategoryAsync(
+        IMongoCollection<Category> categories,
+        string slug,
+        string name,
+        string description)
+    {
+        var existingCategory = await categories
+            .Find(category => category.Slug == slug)
+            .FirstOrDefaultAsync();
+
+        if (existingCategory is not null)
+            return existingCategory;
+
+        var category = Category.Create(slug, name, description);
+        await categories.InsertOneAsync(category);
+        return category;
     }
 }

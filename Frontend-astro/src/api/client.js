@@ -3,10 +3,13 @@ const API_URL = import.meta.env.SSR
   ? process.env.API_INTERNAL_URL || import.meta.env.PUBLIC_API_URL || DEFAULT_API_URL
   : import.meta.env.PUBLIC_API_URL || DEFAULT_API_URL
 
-export async function gql(query, variables = {}) {
+export async function gql(query, variables = {}, headers = {}) {
   const res = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json',
+      ...headers 
+    },
     body: JSON.stringify({ query, variables }),
   })
   const { data, errors } = await res.json()

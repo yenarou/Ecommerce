@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCart } from '../stores/cart'
-import { createOrder } from '../api/catalog'
+import { updateCart } from '../api/cart'
+import { createOrder } from '../api/orders'
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
@@ -11,6 +12,9 @@ const initialForm = {
   phone: '',
   address: '',
   city: '',
+  state: '',
+  zipCode: '',
+  country: 'México',
   paymentMethod: 'card',
 }
 
@@ -34,27 +38,30 @@ export default function Checkout() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    let me
-       try {
-         me = await getMe(user.token)
-       } catch {
-         alert('No se pudo validar tu sesión. Intenta de nuevo.')
-         return
-       }
-       if (!me) {
-         logout()
-         window.location.href = '/login'
-         return
-       }
-    const userId = user?.userId ?? '11111111-1111-1111-1111-111111111111'
-    const orderItems = items.map((it) => ({
-    productId: it.product_id,
-    customizationId: it.customization_id,
-    quantity: it.quantity,
-  }))
-  await createOrder(userId, orderItems)
-  setPlaced(true)
-  clearCart()
+
+    if (!user) {
+      alert('Debes iniciar sesión para realizar un pedido')
+      window.location.href = '/login'
+      return
+    }
+
+    try {
+      const address = {
+        street: form.address,
+        city: form.city,
+        state: form.state,
+        zipCode: form.zipCode,
+        country: form.country
+      }
+
+      await updateCart(items)
+      const response = await createOrder(address)
+      console.log('Pedido creado:', response.createOrder)
+      setPlaced(true)
+      clearCart()
+    } catch (err) {
+      alert(err.message || 'Error al crear el pedido')
+    }
   }
   if (!user && !placed) {
     return (
@@ -132,6 +139,22 @@ export default function Checkout() {
             <input type="text" id="city" autocomplete="address-level2" placeholder="Ej: Guadalajara" name="city" required value={form.city} onChange={handleChange} />
           </div>
 
+          <div className="checkout-form__row">
+            <div className="checkout-form__field">
+              <label htmlFor="state">Estado</label>
+              <input type="text" id="state" name="state" required value={form.state} onChange={handleChange} />
+            </div>
+            <div className="checkout-form__field">
+              <label htmlFor="zipCode">Código Postal</label>
+              <input type="text" id="zipCode" name="zipCode" required value={form.zipCode} onChange={handleChange} />
+            </div>
+          </div>
+
+          <div className="checkout-form__field">
+            <label htmlFor="country">País</label>
+            <input type="text" id="country" name="country" required value={form.country} onChange={handleChange} />
+          </div>
+
           <h2>Pago</h2>
           <div className="checkout-form__field">
             <label htmlFor="paymentMethod">Método de pago</label>
@@ -143,7 +166,7 @@ export default function Checkout() {
           </div>
 
           <button type="submit" className="btn btn-primary checkout-form__submit">
-            Confirmar pedido = ${totals.subtotal.toFixed(2)} MXN
+            Confirmar pedido = ${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}
           </button>
         </form>
 
@@ -151,14 +174,15 @@ export default function Checkout() {
           <h2 className="checkout-summary__title">Tu pedido</h2>
           <ul className="checkout-summary__list">
             {items.map((item) => {
-              const unitPrice = item.product.price + (item.customization?.additional_price ?? 0)
+              const unitPrice = item.product.price
               return (
                 <li key={item.id}>
                   <span>
                     {item.product.name} × {item.quantity}
-                    {item.customization && (
-                      <span className="checkout-summary__custom"> · {item.customization.description}</span>
-                    )}
+                    <span className="checkout-summary__custom">
+                      {' · Personalización: '}{item.customization_text}
+                      {item.wrap && ' · Envolver para regalo'}
+                    </span>
                   </span>
                   <span>${(unitPrice * item.quantity).toFixed(2)}</span>
                 </li>
@@ -167,7 +191,7 @@ export default function Checkout() {
           </ul>
           <div className="checkout-summary__total">
             <span>Total</span>
-            <span>${totals.subtotal.toFixed(2)} MXN</span>
+            <span>${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}</span>
           </div>
         </aside>
       </div>

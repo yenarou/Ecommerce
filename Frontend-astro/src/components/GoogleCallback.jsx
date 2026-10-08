@@ -1,5 +1,6 @@
-﻿import { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useAuth } from '../stores/auth'
+import { useCartStore } from '../stores/cart'
 
 export default function GoogleCallback() {
     useEffect(() => {
@@ -23,6 +24,8 @@ export default function GoogleCallback() {
             username,
             token
         })
+
+        useCartStore.getState().sync()
 
         window.location.href = '/'
     }, [])

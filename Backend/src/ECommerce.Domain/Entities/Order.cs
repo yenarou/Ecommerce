@@ -43,7 +43,11 @@ public class Order
         if (Status == OrderStatus.Delivered || Status == OrderStatus.Cancelled)
             throw new InvalidOperationException($"Cannot add items to an order with status '{Status}'.");
 
-        var orderItem = OrderItem.Create(this, cartItem.Product, cartItem.Quantity);
+        var orderItem = OrderItem.Create(
+            this,
+            cartItem.Product,
+            cartItem.Quantity,
+            cartItem.Customization);
 
         Items.Add(orderItem);
     }
@@ -108,7 +112,9 @@ public class Order
         
         foreach (var item in Items)
         {
-            total.Add(item.Product.Price);
+            total = total.Add(Money.Create(
+                item.Product.Price.Amount * item.Quantity.Value,
+                item.Product.Price.Currency));
         }
         
         return total;

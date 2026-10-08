@@ -32,6 +32,13 @@ services:
     ports:
       - "${BACKEND_PORT:-14001}:8080"
 
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/graphql/schema"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 15s
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,7 +58,8 @@ services:
     ports:
       - "${FRONTEND_PORT:-15174}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
 
   postgres:

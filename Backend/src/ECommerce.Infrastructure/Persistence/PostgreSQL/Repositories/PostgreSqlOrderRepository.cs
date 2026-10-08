@@ -24,6 +24,13 @@ public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRep
 
     public async Task Save(Order order)
     {
+        foreach (var item in order.Items)
+        {
+            context.Entry(item)
+                .Property<Guid?>("ProductId")
+                .CurrentValue = item.Product.Id;
+        }
+
         var exists = await context.Orders
             .AnyAsync(existing => existing.Id == order.Id);
 

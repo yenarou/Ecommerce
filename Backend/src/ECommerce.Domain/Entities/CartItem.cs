@@ -49,4 +49,9 @@ public class CartItem
     {
         Customization = customization;
     }
+
+    public void RestoreProduct(Product product)
+    {
+        Product = product ?? throw new ArgumentNullException(nameof(product));
+    }
 }

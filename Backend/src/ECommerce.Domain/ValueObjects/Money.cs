@@ -4,14 +4,18 @@ namespace ECommerce.Domain.ValueObjects;
 
 public sealed record Money
 {
+    private Money()
+    {
+    }
+
     private Money(decimal amount, string currency)
     {
         Amount = amount;
         Currency = currency;
     }
 
-    public decimal Amount { get; }
-    public string Currency { get; }
+    public decimal Amount { get; private set; }
+    public string Currency { get; private set; } = string.Empty;
 
     public static Money Create(decimal amount, string currency)
     {

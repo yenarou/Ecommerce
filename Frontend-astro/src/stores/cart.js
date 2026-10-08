@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { updateCart } from '../api/cart'
+import { useAuth } from './auth'
 
 const CART_ID = 'cart-local-demo'
 
@@ -8,18 +10,18 @@ function makeId() {
   return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
-const useCartStore = create(
+export const useCartStore = create(
   persist(
     (set) => ({
       items: [],
 
-      addItem: (product, customization, quantity, customizationText = '') =>
+      addItem: (product, quantity, customizationText, wrap) =>
         set((state) => {
-          const text = customization ? customizationText.trim() : ''
+          const text = customizationText.trim()
           const existing = state.items.find(
             (it) => it.product_id === product.id &&
-            it.customization_id === (customization?.id ?? null) &&
-            it.customization_text === text)
+            it.customization_text === text &&
+            Boolean(it.wrap) === wrap)
             
             const inCart = state.items
             .filter((it) => it.product_id === product.id)
@@ -34,8 +36,8 @@ const useCartStore = create(
               }
               return { items: [...state.items, {
                 id: makeId(), cart_id: CART_ID, product_id: product.id,
-                customization_id: customization?.id ?? null, customization_text: text,
-                quantity: toAdd, product, customization: customization ?? null }] }
+                customization_id: null, customization_text: text, wrap,
+                quantity: toAdd, product }] }
               }),
 
       updateQuantity: (itemId, quantity) =>
@@ -56,6 +58,19 @@ const useCartStore = create(
         set((state) => ({ items: state.items.filter((it) => it.id !== itemId) })),
 
       clearCart: () => set({ items: [] }),
+
+      sync: async () => {
+        const state = useCartStore.getState()
+        const user = useAuth.getState().user
+        if (user && user.token) {
+          try {
+            await updateCart(state.items)
+            console.log('Carrito sincronizado con el servidor')
+          } catch (err) {
+            console.error('Error al sincronizar carrito:', err)
+          }
+        }
+      }
     }),
     { name: 'cart' }
   )
@@ -67,15 +82,15 @@ export function useCart() {
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
   const clearCart = useCartStore((s) => s.clearCart)
+  const sync = useCartStore((s) => s.sync)
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((sum, it) => {
-      const unit = it.product.price + (it.customization?.additional_price ?? 0)
-      return sum + unit * it.quantity
+      return sum + it.product.price * it.quantity
     }, 0)
     const itemCount = items.reduce((sum, it) => sum + it.quantity, 0)
     return { subtotal, itemCount }
   }, [items])
 
-  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, totals }
+  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, sync, totals }
 }

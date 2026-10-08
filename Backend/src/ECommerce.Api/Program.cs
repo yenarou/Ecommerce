@@ -18,6 +18,7 @@ using ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IUserRepository, PostgreSqlUserRepository>();
 
 
 // Services
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -141,7 +143,18 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
-        scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.EnsureCreated();
+        var database = scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>()
+            .Database;
+        database.EnsureCreated();
+        await database.ExecuteSqlRawAsync("""
+            ALTER TABLE "CartItem"
+                ADD COLUMN IF NOT EXISTS "ProductId" uuid;
+            ALTER TABLE "OrderItem"
+                ADD COLUMN IF NOT EXISTS "ProductId" uuid;
+            ALTER TABLE "Customization"
+                ADD COLUMN IF NOT EXISTS "IsWrap" boolean NOT NULL DEFAULT FALSE;
+            """);
     }
     catch (Exception ex)
     {
@@ -179,5 +192,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGraphQL();
+app.MapGraphQLSchema("/graphql/schema");
 
 app.Run();

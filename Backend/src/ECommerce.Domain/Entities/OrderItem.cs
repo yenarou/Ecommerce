@@ -29,7 +29,7 @@ public class OrderItem
 
         if (product == null) throw new ArgumentNullException(nameof(product), "Product cannot be null.");
         
-        return new OrderItem(Guid.NewGuid(), order, product, quantity);
+        return new OrderItem(Guid.NewGuid(), order, product, quantity, customization);
     }
 
     public void UpdateQuantity(int quantity)

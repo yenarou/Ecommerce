@@ -23,30 +23,32 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .IsRequired();
 
         builder.Property(order => order.Status)
-            .HasConversion<string>()
+            .HasConversion(
+                status => status.Value,
+                value => OrderStatus.FromString(value))
             .IsRequired();
 
         // Address
         builder.OwnsOne(order => order.Address, address =>
         {
             address.Property(a => a.Street)
-                .HasColumnName("address_street")
+                .HasColumnName("Street")
                 .IsRequired();
 
             address.Property(a => a.City)
-                .HasColumnName("address_city")
+                .HasColumnName("City")
                 .IsRequired();
 
             address.Property(a => a.State)
-                .HasColumnName("address_state")
+                .HasColumnName("State")
                 .IsRequired();
 
             address.Property(a => a.ZipCode)
-                .HasColumnName("address_zip_code")
+                .HasColumnName("ZipCode")
                 .IsRequired();
 
             address.Property(a => a.Country)
-                .HasColumnName("address_country")
+                .HasColumnName("Country")
                 .IsRequired();
         });
         
@@ -61,7 +63,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         // Items
         builder.HasMany(order => order.Items)
             .WithOne(item => item.Order)
-            .HasForeignKey(item => item.Order.Id)
+            .HasForeignKey("OrderId")
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

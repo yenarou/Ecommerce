@@ -21,23 +21,25 @@ const category = product?.category
     <div class="product-detail__layout">
       <div class="product-detail__gallery">
         <div class="product-detail__main-image">
-          <img src={product.image_url} alt={product.name} />
+          <img src={product.images[0]?.url} alt={product.images[0]?.alt || product.name} />
         </div>
-        <div class="product-detail__thumb">
-          <img src={product.image_url_alt} alt="" />
-        </div>
+        {product.images.length > 1 && (
+          <div class="product-detail__thumbs">
+            {product.images.slice(1).map(img => (
+              <div class="product-detail__thumb">
+                <img src={img.url} alt={img.alt} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div class="product-detail__info">
         <h1 class="product-detail__name">{product.name}</h1>
-        <p class="price product-detail__price">${product.price.toFixed(2)} MXN</p>
+        <p class="price product-detail__price">${product.price.toFixed(2)} {product.currency}</p>
         <p class="product-detail__description">{product.description}</p>
 
         <dl class="product-detail__facts">
-          <div>
-            <dt>Tiempo de tejido</dt>
-            <dd>{product.days_to_make} días</dd>
-          </div>
           <div>
             <dt>Disponibilidad</dt>
             <dd>{product.stock > 0 ? `${product.stock} piezas` : 'Agotado'}</dd>

@@ -11,6 +11,7 @@ public class Customization
         Id = id;
         Description = description;
         CreatedAt = createdAt;
+        IsWrap = wrap;
         AdditionalPrice = additionalPrice;
     }
 

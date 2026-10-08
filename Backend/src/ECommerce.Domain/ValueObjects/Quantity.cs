@@ -4,12 +4,16 @@ namespace ECommerce.Domain.ValueObjects;
 
 public sealed record Quantity
 {
+    private Quantity()
+    {
+    }
+
     private Quantity(int value)
     {
         Value = value;
     }
 
-    public int Value { get; }
+    public int Value { get; private set; }
 
     public static Quantity Create(int value)
     {

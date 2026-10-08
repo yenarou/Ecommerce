@@ -7,12 +7,12 @@ namespace ECommerce.Application.UseCases.Catalog;
 
 public class GetProductDetailsUseCase(IProductRepository productRepository)
 {
-    public async Task<ProductResponse> Execute(Guid productId)
+    public async Task<ProductResponse?> Execute(Guid productId)
     {
         var product = await productRepository.GetById(productId);
 
         return product is not null
             ? ProductMapper.ToResponse(product)
-            : throw new ProductNotFoundException(productId.ToString());
+            : null;
     }
 }

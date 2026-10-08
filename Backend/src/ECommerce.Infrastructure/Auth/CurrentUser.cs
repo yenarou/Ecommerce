@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
@@ -17,9 +18,9 @@ public class CurrentUser(
         if (_user is not null)
             return _user;
 
-        var userIdClaim = httpContextAccessor.HttpContext?
-            .User
-            .FindFirstValue(ClaimTypes.NameIdentifier);
+        var claimsPrincipal = httpContextAccessor.HttpContext?.User;
+        var userIdClaim = claimsPrincipal?.FindFirstValue(JwtRegisteredClaimNames.Sub)
+            ?? claimsPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (string.IsNullOrEmpty(userIdClaim))
             throw new UnauthorizedAccessException("User is not authenticated.");

@@ -2,46 +2,54 @@ import { useState } from 'react'
 import { useCart } from '../stores/cart'
 
 export default function AddToCartForm({ product }) {
-    const { addItem, items } = useCart()
+    const { addItem, items, sync } = useCart()
 
   const [quantity, setQuantity] = useState(1)
-  const [customizationId, setCustomizationId] = useState('none')
-  const [justAdded, setJustAdded] = useState(false)
+    const [personalization, setPersonalization] = useState('')
+    const [wrap, setWrap] = useState(false)
+    const [justAdded, setJustAdded] = useState(false)
 
     const inCart = items
     .filter((it) => it.product_id === product.id)
     .reduce((sum, it) => sum + it.quantity, 0)
     const remaining = product.stock - inCart
 
-  const options = product.customizationOptions ?? []
-  const customization =
-    customizationId === 'none' ? null : options.find((c) => c.id === customizationId)
-  const unitPrice = product.price + (customization?.additional_price ?? 0)
-
   function handleQuantityChange(next) {
     const clamped = Math.max(1, Math.min(remaining, next))
     setQuantity(clamped)
   }
 
-  function handleAddToCart() {
-    addItem(product, customization, quantity)
+  async function handleAddToCart() {
+    addItem(product, quantity, personalization, wrap)
     setJustAdded(true)
+    await sync()
   }
 
   return (
     <>
       <div className="product-detail__field">
-        <label htmlFor="customization">Personalización</label>
-        <select id="customization" value={customizationId} onChange={(e) => setCustomizationId(e.target.value)}>
-          <option value="none">Sin personalización</option>
-          {options.map((opt) => (
-            <option key={opt.id} value={opt.id}>
-              {opt.description}
-              {opt.additional_price > 0 ? ` (+$${opt.additional_price.toFixed(2)})` : ''}
-            </option>
-          ))}
-        </select>
+        <label htmlFor="personalization">Personalización</label>
+        <textarea
+          id="personalization"
+          rows="3"
+          maxLength="500"
+          required
+          value={personalization}
+          onChange={(e) => setPersonalization(e.target.value)}
+          placeholder="Describe cómo quieres personalizar este producto"
+        />
+        <span className="product-detail__field-hint">Máximo 500 caracteres.</span>
       </div>
+
+      <label className="product-detail__checkbox" htmlFor="wrap">
+        <input
+          id="wrap"
+          type="checkbox"
+          checked={wrap}
+          onChange={(e) => setWrap(e.target.checked)}
+        />
+        <span>Envolver para regalo</span>
+      </label>
 
       <div className="product-detail__field">
         <label htmlFor="quantity">Cantidad</label>
@@ -53,8 +61,12 @@ export default function AddToCartForm({ product }) {
       </div>
 
       <div className="product-detail__actions">
-        <button className="btn btn-primary" onClick={handleAddToCart} disabled={product.stock === 0}>
-          Agregar al carrito = ${(unitPrice * quantity).toFixed(2)}
+        <button
+          className="btn btn-primary"
+          onClick={handleAddToCart}
+          disabled={remaining <= 0 || !personalization.trim()}
+        >
+          Agregar al carrito = ${(product.price * quantity).toFixed(2)}
         </button>
       </div>
 
