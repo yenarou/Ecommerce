@@ -30,18 +30,18 @@ export default function Checkout() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const sinStock = items.find((it) => it.quantity > it.product.stock)
-  if (sinStock) {
-    setError(`No hay suficiente stock de "${sinStock.product.name}"`)
-    return
-  }
-
   async function handleSubmit(e) {
     e.preventDefault()
 
     if (!user) {
       alert('Debes iniciar sesión para realizar un pedido')
       window.location.href = '/login'
+      return
+    }
+
+    const sinStock = items.find((it) => it.quantity > it.product.stock)
+    if (sinStock) {
+      alert(`No hay suficiente stock de "${sinStock.product.name}"`)
       return
     }
 
