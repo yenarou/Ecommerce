@@ -49,20 +49,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .HasColumnName("address_country")
                 .IsRequired();
         });
-
-        // Total
-        builder.OwnsOne(order => order.Total, money =>
-        {
-            money.Property(m => m.Amount)
-                .HasColumnName("total_amount")
-                .HasPrecision(18, 2)
-                .IsRequired();
-
-            money.Property(m => m.Currency)
-                .HasColumnName("total_currency")
-                .HasMaxLength(3)
-                .IsRequired();
-        });
+        
+        #warning implementar costo total
 
         // User
         builder.HasOne(order => order.User)

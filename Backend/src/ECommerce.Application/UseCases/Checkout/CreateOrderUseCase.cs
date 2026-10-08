@@ -42,7 +42,7 @@ public class CreateOrderUseCase(ICurrentUser currentUser, IOrderRepository order
         
         return new CreateOrderResponse(
             order.Id,
-            order.Total.Amount
+            order.GetTotal().Amount
         );
     }
 }

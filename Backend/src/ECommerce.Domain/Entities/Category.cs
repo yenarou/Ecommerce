@@ -20,7 +20,7 @@ public class Category
     public string Slug { get; private set; } = string.Empty;
     public DateTime CreatedAt { get; private set; }
 
-    public static Category Create(string slug, string name, string description)
+    public static Category Create(string slug, string name, string description = "")
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Category name cannot be null or empty.", nameof(name));

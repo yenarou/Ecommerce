@@ -1,11 +1,12 @@
 using ECommerce.Application.DTOs.Requests;
+using ECommerce.Application.Interfaces.Factories;
 using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Application.Factories;
 
-public class CartFactory(IProductRepository productRepository)
+public class CartFactory(IProductRepository productRepository) : ICartFactory
 {
     public async Task<Cart> Create(
         User user,

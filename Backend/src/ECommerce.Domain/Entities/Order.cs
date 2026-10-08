@@ -27,7 +27,6 @@ public class Order
     public OrderStatus Status { get; private set; }
     public ICollection<OrderItem> Items { get; private set; }
     #warning 
-    public Money Total { get; private set; }
 
     public static Order Create(User user, Address address)
     {
@@ -99,5 +98,19 @@ public class Order
         // Use the TransitionTo method to validate state transitions
         Status = Status.TransitionTo(status);
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public Money GetTotal()
+    {
+        string currency = Items.FirstOrDefault().Product.Price.Currency;
+
+        Money total = Money.Create(0, currency); 
+        
+        foreach (var item in Items)
+        {
+            total.Add(item.Product.Price);
+        }
+        
+        return total;
     }
 }

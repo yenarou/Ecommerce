@@ -1,12 +1,13 @@
 ﻿using ECommerce.Application.DTOs.Requests;
 using ECommerce.Application.Factories;
 using ECommerce.Application.Interfaces;
+using ECommerce.Application.Interfaces.Factories;
 using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Checkout;
 
-public class UpdateCartUseCase(ICurrentUser currentUser, ICartRepository cartRepository, CartFactory cartFactory)
+public class UpdateCartUseCase(ICurrentUser currentUser, ICartRepository cartRepository, ICartFactory cartFactory)
 {
     public async Task Execute(CartRequest request)
     {

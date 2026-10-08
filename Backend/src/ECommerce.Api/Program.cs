@@ -1,7 +1,9 @@
 using System.Text;
 using ECommerce.Api.GraphQL;
 using ECommerce.Api.GraphQL.Mutations;
+using ECommerce.Application.Factories;
 using ECommerce.Application.Interfaces;
+using ECommerce.Application.Interfaces.Factories;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Application.UseCases.Catalog;
 using ECommerce.Application.UseCases.Checkout;
@@ -53,6 +55,7 @@ builder.Services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ICartFactory, CartFactory>();
 
 // Use Cases - Auth
 builder.Services.AddScoped<AuthenticateWithGoogleUseCase>();
