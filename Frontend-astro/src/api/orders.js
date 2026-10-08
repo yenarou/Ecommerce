@@ -32,3 +32,18 @@ export async function createOrder(address) {
 
   return gql(mutation, variables, headers)
 }
+
+export async function startPayment(orderId, paymentOption) {
+  const mutation = `
+    mutation CreatePaymentPreference($request: CreatePaymentPreferenceRequestInput!) {
+      createPaymentPreference(request: $request) {
+        initPoint
+      }
+    }
+  `
+
+  const token = useAuth.getState().user?.token
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+
+  return gql(mutation, { request: { orderId, paymentOption } }, headers)
+}

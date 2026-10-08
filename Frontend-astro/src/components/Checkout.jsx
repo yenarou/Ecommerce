@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useCart } from '../stores/cart'
 import { updateCart } from '../api/cart'
-import { createOrder } from '../api/orders'
+import { createOrder, startPayment } from '../api/orders'
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
@@ -56,9 +56,10 @@ export default function Checkout() {
 
       await updateCart(items)
       const response = await createOrder(address)
-      console.log('Pedido creado:', response.createOrder)
-      setPlaced(true)
-      clearCart()
+      const orderId = response.createOrder.id
+      const payment = await startPayment(orderId, form.paymentMethod)
+      window.location.href = payment.createPaymentPreference.initPoint
+
     } catch (err) {
       alert(err.message || 'Error al crear el pedido')
     }
@@ -159,9 +160,9 @@ export default function Checkout() {
           <div className="checkout-form__field">
             <label htmlFor="paymentMethod">Método de pago</label>
             <select id="paymentMethod" name="paymentMethod" value={form.paymentMethod} onChange={handleChange}>
-              <option value="card">Tarjeta</option>
-              <option value="transfer">Transferencia</option>
-              <option value="cash">Efectivo contra entrega</option>
+              <option value="card">Tarjeta de crédito o débito</option>
+              <option value="spei">Transferencia SPEI</option>
+              <option value="oxxo">Efectivo en OXXO</option>
             </select>
           </div>
 
