@@ -45,7 +45,7 @@ public class CartItem
         Customization = customization;
     }
 
-    public void UpdateCustomization(Customization customization)
+    public void UpdateCustomization(Customization? customization)
     {
         Customization = customization;
     }

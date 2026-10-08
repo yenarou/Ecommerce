@@ -179,10 +179,12 @@ export default function Checkout() {
                 <li key={item.id}>
                   <span>
                     {item.product.name} × {item.quantity}
-                    <span className="checkout-summary__custom">
-                      {' · Personalización: '}{item.customization_text}
-                      {item.wrap && ' · Envolver para regalo'}
-                    </span>
+                    {(item.customization_text || item.wrap) && (
+                      <span className="checkout-summary__custom">
+                        {item.customization_text && ` · Personalización: ${item.customization_text}`}
+                        {item.wrap && ' · Envolver para regalo'}
+                      </span>
+                    )}
                   </span>
                   <span>${(unitPrice * item.quantity).toFixed(2)}</span>
                 </li>

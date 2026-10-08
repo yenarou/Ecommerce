@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { login } from '../api/auth'
 import { useAuth } from '../stores/auth'
-import { useCart } from '../stores/cart'
+import { useCartStore } from '../stores/cart'
 import GoogleButton from './GoogleButton.jsx'
 import '../styles/Auth.css'
 
 export default function LoginForm() {
   const setUser = useAuth((s) => s.setUser)
-  const { sync } = useCart()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -24,7 +23,7 @@ export default function LoginForm() {
     try {
       const user = await login(form.email, form.password)
       setUser(user)
-      await sync()
+      await useCartStore.getState().loadFromServer()
       window.location.href = '/'
     } catch (err) {
       setError(err.message || 'No se pudo iniciar sesión')

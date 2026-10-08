@@ -25,10 +25,12 @@ export default function Cart() {
                   <img className="cart-item__image" src={item.product.images[0]?.url} alt={item.product.name} />
                   <div className="cart-item__info">
                     <p className="cart-item__name">{item.product.name}</p>
-                    <p className="cart-item__customization">
-                      Personalización: {item.customization_text}
-                      {item.wrap && ' · Envolver para regalo'}
-                    </p>
+                    {(item.customization_text || item.wrap) && (
+                      <p className="cart-item__customization">
+                        {item.customization_text && `Personalización: ${item.customization_text}`}
+                        {item.wrap && `${item.customization_text ? ' · ' : ''}Envolver para regalo`}
+                      </p>
+                    )}
                     <p className="price cart-item__price">${unitPrice.toFixed(2)} {item.product.currency} c/u</p>
                   </div>
 

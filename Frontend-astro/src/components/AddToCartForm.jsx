@@ -33,10 +33,9 @@ export default function AddToCartForm({ product }) {
           id="personalization"
           rows="3"
           maxLength="500"
-          required
           value={personalization}
           onChange={(e) => setPersonalization(e.target.value)}
-          placeholder="Describe cómo quieres personalizar este producto"
+          placeholder="Opcional: describe cómo quieres personalizar este producto"
         />
         <span className="product-detail__field-hint">Máximo 500 caracteres.</span>
       </div>
@@ -64,7 +63,7 @@ export default function AddToCartForm({ product }) {
         <button
           className="btn btn-primary"
           onClick={handleAddToCart}
-          disabled={remaining <= 0 || !personalization.trim()}
+          disabled={remaining <= 0}
         >
           Agregar al carrito = ${(product.price * quantity).toFixed(2)}
         </button>

@@ -2,6 +2,44 @@ import { gql } from './client'
 import { useAuth } from '../stores/auth'
 import { fetchProducts } from './catalog'
 
+export async function getActiveCart(token = useAuth.getState().user?.token) {
+  if (!token) {
+    throw new Error('Debes iniciar sesión para consultar el carrito')
+  }
+
+  const query = `
+    query ActiveCart {
+      activeCart {
+        id
+        status
+        updatedAt
+        items {
+          id
+          quantity
+          product {
+            id
+            name
+            description
+            price
+            currency
+            stock
+            createdAt
+            categoryId
+            categoryName
+            images { id url alt }
+          }
+          customization {
+            description
+            isWrap
+          }
+        }
+      }
+    }
+  `
+
+  return gql(query, {}, { Authorization: `Bearer ${token}` })
+}
+
 export async function updateCart(items) {
   const firstPage = await fetchProducts({ page: 1, pageSize: 100 })
   const currentProducts = [...firstPage.items]
@@ -45,7 +83,7 @@ export async function updateCart(items) {
         productId: item.product_id,
         quantity: item.quantity,
         customization: {
-          personalizationDescription: item.customization_text || '',
+          personalizationDescription: item.customization_text?.trim() || null,
           wrap: Boolean(item.wrap)
         }
       }))

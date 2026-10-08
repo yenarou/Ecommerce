@@ -1,10 +1,11 @@
 import { useMemo } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { updateCart } from '../api/cart'
+import { getActiveCart, updateCart } from '../api/cart'
 import { useAuth } from './auth'
 
 const CART_ID = 'cart-local-demo'
+let activeCartRequest = null
 
 function makeId() {
   return `local-${Date.now()}-${Math.random().toString(16).slice(2)}`
@@ -14,6 +15,54 @@ export const useCartStore = create(
   persist(
     (set) => ({
       items: [],
+      loadError: null,
+
+      loadFromServer: async () => {
+        const token = useAuth.getState().user?.token
+        if (!token) return
+
+        if (activeCartRequest?.token === token) {
+          return activeCartRequest.promise
+        }
+
+        const promise = getActiveCart(token)
+          .then(({ activeCart }) => {
+            if (useAuth.getState().user?.token !== token) return
+
+            const items = (activeCart?.items ?? []).map((item) => ({
+              id: item.id,
+              cart_id: activeCart.id,
+              product_id: item.product.id,
+              customization_id: null,
+              customization_text: item.customization?.description ?? '',
+              wrap: Boolean(item.customization?.isWrap),
+              quantity: item.quantity,
+              product: {
+                ...item.product,
+                category: {
+                  id: item.product.categoryId,
+                  name: item.product.categoryName,
+                },
+              },
+            }))
+
+            set({ items, loadError: null })
+          })
+          .catch((error) => {
+            if (useAuth.getState().user?.token === token) {
+              set({ loadError: error.message || 'No se pudo cargar el carrito.' })
+            }
+            throw error
+          })
+          .finally(() => {
+            if (activeCartRequest?.promise === promise) {
+              activeCartRequest = null
+            }
+          })
+
+        activeCartRequest = { token, promise }
+        return promise
+      },
 
       addItem: (product, quantity, customizationText, wrap) =>
         set((state) => {
@@ -72,7 +121,10 @@ export const useCartStore = create(
         }
       }
     }),
-    { name: 'cart' }
+    {
+      name: 'cart',
+      partialize: (state) => ({ items: state.items }),
+    }
   )
 )
 
@@ -83,6 +135,7 @@ export function useCart() {
   const removeItem = useCartStore((s) => s.removeItem)
   const clearCart = useCartStore((s) => s.clearCart)
   const sync = useCartStore((s) => s.sync)
+  const loadError = useCartStore((s) => s.loadError)
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((sum, it) => {
@@ -92,5 +145,5 @@ export function useCart() {
     return { subtotal, itemCount }
   }, [items])
 
-  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, sync, totals }
+  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, sync, loadError, totals }
 }

@@ -73,6 +73,7 @@ builder.Services.AddScoped<GetPublishedProductsCase>();
 // Use Cases - Checkout
 builder.Services.AddScoped<CreateOrderUseCase>();
 builder.Services.AddScoped<UpdateCartUseCase>();
+builder.Services.AddScoped<GetActiveCartUseCase>();
 
 
 builder.Services.AddControllers();
@@ -154,6 +155,8 @@ using (var scope = app.Services.CreateScope())
                 ADD COLUMN IF NOT EXISTS "ProductId" uuid;
             ALTER TABLE "Customization"
                 ADD COLUMN IF NOT EXISTS "IsWrap" boolean NOT NULL DEFAULT FALSE;
+            ALTER TABLE "Customization"
+                ALTER COLUMN "Description" DROP NOT NULL;
             """);
     }
     catch (Exception ex)

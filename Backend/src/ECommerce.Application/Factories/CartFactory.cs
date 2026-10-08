@@ -29,10 +29,11 @@ public class CartFactory(IProductRepository productRepository) : ICartFactory
 
             var quantity = Quantity.Create(item.Quantity);
 
-            var customization = Customization.Create(
-                item.Customization.PersonalizationDescription,
-                item.Customization.Wrap
-            );
+            var description = item.Customization?.PersonalizationDescription;
+            var wrap = item.Customization?.Wrap ?? false;
+            var customization = string.IsNullOrWhiteSpace(description) && !wrap
+                ? null
+                : Customization.Create(description, wrap);
 
             cart.AddCartItem(
                 product,

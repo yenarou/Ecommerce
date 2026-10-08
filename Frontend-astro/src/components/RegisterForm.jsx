@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { register } from '../api/auth'
 import { useAuth } from '../stores/auth'
+import { useCartStore } from '../stores/cart'
 import GoogleButton from './GoogleButton.jsx'
 import '../styles/Auth.css'
 
@@ -32,6 +33,7 @@ export default function RegisterForm() {
     try {
       const user = await register(form.username, form.email, form.password)
       setUser(user)
+      await useCartStore.getState().loadFromServer()
       window.location.href = '/'
     } catch (err) {
       setError(err.message || 'No se pudo crear la cuenta')

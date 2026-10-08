@@ -17,7 +17,7 @@ public class CustomizationConfiguration : IEntityTypeConfiguration<Customization
 
         builder.Property(customization => customization.Description)
             .HasMaxLength(500)
-            .IsRequired();
+            .IsRequired(false);
 
         builder.Property(customization => customization.CreatedAt)
             .IsRequired();

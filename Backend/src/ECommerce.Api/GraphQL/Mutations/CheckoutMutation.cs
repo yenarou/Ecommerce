@@ -22,4 +22,9 @@ public class CheckoutMutation
     {
         return await useCase.Execute(request);
     }
+
+    public async Task<CartResponse> GetCart(GetActiveCartUseCase useCase)
+    {
+        return await useCase.Execute();
+    }
 }

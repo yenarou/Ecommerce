@@ -1,5 +1,6 @@
 ﻿using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.UseCases.Catalog;
+using ECommerce.Application.UseCases.Checkout;
 
 namespace ECommerce.Api.GraphQL;
 
@@ -35,5 +36,11 @@ public class Query
         [Service] GetProductDetailsUseCase useCase)
     {
         return await useCase.Execute(id);
+    }
+
+    public async Task<CartResponse> ActiveCart(
+        [Service] GetActiveCartUseCase useCase)
+    {
+        return await useCase.Execute();
     }
 }
