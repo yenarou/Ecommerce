@@ -109,7 +109,8 @@ builder.Services.AddAuthorization();
 builder.Services
     .AddGraphQLServer()
     .AddQueryType<Query>()
-    .AddMutationType<CheckoutMutation>()
+    .AddMutationType<Mutation>()
+    .AddType<CheckoutMutation>()
     .ModifyRequestOptions(options =>
     {
         options.IncludeExceptionDetails = true;
