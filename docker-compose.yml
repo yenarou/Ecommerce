@@ -78,7 +78,7 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:8.0
+    image: mongo:8.2
     volumes:
       - mongo-data:/data/db
     healthcheck:
