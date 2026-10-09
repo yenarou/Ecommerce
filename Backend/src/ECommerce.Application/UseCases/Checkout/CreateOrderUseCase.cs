@@ -39,6 +39,8 @@ public class CreateOrderUseCase(ICurrentUser currentUser, IOrderRepository order
         order.AddOrderItems(cart);
         
         await orderRepository.Save(order);
+        cart.Convert();
+        await cartRepository.Save(cart);
         
         return new CreateOrderResponse(
             order.Id,

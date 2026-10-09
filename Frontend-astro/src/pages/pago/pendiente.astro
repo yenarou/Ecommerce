@@ -1,0 +1,7 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import PagoResultado from '../../components/PagoResultado.jsx'
+---
+<Layout title="Pago | Hilo y Alma">
+  <PagoResultado client:only="react" estado="pendiente" />
+</Layout>

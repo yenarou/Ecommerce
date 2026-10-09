@@ -1,10 +1,15 @@
 import { useState } from 'react'
 import { useCart } from '../stores/cart'
 import { updateCart } from '../api/cart'
-import { createOrder } from '../api/orders'
+import { createOrder, payOrder } from '../api/orders'
+import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react'
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
+
+if (import.meta.env.PUBLIC_MP_PUBLIC_KEY) {
+  initMercadoPago(import.meta.env.PUBLIC_MP_PUBLIC_KEY, { locale: 'es-MX' })
+}
 
 const initialForm = {
   fullName: '',
@@ -22,12 +27,61 @@ export default function Checkout() {
   const { items, totals, clearCart } = useCart()
   const [form, setForm] = useState(initialForm)
   const [placed, setPlaced] = useState(false)
+  const [orderInfo, setOrderInfo] = useState(null)
   const user = useAuth((s) => s.user)
   const logout = useAuth((s) => s.logout)
 
   function handleChange(e) {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  function buildPayer() {
+    const parts = form.fullName.trim().split(/\s+/)
+    return {
+      email: form.email,
+      firstName: parts[0],
+      lastName: parts.slice(1).join(' ') || parts[0],
+    }
+  }
+
+  function goToResult(result) {
+    if (result.paid) {
+      window.location.href = '/pago/exito'
+      return
+    }
+    if (result.status === 'failed') {
+      window.location.href = '/pago/error'
+      return
+    }
+    const q = new URLSearchParams()
+    if (result.reference) q.set('ref', result.reference)
+    if (result.ticketUrl) q.set('ticket', result.ticketUrl)
+    window.location.href = `/pago/pendiente?${q.toString()}`
+  }
+
+  async function handleCardSubmit(formData, additionalData) {
+    try {
+      const res = await payOrder({
+        orderId: orderInfo.id,
+        paymentOption: 'card',
+        payer: {
+          ...buildPayer(),
+          identificationType: formData.payer?.identification?.type,
+          identificationNumber: formData.payer?.identification?.number,
+        },
+        card: {
+          token: formData.token,
+          paymentMethodId: formData.payment_method_id,
+          paymentMethodType: additionalData?.paymentTypeId ?? 'credit_card',
+          installments: formData.installments,
+        },
+      })
+      goToResult(res.payOrder)
+    } catch (err) {
+      alert(err.message || 'No se pudo procesar el pago')
+      throw err
+    }
   }
 
   async function handleSubmit(e) {
@@ -56,9 +110,20 @@ export default function Checkout() {
 
       await updateCart(items)
       const response = await createOrder(address)
-      console.log('Pedido creado:', response.createOrder)
-      setPlaced(true)
-      clearCart()
+      const orderId = response.createOrder.id
+
+      if (form.paymentMethod === 'card') {
+        setOrderInfo({ id: orderId, total: Number(response.createOrder.total) })
+        return
+      }
+
+      const res = await payOrder({
+        orderId,
+        paymentOption: form.paymentMethod,
+        payer: buildPayer(),
+      })
+      goToResult(res.payOrder)
+
     } catch (err) {
       alert(err.message || 'Error al crear el pedido')
     }
@@ -94,6 +159,20 @@ export default function Checkout() {
         <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
           Volver al inicio
         </button>
+      </div>
+    )
+  }
+
+  if (orderInfo) {
+    return (
+      <div className="container checkout-page">
+        <h1 className="checkout-page__title">Pago con tarjeta</h1>
+        <p>Total a pagar: ${orderInfo.total.toFixed(2)} MXN</p>
+        <CardPayment
+          initialization={{ amount: orderInfo.total, payer: { email: form.email } }}
+          onSubmit={handleCardSubmit}
+          onError={(e) => console.error(e)}
+        />
       </div>
     )
   }
@@ -159,9 +238,9 @@ export default function Checkout() {
           <div className="checkout-form__field">
             <label htmlFor="paymentMethod">Método de pago</label>
             <select id="paymentMethod" name="paymentMethod" value={form.paymentMethod} onChange={handleChange}>
-              <option value="card">Tarjeta</option>
-              <option value="transfer">Transferencia</option>
-              <option value="cash">Efectivo contra entrega</option>
+              <option value="card">Tarjeta de crédito o débito</option>
+              <option value="spei">Transferencia SPEI</option>
+              <option value="oxxo">Efectivo en OXXO</option>
             </select>
           </div>
 

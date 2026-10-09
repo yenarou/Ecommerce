@@ -64,4 +64,8 @@ public class OrderItem
         Product = product ?? throw new ArgumentNullException(nameof(product));
         ProductId = product.Id;
     }
+    public void RestoreProduct(Product product)
+    {
+        Product = product ?? throw new ArgumentNullException(nameof(product));
+    }
 }
