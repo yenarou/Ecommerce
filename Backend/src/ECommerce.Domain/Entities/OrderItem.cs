@@ -45,4 +45,8 @@ public class OrderItem
         
         Customization = customization;
     }
+    public void RestoreProduct(Product product)
+    {
+        Product = product ?? throw new ArgumentNullException(nameof(product));
+    }
 }

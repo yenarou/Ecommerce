@@ -27,6 +27,10 @@ services:
 
       Google__ApiRedirectUri: http://localhost:15174/api/auth/callback
 
+      MercadoPago__AccessToken: ${MERCADOPAGO_ACCESS_TOKEN}
+
+      MercadoPago__NotificationUrl: ${MERCADOPAGO_NOTIFICATION_URL:-}
+
       
 
     ports:

@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using ECommerce.Infrastructure.Payments;
 
 using ExceptionHandlerMiddleware = ECommerce.Api.Middleware.ExceptionHandlerMiddleware;
 
@@ -29,8 +30,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Infrastructure - Persistence - PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
-
-
 
 // Infrastructure - Persistence - MongoDB
 MongoDbConfiguration.Configure();
@@ -54,6 +53,7 @@ builder.Services.AddScoped<IUserRepository, PostgreSqlUserRepository>();
 // Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
+builder.Services.AddHttpClient<IPaymentGateway, MercadoPagoGateway>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
@@ -74,11 +74,14 @@ builder.Services.AddScoped<GetPublishedProductsCase>();
 builder.Services.AddScoped<CreateOrderUseCase>();
 builder.Services.AddScoped<UpdateCartUseCase>();
 builder.Services.AddScoped<GetActiveCartUseCase>();
+builder.Services.AddScoped<ConfirmOrderPaymentUseCase>();
+builder.Services.AddScoped<PayOrderUseCase>();
 
 
 builder.Services.AddControllers();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<GoogleOptions>(builder.Configuration.GetSection("Google"));
+builder.Services.Configure<MercadoPagoOptions>(builder.Configuration.GetSection("MercadoPago"));
 
 // Autenticación: el backend valida el token (JWT) en las rutas con [Authorize]
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

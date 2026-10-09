@@ -22,6 +22,12 @@ public class CheckoutMutation
     {
         return await useCase.Execute(request);
     }
+        public async Task<PayOrderResponse> PayOrder(
+        PayOrderRequest request,
+        PayOrderUseCase useCase)
+    {
+        return await useCase.Execute(request);
+    }
 
     public async Task<CartResponse> GetCart(GetActiveCartUseCase useCase)
     {
