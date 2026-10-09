@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 using MongoDB.Driver;
@@ -9,12 +9,19 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
 {
     private readonly IMongoCollection<Product> _products =
         database.GetCollection<Product>("products");
+    private readonly IMongoCollection<Category> _categories =
+        database.GetCollection<Category>("categories");
 
     public async Task<Product?> GetById(Guid productId)
     {
-        return await _products
+        var product = await _products
             .Find(product => product.Id == productId)
             .FirstOrDefaultAsync();
+
+        if (product is not null)
+            await RestoreCategoriesAsync([product]);
+
+        return product;
     }
 
     public async Task<PaginatedResult<Product>> FilterPublished(
@@ -35,6 +42,11 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             product => product.IsPublished,
             true);
 
+        if (catalogFilter.CategoryId.HasValue)
+            filter &= Builders<Product>.Filter.Eq(
+                product => product.CategoryId,
+                catalogFilter.CategoryId.Value);
+
         var total = await _products.CountDocumentsAsync(filter);
 
         var items = await _products
@@ -42,6 +54,8 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             .Skip((page - 1) * size)
             .Limit(size)
             .ToListAsync();
+
+        await RestoreCategoriesAsync(items);
 
         return new PaginatedResult<Product>(
             items,
@@ -60,16 +74,27 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
 
         if (catalogFilter.CategoryId.HasValue)
             filter &= Builders<Product>.Filter.Eq(
-                product => product.Category.Id,
+                product => product.CategoryId,
                 catalogFilter.CategoryId.Value);
 
-        return await _products
+        var products = await _products
             .Find(filter)
             .ToListAsync();
+
+        await RestoreCategoriesAsync(products);
+        return products;
     }
 
     public async Task Save(Product product)
     {
+        var categoryExists = await _categories
+            .Find(category => category.Id == product.CategoryId)
+            .AnyAsync();
+
+        if (!categoryExists)
+            throw new InvalidOperationException(
+                $"Cannot save product {product.Id}: category {product.CategoryId} does not exist.");
+
         var filter = Builders<Product>.Filter.Eq(
             existing => existing.Id,
             product.Id);
@@ -94,16 +119,22 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
 
     public async Task<ICollection<Product>> GetAll()
     {
-        return await _products
+        var products = await _products
             .Find(_ => true)
             .ToListAsync();
+
+        await RestoreCategoriesAsync(products);
+        return products;
     }
 
     public async Task<ICollection<Product>> GetAllPublished()
     {
-        return await _products
+        var products = await _products
             .Find(product => product.IsPublished)
             .ToListAsync();
+
+        await RestoreCategoriesAsync(products);
+        return products;
     }
 
     public async Task<ICollection<Product>> GetPublishedPage(int page, int size)
@@ -114,10 +145,39 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
         if (size < 1)
             throw new ArgumentOutOfRangeException(nameof(size));
 
-        return await _products
+        var products = await _products
             .Find(product => product.IsPublished)
             .Skip((page - 1) * size)
             .Limit(size)
             .ToListAsync();
+
+        await RestoreCategoriesAsync(products);
+        return products;
+    }
+
+    private async Task RestoreCategoriesAsync(ICollection<Product> products)
+    {
+        if (products.Count == 0)
+            return;
+
+        var categoryIds = products
+            .Select(product => product.CategoryId)
+            .Distinct()
+            .ToArray();
+
+        var categories = await _categories
+            .Find(Builders<Category>.Filter.In(category => category.Id, categoryIds))
+            .ToListAsync();
+
+        var categoriesById = categories.ToDictionary(category => category.Id);
+
+        foreach (var product in products)
+        {
+            if (!categoriesById.TryGetValue(product.CategoryId, out var category))
+                throw new InvalidOperationException(
+                    $"Product {product.Id} references missing category {product.CategoryId}.");
+
+            product.RestoreCategory(category);
+        }
     }
 }

@@ -1,6 +1,6 @@
 using ECommerce.Domain.ValueObjects;
 
-namespace ECommerce.Domain.Models;
+namespace ECommerce.Domain.Entities;
 
 public class User
 {

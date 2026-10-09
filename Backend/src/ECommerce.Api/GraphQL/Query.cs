@@ -43,4 +43,18 @@ public class Query
     {
         return await useCase.Execute();
     }
+
+    public async Task<ICollection<OrderResponse>> GetOrders(
+        [Service] GetUserOrderHistoryUseCase useCase)
+    {
+        var orders = await useCase.Execute();
+
+        return orders;
+    }
+    
+    public async Task<CartResponse> GetCart(GetActiveCartUseCase useCase)
+    {
+        return await useCase.Execute();
+    }
+    
 }

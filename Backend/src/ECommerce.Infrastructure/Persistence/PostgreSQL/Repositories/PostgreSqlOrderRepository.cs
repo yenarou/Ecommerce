@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +11,7 @@ public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRep
     {
         return await context.Orders
             .Include(order => order.Items)
+            .ThenInclude(item => item.Customization)
             .FirstOrDefaultAsync(order => order.Id == orderId);
     }
 
@@ -18,19 +19,13 @@ public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRep
     {
         return await context.Orders
             .Include(order => order.Items)
-            .Where(order => order.User.Id == userId)
+            .ThenInclude(item => item.Customization)
+            .Where(order => order.UserId == userId)
             .ToListAsync();
     }
 
     public async Task Save(Order order)
     {
-        foreach (var item in order.Items)
-        {
-            context.Entry(item)
-                .Property<Guid?>("ProductId")
-                .CurrentValue = item.Product.Id;
-        }
-
         var exists = await context.Orders
             .AnyAsync(existing => existing.Id == order.Id);
 

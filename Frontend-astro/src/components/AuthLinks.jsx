@@ -26,6 +26,7 @@ export default function AuthLinks() {
     return (
       <div className="topbar__auth">
         <a href="/login" className="topbar__nav-link">Iniciar sesión</a>
+        <a href="/ordenes" className="topbar__nav-link">Mis órdenes</a>
         <a href="/registro" className="topbar__nav-link">Registrarse</a>
       </div>
     )
@@ -34,6 +35,7 @@ export default function AuthLinks() {
   return (
     <div className="topbar__auth">
       <span className="topbar__user">Hola, {user.username}</span>
+      <a href="/ordenes" className="topbar__nav-link">Mis órdenes</a>
       <button type="button" className="topbar__logout" onClick={handleLogout}>Salir</button>
     </div>
   )

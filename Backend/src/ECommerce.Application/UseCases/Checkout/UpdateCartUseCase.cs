@@ -2,7 +2,7 @@
 using ECommerce.Application.Factories;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.Interfaces.Factories;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Checkout;

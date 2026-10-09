@@ -1,6 +1,6 @@
 using ECommerce.Application.DTOs.Requests;
 using ECommerce.Application.Interfaces.Factories;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 

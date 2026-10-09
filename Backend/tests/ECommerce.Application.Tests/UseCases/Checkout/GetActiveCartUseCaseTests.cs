@@ -1,6 +1,6 @@
 ﻿using ECommerce.Application.Interfaces;
 using ECommerce.Application.UseCases.Checkout;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 using Moq;

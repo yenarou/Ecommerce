@@ -1,5 +1,5 @@
 using ECommerce.Application.DTOs.Responses;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 
 namespace ECommerce.Application.Mappers;
 

@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -28,6 +28,8 @@ public static class MongoDbConfiguration
                 map.MapMember(product => product.Price);
                 map.MapMember(product => product.Stock);
                 map.MapMember(product => product.Images);
+                map.MapMember(product => product.CategoryId);
+                map.UnmapMember(product => product.Category);
             });
         }
 

@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -18,23 +18,29 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
 
         builder.Ignore(item => item.Product);
 
-        builder.Property<Guid?>("ProductId");
-
-
         builder.Property(item => item.Quantity)
             .HasConversion(
                 quantity => quantity.Value,
                 value => Quantity.Create(value))
             .IsRequired();
 
+        builder.Property(item => item.CartId)
+            .IsRequired();
+
+        builder.Property(item => item.ProductId)
+            .IsRequired(false);
+
+        builder.Property(item => item.CustomizationId)
+            .IsRequired(false);
+
         builder.HasOne(item => item.Cart)
             .WithMany(cart => cart.Items)
-            .HasForeignKey("CartId")
+            .HasForeignKey(item => item.CartId)
             .IsRequired();
 
         builder.HasOne(item => item.Customization)
             .WithMany()
-            .HasForeignKey("CustomizationId")
+            .HasForeignKey(item => item.CustomizationId)
             .IsRequired(false);
     }
 }

@@ -74,6 +74,7 @@ builder.Services.AddScoped<GetPublishedProductsCase>();
 builder.Services.AddScoped<CreateOrderUseCase>();
 builder.Services.AddScoped<UpdateCartUseCase>();
 builder.Services.AddScoped<GetActiveCartUseCase>();
+builder.Services.AddScoped<GetUserOrderHistoryUseCase>();
 
 
 builder.Services.AddControllers();

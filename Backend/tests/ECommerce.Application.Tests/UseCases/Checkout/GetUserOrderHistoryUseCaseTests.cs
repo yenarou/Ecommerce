@@ -1,6 +1,6 @@
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.UseCases.Checkout;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 using Moq;
@@ -11,16 +11,19 @@ public class GetUserOrderHistoryUseCaseTests
 {
     private readonly Mock<ICurrentUser> _currentUserMock;
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
+    private readonly Mock<IProductRepository> _productRepositoryMock;
     private readonly GetUserOrderHistoryUseCase _useCase;
 
     public GetUserOrderHistoryUseCaseTests()
     {
         _currentUserMock = new Mock<ICurrentUser>();
         _orderRepositoryMock = new Mock<IOrderRepository>();
+        _productRepositoryMock = new Mock<IProductRepository>();
 
         _useCase = new GetUserOrderHistoryUseCase(
             _currentUserMock.Object,
-            _orderRepositoryMock.Object
+            _orderRepositoryMock.Object,
+            _productRepositoryMock.Object
         );
     }
 
@@ -49,6 +52,41 @@ public class GetUserOrderHistoryUseCaseTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(orders.Count, result.Count);
+    }
+
+    [Fact]
+    public async Task Execute_ShouldRestoreProductsFromStoredProductIds()
+    {
+        var user = CreateUser();
+        var category = Category.Create("test", "Test");
+        var product = Product.Create(
+            "Test product",
+            "Test description",
+            Money.Create(10m, "MXN"),
+            Quantity.Create(5),
+            category,
+            []);
+        var cart = Cart.Create(user);
+        cart.AddCartItem(product, Quantity.Create(2));
+        var order = CreateOrder(user);
+        order.AddOrderItems(cart);
+
+        _currentUserMock
+            .Setup(x => x.GetUserAsync())
+            .ReturnsAsync(user);
+        _orderRepositoryMock
+            .Setup(x => x.GetByUserId(user.Id))
+            .ReturnsAsync([order]);
+        _productRepositoryMock
+            .Setup(x => x.GetById(product.Id))
+            .ReturnsAsync(product);
+
+        var result = await _useCase.Execute();
+
+        var responseItem = Assert.Single(Assert.Single(result).Items);
+        Assert.Equal(product.Id, responseItem.ProductId);
+        Assert.Equal(product.Id, responseItem.Product.Id);
+        _productRepositoryMock.Verify(x => x.GetById(product.Id), Times.Once);
     }
 
     [Fact]

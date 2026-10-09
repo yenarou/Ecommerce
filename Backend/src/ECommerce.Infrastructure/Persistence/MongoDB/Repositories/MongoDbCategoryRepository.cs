@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using MongoDB.Driver;
 
@@ -8,6 +8,8 @@ public class MongoDbCategoryRepository(IMongoDatabase database) : ICategoryRepos
 {
     private readonly IMongoCollection<Category> _categories =
         database.GetCollection<Category>("categories");
+    private readonly IMongoCollection<Product> _products =
+        database.GetCollection<Product>("products");
 
     public async Task<Category?> GetById(Guid categoryId)
     {
@@ -46,6 +48,14 @@ public class MongoDbCategoryRepository(IMongoDatabase database) : ICategoryRepos
 
     public async Task Delete(Guid categoryId)
     {
+        var hasProducts = await _products
+            .Find(product => product.CategoryId == categoryId)
+            .AnyAsync();
+
+        if (hasProducts)
+            throw new InvalidOperationException(
+                $"Cannot delete category {categoryId} while products reference it.");
+
         var filter = Builders<Category>.Filter
             .Eq(category => category.Id, categoryId);
 

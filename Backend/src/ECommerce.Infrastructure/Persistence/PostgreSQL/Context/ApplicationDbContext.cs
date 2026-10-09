@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Configurations;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Configurations;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -25,14 +25,17 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
             .HasConversion<string>()
             .IsRequired();
 
+        builder.Property(cart => cart.UserId)
+            .IsRequired();
+
         builder.HasOne(cart => cart.User)
             .WithMany()
-            .HasForeignKey("UserId")
+            .HasForeignKey(cart => cart.UserId)
             .IsRequired();
 
         builder.HasMany(cart => cart.Items)
             .WithOne(item => item.Cart)
-            .HasForeignKey("CartId")
+            .HasForeignKey(item => item.CartId)
             .IsRequired();
     }
 }

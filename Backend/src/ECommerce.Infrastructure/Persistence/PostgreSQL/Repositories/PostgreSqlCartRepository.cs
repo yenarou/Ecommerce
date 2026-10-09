@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
@@ -22,7 +22,7 @@ public class PostgreSqlCartRepository(
     {
         return await context.Carts
             .Include(cart => cart.Items)
-            .Where(cart => cart.User.Id == userId)
+            .Where(cart => cart.UserId == userId)
             .ToListAsync();
     }
 
@@ -31,7 +31,7 @@ public class PostgreSqlCartRepository(
         var cart = await context.Carts
             .Include(cart => cart.Items)
             .ThenInclude(item => item.Customization)
-            .Where(cart => cart.User.Id == userId && cart.Status == CartStatus.Active)
+            .Where(cart => cart.UserId == userId && cart.Status == CartStatus.Active)
             .FirstOrDefaultAsync();
 
         if (cart is null)
@@ -39,17 +39,13 @@ public class PostgreSqlCartRepository(
 
         foreach (var item in cart.Items)
         {
-            var productId = context.Entry(item)
-                .Property<Guid?>("ProductId")
-                .CurrentValue;
-
-            if (!productId.HasValue)
+            if (!item.ProductId.HasValue)
                 throw new InvalidOperationException(
                     $"Cart item {item.Id} has no stored product ID. Remove it and add the product again.");
 
-            var product = await productRepository.GetById(productId.Value);
+            var product = await productRepository.GetById(item.ProductId.Value);
             if (product is null)
-                throw new ProductNotFoundException(productId.Value.ToString());
+                throw new ProductNotFoundException(item.ProductId.Value.ToString());
 
             item.RestoreProduct(product);
         }
@@ -59,13 +55,6 @@ public class PostgreSqlCartRepository(
 
     public async Task Save(Cart cart)
     {
-        foreach (var item in cart.Items)
-        {
-            context.Entry(item)
-                .Property<Guid?>("ProductId")
-                .CurrentValue = item.Product.Id;
-        }
-
         var exists = await context.Carts
             .AnyAsync(existing => existing.Id == cart.Id);
 

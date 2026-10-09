@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 using ECommerce.Infrastructure.Auth;

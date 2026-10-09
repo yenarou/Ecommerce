@@ -1,4 +1,4 @@
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Domain.Repositories;

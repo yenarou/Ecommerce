@@ -1,10 +1,19 @@
 using ECommerce.Domain.ValueObjects;
 
-namespace ECommerce.Domain.Models;
+namespace ECommerce.Domain.Entities;
 
 public class Product
 {
-    
+    private Product()
+    {
+        Name = string.Empty;
+        Description = string.Empty;
+        Price = null!;
+        Stock = null!;
+        Category = null!;
+        Images = new List<Image>();
+    }
+
     private Product(Guid id, string name, string description, Money price, Quantity stock, Category category, ICollection<Image> images)
     {
         Id = id;
@@ -13,6 +22,7 @@ public class Product
         Price = price;
         Stock = stock;
         Category = category;
+        CategoryId = category.Id;
         CreatedAt = DateTime.UtcNow;
         IsPublished = true;
         Images = images;
@@ -25,6 +35,7 @@ public class Product
     public Quantity Stock { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Category Category { get; private set; }
+    public Guid CategoryId { get; private set; }
     public bool IsPublished { get; private set; }
     public ICollection<Image> Images { get; private set; }
     
@@ -74,6 +85,16 @@ public class Product
     public void UpdateCategory(Category category)
     {
         if (category == null) throw new ArgumentNullException(nameof(category), "Category cannot be null.");
+
+        Category = category;
+        CategoryId = category.Id;
+    }
+
+    public void RestoreCategory(Category category)
+    {
+        if (category == null) throw new ArgumentNullException(nameof(category), "Category cannot be null.");
+        if (category.Id != CategoryId)
+            throw new ArgumentException("Category ID does not match the product category ID.", nameof(category));
 
         Category = category;
     }
