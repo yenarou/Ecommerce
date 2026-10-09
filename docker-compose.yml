@@ -57,6 +57,7 @@ services:
       dockerfile: Dockerfile
       args:
         PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:14001/graphql}
+        PUBLIC_MP_PUBLIC_KEY: ${PUBLIC_MP_PUBLIC_KEY:-}
     environment:
       API_INTERNAL_URL: http://backend:8080/graphql
     ports:
