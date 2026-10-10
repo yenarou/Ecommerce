@@ -52,8 +52,8 @@ function ProductForm({ product, categories, onClose, onSaved }) {
           price: Number(form.price),
           currency: form.currency,
           stock: Number(form.stock),
-          categoryId: form.categoryId,
-          images: [],
+          categoryId: form.categoryId
+          //images: [],
         })
       }
 
@@ -302,12 +302,12 @@ export default function Products() {
                     >
                       Editar
                     </button>
-                    <button className="btn secondary" onClick={() => price(p)}>
+                    {/*<button className="btn secondary" onClick={() => price(p)}>
                       Precio
                     </button>
                     <button className="btn secondary" onClick={() => stock(p)}>
                       Stock
-                    </button>
+                    </button>*/}
                     <button className="btn danger" onClick={() => remove(p)}>
                       Eliminar
                     </button>

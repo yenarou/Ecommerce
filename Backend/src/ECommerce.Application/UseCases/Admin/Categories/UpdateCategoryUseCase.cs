@@ -5,7 +5,7 @@ namespace ECommerce.Application.UseCases.Admin.Categories;
 public class UpdateCategoryUseCase(
     ICategoryRepository categoryRepository)
 {
-    public async Task Execute(
+    public async Task<ECommerce.Domain.Models.Category> Execute(
         Guid categoryId,
         string name,
         string description)
@@ -21,5 +21,6 @@ public class UpdateCategoryUseCase(
             description);
 
         await categoryRepository.Save(category);
+        return category;
     }
 }

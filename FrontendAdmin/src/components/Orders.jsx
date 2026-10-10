@@ -46,7 +46,7 @@ export default function Orders() {
           <tbody>
             {orders.map((o) => (
               <tr key={o.id}>
-                <td>{o.user?.email || 'Sin correo'}</td>
+                <td>{o.customerEmail || o.customerName || 'Sin correo'}</td>
                 <td>{new Date(o.createdAt).toLocaleString('es-MX')}</td>
                 <td>{o.total}</td>
                 <td>
@@ -59,13 +59,7 @@ export default function Orders() {
                     ))}
                   </select>
                 </td>
-                <td>
-                  {o.items
-                    ?.map(
-                      (i) => `${i.product?.name || 'Producto'} × ${i.quantity}`
-                    )
-                    .join(', ')}
-                </td>
+                <td>—</td>
               </tr>
             ))}
           </tbody>

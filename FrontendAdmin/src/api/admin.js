@@ -14,8 +14,8 @@ const PRODUCT_FIELDS = `
 `
 
 export async function getAdminProducts() {
-  const data = await gql(`query { products { items { ${PRODUCT_FIELDS} } total totalPages page } }`)
-  return data.products?.items || []
+  const data = await gql(`query { adminProducts { ${PRODUCT_FIELDS} } }`)
+  return data.adminProducts || []
 }
 
 export async function getProduct(id) {
@@ -102,9 +102,7 @@ export async function deleteCategory(categoryId) {
 export async function getAdminOrders() {
   const data = await gql(`query {
     adminOrders {
-      id createdAt updatedAt status total
-      user { id email }
-      items { id quantity unitPrice product { id name } }
+      id customerName customerEmail createdAt updatedAt status total currency
     }
   }`)
   return data.adminOrders || []
@@ -113,9 +111,7 @@ export async function getAdminOrders() {
 export async function getAdminOrder(id) {
   const data = await gql(`query($id: UUID!) {
     adminOrder(id: $id) {
-      id createdAt updatedAt status total
-      user { id email }
-      items { id quantity unitPrice product { id name } }
+      id customerName customerEmail createdAt updatedAt status total currency
     }
   }`, { id })
   return data.adminOrder
@@ -124,7 +120,7 @@ export async function getAdminOrder(id) {
 export async function updateOrderStatus(orderId, status) {
   const data = await gql(`
     mutation($orderId: UUID!, $status: String!) {
-      updateOrderStatus(orderId: $orderId, status: $status) { id status updatedAt }
+      updateOrderStatus(orderId: $orderId, status: $status)
     }
   `, { orderId, status })
   return data.updateOrderStatus
@@ -141,7 +137,7 @@ export async function uploadProductImage(file) {
 
   const response = await fetch((import.meta.env.PUBLIC_GRAPHQL_URL || 'http://localhost:14001/graphql'), {
     method: 'POST',
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: {'GraphQL-preflight': '1', ...(token ? { Authorization: `Bearer ${token}` } : {}),},
     body: form,
   })
   const payload = await response.json()

@@ -19,7 +19,22 @@ export async function gql(query, variables = {}) {
     throw new Error(`El servidor respondió con HTTP ${response.status}.`)
   }
 
-  if (!response.ok) throw new Error(payload?.message || `HTTP ${response.status}`)
-  if (payload.errors?.length) throw new Error(payload.errors.map(e => e.message).join('\n'))
+  if (payload.errors?.length) {
+    throw new Error(
+      payload.errors
+        .map(e => {
+          const detail = e.extensions?.exception?.message
+          return detail ? `${e.message}: ${detail}` : e.message
+        })
+        .join('\n')
+    )
+  }
+
+  if (!response.ok) {
+    throw new Error(payload?.message || `HTTP ${response.status}`)
+  }
+
+  /*if (!response.ok) throw new Error(payload?.message || `HTTP ${response.status}`)
+  if (payload.errors?.length) throw new Error(payload.errors.map(e => e.message).join('\n'))*/
   return payload.data
 }
