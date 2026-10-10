@@ -7,10 +7,20 @@ namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRepository
 {
+    public async Task<ICollection<Order>> GetAll()
+    {
+        return await context.Orders
+            .Include(order => order.Items)
+            .Include(order => order.User)
+            .OrderByDescending(order => order.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<Order?> GetById(Guid orderId)
     {
         return await context.Orders
             .Include(order => order.Items)
+            .Include(order => order.User)
             .FirstOrDefaultAsync(order => order.Id == orderId);
     }
 

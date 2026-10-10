@@ -5,7 +5,7 @@ using ECommerce.Application.UseCases.Checkout;
 namespace ECommerce.Api.GraphQL.Mutations;
 
 [MutationType]
-public class CheckoutMutation
+public partial class CheckoutMutation
 {
     public async Task<bool> UpdateCart(
         CartRequest request,

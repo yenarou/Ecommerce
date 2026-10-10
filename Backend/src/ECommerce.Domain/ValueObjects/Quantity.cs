@@ -9,7 +9,7 @@ public sealed record Quantity
         Value = value;
     }
 
-    public int Value { get; }
+    public int Value { get; private set; }
 
     public static Quantity Create(int value)
     {

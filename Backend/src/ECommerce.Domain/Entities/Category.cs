@@ -9,6 +9,7 @@ public class Category
     private Category(string slug, string name, string description, DateTime createdAt)
     {
         Id = Guid.NewGuid();
+        Slug = slug; 
         Name = name;
         Description = description;
         CreatedAt = createdAt;

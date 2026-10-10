@@ -19,7 +19,8 @@ public class CurrentUser(
 
         var userIdClaim = httpContextAccessor.HttpContext?
             .User
-            .FindFirstValue(ClaimTypes.NameIdentifier);
+            .FindFirstValue("sub");
+            //.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (string.IsNullOrEmpty(userIdClaim))
             throw new UnauthorizedAccessException("User is not authenticated.");

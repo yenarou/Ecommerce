@@ -1,0 +1,22 @@
+---
+import "../styles/admin.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "Admin" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - Chupapimuneno </title>
+  </head>
+
+  <body>
+    <slot />
+  </body>
+</html>

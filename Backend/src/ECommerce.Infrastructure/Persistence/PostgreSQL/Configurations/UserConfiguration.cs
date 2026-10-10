@@ -26,6 +26,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 value => Email.Create(value))
             .IsRequired();
 
+        //roles
+        builder.Property(user => user.Role)
+                .HasConversion<int>()
+                .HasDefaultValue(UserRole.Customer)
+                .IsRequired();
+
         builder.Property(user => user.PasswordHash)
             .IsRequired(false);
 

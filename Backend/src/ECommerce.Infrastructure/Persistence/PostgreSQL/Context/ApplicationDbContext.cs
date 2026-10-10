@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Models;
 using ECommerce.Infrastructure.Repositories.PostgreSQL.Configurations;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
@@ -23,5 +24,6 @@ public class ApplicationDbContext(
         modelBuilder.Ignore<Customization>();
 
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        //modelBuilder.ApplyConfiguration(new OrderConfiguration());
     }
 }

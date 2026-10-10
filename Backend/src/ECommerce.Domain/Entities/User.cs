@@ -2,13 +2,20 @@ using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Domain.Models;
 
+//manejar roles
+public enum UserRole
+{
+    Customer = 0,
+    Admin = 1
+}
+
 public class User
 {
     private User()
     {
     }
 
-    private User(Guid id, string name, Email email, string? passwordHash, string? googleId, AuthProvider authProvider)
+    private User(Guid id, string name, Email email, string? passwordHash, string? googleId, AuthProvider authProvider, UserRole role)
     {
         Id = id;
         Name = name;
@@ -16,6 +23,7 @@ public class User
         PasswordHash = passwordHash;
         GoogleId = googleId;
         AuthProvider = authProvider;
+        Role = role;
     }
 
     public Guid Id { get; private set; }
@@ -25,7 +33,10 @@ public class User
     public string? GoogleId { get; private set; }
     public AuthProvider AuthProvider { get; }
 
-    public static User CreateLocalUser(string name, Email email, string passwordHash)
+    //manejar roles, agregar rol de cliente a los creates
+    public UserRole Role  { get; private set; }
+
+    public static User CreateLocalUser(string name, Email email, string passwordHash, UserRole role = UserRole.Customer)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("User name cannot be null or empty.", nameof(name));
@@ -37,7 +48,7 @@ public class User
         if (string.IsNullOrWhiteSpace(passwordHash))
             throw new ArgumentException("Password hash cannot be null or empty.", nameof(passwordHash));
 
-        return new User(Guid.NewGuid(), name, email, passwordHash, null, AuthProvider.Local);
+        return new User(Guid.NewGuid(), name, email, passwordHash, null, AuthProvider.Local, role);
     }
 
     public static User CreateGoogleUser(string name, Email email, string googleId)
@@ -52,7 +63,7 @@ public class User
         if (string.IsNullOrWhiteSpace(googleId))
             throw new ArgumentException("Google ID cannot be null or empty.", nameof(googleId));
 
-        return new User(Guid.NewGuid(), name, email, null, googleId, AuthProvider.Google);
+        return new User(Guid.NewGuid(), name, email, null, googleId, AuthProvider.Google, UserRole.Customer);
     }
 
     public void UpdateProfile(string name, Email email)
