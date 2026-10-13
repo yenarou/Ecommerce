@@ -3,35 +3,27 @@ services:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-
     environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ApiBaseUrl: http://localhost:14001
+      AdminUser__Name: Administrador
+      AdminUser__Email: admin23@gmail.com
+      AdminUser__Password: ${ADMIN_PASSWORD}
       ASPNETCORE_URLS: http://+:8080
-
       Logging__LogLevel__Default: Debug
-
       Logging__LogLevel__Microsoft.AspNetCore: Debug
-
       Logging__LogLevel__Microsoft.EntityFrameworkCore: Debug
-      
       Logging__LogLevel__MongoDB.Driver: Debug
-
       ConnectionStrings__PostgreSQL: Host=postgres;Port=5432;Database=ECommerce;Username=postgres;Password=${POSTGRES_PASSWORD:-cisco}
-
       ConnectionStrings__MongoDB: mongodb://mongo:27017
-
-      Google__ClientId: 981773204254-48aqrpivdr6mfs7aiqj93vue907q65uv.apps.googleusercontent.com
-
+      Google__ClientId: ${GOOGLE_CLIENT_ID}
       Google__ClientSecret: ${GOOGLE_CLIENT_SECRET}
-
       Google__WebRedirectUri: http://localhost:14001/api/v1/auth/google/callback
-
       Google__ApiRedirectUri: http://localhost:15174/api/auth/callback
 
       MercadoPago__AccessToken: ${MERCADOPAGO_ACCESS_TOKEN}
 
       MercadoPago__NotificationUrl: ${MERCADOPAGO_NOTIFICATION_URL:-}
-
-      
 
     ports:
       - "${BACKEND_PORT:-14001}:8080"
@@ -43,12 +35,13 @@ services:
       retries: 12
       start_period: 15s
 
+    volumes:
+      - uploads-data:/app/wwwroot/images
     depends_on:
       postgres:
         condition: service_healthy
       mongo:
         condition: service_healthy
-
     restart: unless-stopped
 
   frontend:
@@ -65,6 +58,20 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    restart: unless-stopped
+
+  frontend-admin:
+    build:
+      context: ./FrontendAdmin
+      dockerfile: Dockerfile
+      args:
+        PUBLIC_GRAPHQL_URL: http://localhost:14001/graphql
+        PUBLIC_API_URL: http://localhost:14001
+        PUBLIC_AUTH_URL: http://localhost:14001
+    ports:
+      - "15175:15175"
+    depends_on:
+      - backend
     restart: unless-stopped
 
   postgres:
@@ -94,5 +101,6 @@ services:
     restart: unless-stopped
 
 volumes:
+  uploads-data:
   postgres-data:
   mongo-data:

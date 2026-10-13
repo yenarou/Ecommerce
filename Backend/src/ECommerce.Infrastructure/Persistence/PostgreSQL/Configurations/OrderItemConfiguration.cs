@@ -18,6 +18,9 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
 
         builder.Ignore(item => item.Product);
 
+        builder.Ignore(item => item.ProductName);
+        builder.Ignore(item => item.UnitPrice);
+
         builder.Property(item => item.Quantity)
             .HasConversion(
                 quantity => quantity.Value,

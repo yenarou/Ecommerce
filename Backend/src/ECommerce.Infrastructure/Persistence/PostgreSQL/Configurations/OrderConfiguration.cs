@@ -55,7 +55,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .IsRequired();
         });
         
-        #warning implementar costo total
+        builder.Ignore(order => order.Total);
 
         // User
         builder.HasOne(order => order.User)

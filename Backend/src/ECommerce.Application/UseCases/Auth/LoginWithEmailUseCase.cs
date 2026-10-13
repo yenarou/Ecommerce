@@ -26,6 +26,6 @@ public class LoginWithEmailUseCase(
             throw new InvalidCredentialsException(request.Email);
 
         var token = tokenService.Generate(existingUser);
-        return new AuthResponse(token, existingUser.Id, existingUser.Name);
+        return new AuthResponse(token, existingUser.Id, existingUser.Name, existingUser.Role.ToString());
     }
 }

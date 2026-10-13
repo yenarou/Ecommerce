@@ -7,7 +7,7 @@ namespace ECommerce.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/auth")]
-public class EmailAuthController(RegisterWithEmailUseCase registerUseCase, LoginWithEmailUseCase loginUseCase)
+public class EmailAuthController(RegisterWithEmailUseCase registerUseCase, LoginWithEmailUseCase loginUseCase, LoginAdminUseCase adminLoginUseCase)
     : ControllerBase
 {
     [HttpPost("register")]
@@ -23,6 +23,15 @@ public class EmailAuthController(RegisterWithEmailUseCase registerUseCase, Login
     public async Task<IActionResult> Login(LoginEmailRequest request)
     {
         var authResponse = await loginUseCase.Execute(request);
+        return Ok(authResponse);
+    }
+
+    //admin
+    [HttpPost("admin/login")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> AdminLogin(LoginEmailRequest request)
+    {
+        var authResponse = await adminLoginUseCase.Execute(request.Email, request.Password);
         return Ok(authResponse);
     }
 }

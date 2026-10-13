@@ -26,6 +26,21 @@ public class PostgreSqlOrderRepository(
         return order;
     }
 
+        public async Task<ICollection<Order>> GetAll()
+    {
+        var orders = await context.Orders
+            .Include(order => order.User)
+            .Include(order => order.Items)
+            .ThenInclude(item => item.Customization)
+            .OrderByDescending(order => order.CreatedAt)
+            .ToListAsync();
+
+        foreach (var order in orders)
+            await RestoreProducts(order);
+
+        return orders;
+    }
+    
     public async Task<ICollection<Order>> GetByUserId(Guid userId)
     {
         var orders = await context.Orders
