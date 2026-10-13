@@ -19,7 +19,13 @@ const TEXTOS = {
 
 export default function PagoResultado({ estado }) {
   const { clearCart } = useCart()
-  const { titulo, texto } = TEXTOS[estado]
+    const { titulo, texto } = TEXTOS[estado]
+
+  const params = new URLSearchParams(window.location.search)
+  const referencia = params.get('ref')
+  const ticket = params.get('ticket')
+  const ticketSeguro = ticket && ticket.startsWith('https://') ? ticket : null
+  const esClabe = !!referencia && /^\d{18}$/.test(referencia)
 
   useEffect(() => {
     if (estado !== 'error') clearCart()
@@ -29,6 +35,25 @@ export default function PagoResultado({ estado }) {
     <div className="container checkout-page checkout-page--confirm">
       <h1>{titulo}</h1>
       <p>{texto}</p>
+
+      {estado === 'pendiente' && (referencia || ticketSeguro) && (
+        <div className="pago-datos">
+          {referencia && (
+            <p>
+              <strong>{esClabe ? 'CLABE para tu transferencia:' : 'Referencia de pago:'}</strong>{' '}
+              {referencia}
+            </p>
+          )}
+          {ticketSeguro && (
+            <p>
+              <a href={ticketSeguro} target="_blank" rel="noopener noreferrer">
+                Ver instrucciones de pago
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+
       <a href={estado === 'error' ? '/carrito' : '/'} className="btn btn-primary">
         {estado === 'error' ? 'Volver al carrito' : 'Volver al inicio'}
       </a>
