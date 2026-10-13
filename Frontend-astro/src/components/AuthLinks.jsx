@@ -37,7 +37,7 @@ export default function AuthLinks() {
       <span className="topbar__user">Hola, {user.username}</span>
       <a href="/ordenes" className="topbar__nav-link">Mis órdenes</a>
       {user?.rol === 'Admin' && (
-        <a href="http://localhost:15175" className="topbar__nav-link">Panel de administración</a>
+        <a href="/admin" className="topbar__nav-link">Panel de administración</a>
         )}
       <button type="button" className="topbar__logout" onClick={handleLogout}>Salir</button>
     </div>

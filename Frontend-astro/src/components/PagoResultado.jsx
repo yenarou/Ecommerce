@@ -17,6 +17,24 @@ const TEXTOS = {
   },
 }
 
+const MOTIVOS = [
+  ['insufficient_amount', 'Tu tarjeta no tiene saldo suficiente.'],
+  ['bad_filled_card_data', 'Algún dato de tu tarjeta es incorrecto. Revisa el número, la fecha y el código de seguridad.'],
+  ['security_code', 'El código de seguridad es incorrecto.'],
+  ['bad_filled_date', 'La fecha de vencimiento es incorrecta.'],
+  ['expiration', 'La fecha de vencimiento es incorrecta.'],
+  ['card_number', 'El número de tarjeta es incorrecto.'],
+  ['call_for_authorize', 'Debes autorizar el pago llamando a tu banco.'],
+  ['card_disabled', 'Tu tarjeta está inactiva. Llama a tu banco para activarla.'],
+  ['high_risk', 'El pago fue rechazado por seguridad. Prueba con otra tarjeta.'],
+]
+
+function textoMotivo(codigo) {
+  const c = (codigo || '').toLowerCase()
+  const hallado = MOTIVOS.find(([clave]) => c.includes(clave))
+  return hallado ? hallado[1] : 'Tu banco rechazó el pago. Intenta con otra tarjeta.'
+}
+
 export default function PagoResultado({ estado }) {
   const { clearCart } = useCart()
     const { titulo, texto } = TEXTOS[estado]
@@ -26,6 +44,9 @@ export default function PagoResultado({ estado }) {
   const ticket = params.get('ticket')
   const ticketSeguro = ticket && ticket.startsWith('https://') ? ticket : null
   const esClabe = !!referencia && /^\d{18}$/.test(referencia)
+  const motivo = params.get('motivo')
+  const motivoTexto = estado === 'error' ? textoMotivo(motivo) : null
+  console.log('PagoResultado', { estado, referencia, ticket, ticketSeguro, esClabe, motivo, motivoTexto })
 
   useEffect(() => {
     if (estado !== 'error') clearCart()
@@ -34,6 +55,7 @@ export default function PagoResultado({ estado }) {
   return (
     <div className="container checkout-page checkout-page--confirm">
       <h1>{titulo}</h1>
+      {motivoTexto && <p><strong>{motivoTexto}</strong></p>}
       <p>{texto}</p>
 
       {estado === 'pendiente' && (referencia || ticketSeguro) && (
