@@ -1,5 +1,5 @@
 ﻿using ECommerce.Domain.Exceptions;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +30,8 @@ public class PostgreSqlOrderRepository(
     {
         var orders = await context.Orders
             .Include(order => order.Items)
-            .Where(order => order.User.Id == userId)
+            .ThenInclude(item => item.Customization)
+            .Where(order => order.UserId == userId)
             .ToListAsync();
 
         foreach (var order in orders)
@@ -41,13 +42,6 @@ public class PostgreSqlOrderRepository(
 
     public async Task Save(Order order)
     {
-        foreach (var item in order.Items)
-        {
-            context.Entry(item)
-                .Property<Guid?>("ProductId")
-                .CurrentValue = item.Product.Id;
-        }
-
         var exists = await context.Orders
             .AnyAsync(existing => existing.Id == order.Id);
 

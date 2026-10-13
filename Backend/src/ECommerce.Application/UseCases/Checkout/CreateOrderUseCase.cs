@@ -1,7 +1,7 @@
 ﻿using ECommerce.Application.DTOs.Requests;
 using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.Interfaces;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Checkout;

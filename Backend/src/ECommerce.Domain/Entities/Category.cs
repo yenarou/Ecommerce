@@ -1,4 +1,4 @@
-namespace ECommerce.Domain.Models;
+namespace ECommerce.Domain.Entities;
 
 public class Category
 {
@@ -9,6 +9,7 @@ public class Category
     private Category(string slug, string name, string description, DateTime createdAt)
     {
         Id = Guid.NewGuid();
+        Slug = slug;
         Name = name;
         Description = description;
         CreatedAt = createdAt;
@@ -50,5 +51,16 @@ public class Category
 
         Name = name;
         Description = description;
+    }
+
+    public void UpdateSlug(string slug)
+    {
+        if (string.IsNullOrWhiteSpace(slug))
+            throw new ArgumentException("Category slug cannot be null or empty.", nameof(slug));
+
+        if (slug.Length > 100)
+            throw new ArgumentException("Slug cannot exceed 100 characters.", nameof(slug));
+
+        Slug = slug;
     }
 }

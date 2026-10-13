@@ -1,5 +1,4 @@
-﻿using ECommerce.Domain.Models;
-using ECommerce.Domain.ValueObjects;
+﻿using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Application.DTOs.Requests;
 

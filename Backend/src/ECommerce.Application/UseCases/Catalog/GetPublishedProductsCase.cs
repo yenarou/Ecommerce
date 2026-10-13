@@ -6,7 +6,8 @@ using ECommerce.Domain.ValueObjects;
 namespace ECommerce.Application.UseCases.Catalog;
 
 public class GetPublishedProductsCase(
-    IProductRepository productRepository)
+    IProductRepository productRepository,
+    ICategoryRepository categoryRepository)
 {
     public async Task<PaginatedCollectionResponse<ProductResponse>> Execute(
         int page,
@@ -25,7 +26,10 @@ public class GetPublishedProductsCase(
                 size,
                 "Size must be greater than 0.");
 
-        var catalogFilter = new CatalogFilter(categorySlug);
+        var category = categorySlug is null
+            ? null
+            : await categoryRepository.GetBySlug(categorySlug);
+        var catalogFilter = new CatalogFilter(CategoryId: category?.Id);
 
         var paginatedResult = await productRepository.FilterPublished(
             catalogFilter,

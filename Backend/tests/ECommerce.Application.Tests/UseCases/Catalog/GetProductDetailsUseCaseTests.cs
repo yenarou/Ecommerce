@@ -1,5 +1,5 @@
 using ECommerce.Application.UseCases.Catalog;
-using ECommerce.Domain.Models;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using FluentAssertions;
 using Moq;

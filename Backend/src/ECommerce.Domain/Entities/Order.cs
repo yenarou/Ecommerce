@@ -1,6 +1,6 @@
 using ECommerce.Domain.ValueObjects;
 
-namespace ECommerce.Domain.Models;
+namespace ECommerce.Domain.Entities;
 
 public class Order
 {
@@ -12,6 +12,7 @@ public class Order
     {
         Id = id;
         User = user;
+        UserId = user.Id;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
         Address = address;
@@ -21,6 +22,7 @@ public class Order
 
     public Guid Id { get; private set; }
     public User User { get; private set; }
+    public Guid UserId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public Address Address { get; private set; }

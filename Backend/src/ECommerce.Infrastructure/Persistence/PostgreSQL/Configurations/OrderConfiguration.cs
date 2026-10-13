@@ -1,4 +1,4 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,6 +26,9 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasConversion(
                 status => status.Value,
                 value => OrderStatus.FromString(value))
+            .IsRequired();
+
+        builder.Property(order => order.UserId)
             .IsRequired();
 
         // Address
@@ -57,13 +60,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         // User
         builder.HasOne(order => order.User)
             .WithMany()
-            .HasForeignKey("UserId")
+            .HasForeignKey(order => order.UserId)
             .IsRequired();
 
         // Items
         builder.HasMany(order => order.Items)
             .WithOne(item => item.Order)
-            .HasForeignKey("OrderId")
+            .HasForeignKey(item => item.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

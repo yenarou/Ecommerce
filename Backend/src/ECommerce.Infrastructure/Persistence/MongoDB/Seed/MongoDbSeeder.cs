@@ -1,6 +1,7 @@
-﻿using ECommerce.Domain.Models;
+﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace ECommerce.Infrastructure.Persistence.MongoDB.Seed;
@@ -15,6 +16,12 @@ public sealed class MongoDbSeeder(
 
         var categories = database.GetCollection<Category>("categories");
         var products = database.GetCollection<Product>("products");
+
+        await MigrateCategorySlugsAsync(database);
+        await MigrateProductCategoryIdsAsync(database);
+        await products.Indexes.CreateOneAsync(
+            new CreateIndexModel<Product>(
+                Builders<Product>.IndexKeys.Ascending(product => product.CategoryId)));
 
         var existingProducts = await products.CountDocumentsAsync(
             FilterDefinition<Product>.Empty);
@@ -154,6 +161,81 @@ public sealed class MongoDbSeeder(
 
         logger.LogInformation(
             "Seeding de MongoDB completado correctamente.");
+    }
+
+    private static async Task MigrateProductCategoryIdsAsync(IMongoDatabase database)
+    {
+        var products = database.GetCollection<BsonDocument>("products");
+        var missingCategoryId = new BsonDocument(
+            "CategoryId",
+            new BsonDocument("$exists", false));
+
+        var legacyProducts = await products
+            .Find(missingCategoryId)
+            .ToListAsync();
+
+        foreach (var product in legacyProducts)
+        {
+            if (!product.TryGetValue("Category", out var categoryValue) ||
+                !categoryValue.IsBsonDocument)
+            {
+                throw new InvalidOperationException(
+                    $"Product {product.GetValue("_id", BsonNull.Value)} has no embedded category to migrate.");
+            }
+
+            var embeddedCategory = categoryValue.AsBsonDocument;
+            var categoryId = embeddedCategory.GetValue(
+                "_id",
+                embeddedCategory.GetValue("Id", BsonNull.Value));
+
+            if (categoryId.IsBsonNull)
+                throw new InvalidOperationException(
+                    $"Product {product.GetValue("_id", BsonNull.Value)} has no embedded category ID to migrate.");
+
+            var filter = new BsonDocument("_id", product["_id"]);
+            var update = Builders<BsonDocument>.Update
+                .Set("CategoryId", categoryId)
+                .Unset("Category");
+            await products.UpdateOneAsync(filter, update);
+        }
+    }
+
+    private static async Task MigrateCategorySlugsAsync(IMongoDatabase database)
+    {
+        var categories = database.GetCollection<BsonDocument>("categories");
+        var missingSlug = Builders<BsonDocument>.Filter.Or(
+            Builders<BsonDocument>.Filter.Exists("Slug", false),
+            Builders<BsonDocument>.Filter.Eq("Slug", ""));
+
+        var legacyCategories = await categories.Find(missingSlug).ToListAsync();
+
+        foreach (var category in legacyCategories)
+        {
+            if (!category.TryGetValue("Name", out var nameValue) ||
+                !nameValue.IsString ||
+                string.IsNullOrWhiteSpace(nameValue.AsString))
+            {
+                throw new InvalidOperationException(
+                    $"Category {category.GetValue("_id", BsonNull.Value)} has no name to migrate its slug.");
+            }
+
+            var slug = nameValue.AsString
+                .Trim()
+                .ToLowerInvariant()
+                .Normalize(System.Text.NormalizationForm.FormD);
+            var slugChars = slug
+                .Where(character => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(character) !=
+                                    System.Globalization.UnicodeCategory.NonSpacingMark)
+                .ToArray();
+            slug = new string(slugChars)
+                .Replace(' ', '-')
+                .Replace("--", "-");
+
+            var update = Builders<BsonDocument>.Update.Set("Slug", slug);
+            await categories.UpdateOneAsync(
+                new BsonDocument("_id", category["_id"]),
+                update);
+        }
     }
 
     private static async Task<Category> GetOrCreateCategoryAsync(

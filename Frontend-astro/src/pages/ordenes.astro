@@ -1,0 +1,7 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Orders from '../components/Orders.jsx'
+---
+<Layout title="Mis órdenes | Hilo y Alma">
+  <Orders client:only="react" />
+</Layout>

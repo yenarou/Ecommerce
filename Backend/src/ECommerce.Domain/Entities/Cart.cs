@@ -1,6 +1,6 @@
 using ECommerce.Domain.ValueObjects;
 
-namespace ECommerce.Domain.Models;
+namespace ECommerce.Domain.Entities;
 
 public class Cart
 {
@@ -12,6 +12,7 @@ public class Cart
     {
         Id = id;
         User = user;
+        UserId = user.Id;
         CreatedAt = createdAt;
         UpdatedAt = updatedAt;
         Status = status;
@@ -20,6 +21,7 @@ public class Cart
 
     public Guid Id { get; private set; }
     public User User { get; private set; }
+    public Guid UserId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public CartStatus Status { get; private set; }

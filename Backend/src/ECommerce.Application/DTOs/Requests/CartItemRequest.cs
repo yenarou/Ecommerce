@@ -1,6 +1,4 @@
-﻿using ECommerce.Domain.Models;
-
-namespace ECommerce.Application.DTOs.Requests;
+﻿namespace ECommerce.Application.DTOs.Requests;
 
     public record CartItemRequest(
         Guid ProductId,
