@@ -9,6 +9,7 @@ import {
   updateProductStock,
   getCategories,
   uploadProductImage,
+  updateProductImage,
 } from '../api/admin'
 
 function ProductForm({ product, categories, onClose, onSaved }) {
@@ -30,41 +31,45 @@ function ProductForm({ product, categories, onClose, onSaved }) {
   }
 
   async function submit(e) {
-    e.preventDefault()
-    setBusy(true)
-    setError('')
-
-    try {
-      let saved
-      if (product) {
-        saved = await updateProduct(product.id, {
-          name: form.name,
-          description: form.description,
-          price: Number(form.price),
-          currency: form.currency,
-          stock: Number(form.stock),
-          categoryId: form.categoryId,
-        })
-      } else {
-        saved = await createProduct({
-          name: form.name,
-          description: form.description,
-          price: Number(form.price),
-          currency: form.currency,
-          stock: Number(form.stock),
-          categoryId: form.categoryId
-          //images: [],
-        })
+  e.preventDefault()
+  setBusy(true)
+  setError('')
+  try {
+    let saved
+    if (product) {
+      saved = await updateProduct(product.id, {
+        name: form.name,
+        description: form.description,
+        price: Number(form.price),
+        currency: form.currency,
+        stock: Number(form.stock),
+        categoryId: form.categoryId,
+      })
+      if (file) {
+        const url = await uploadProductImage(file)
+        saved = await updateProductImage(product.id, url)
       }
+    } else {
+      const imageUrls = []
+      if (file) imageUrls.push(await uploadProductImage(file))
 
-      if (file) await uploadProductImage(file)
-      onSaved(saved)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setBusy(false)
+      saved = await createProduct({
+        name: form.name,
+        description: form.description,
+        price: Number(form.price),
+        currency: form.currency,
+        stock: Number(form.stock),
+        categoryId: form.categoryId,
+        imageUrls,
+      })
     }
+    onSaved(saved)
+  } catch (err) {
+    setError(err.message)
+  } finally {
+    setBusy(false)
   }
+}
 
   return (
     <div className="modal-backdrop">
@@ -148,8 +153,7 @@ function ProductForm({ product, categories, onClose, onSaved }) {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-              />
+                onChange={(e) => setFile(e.target.files?.[0] || null)}/>
             </div>
           </div>
 

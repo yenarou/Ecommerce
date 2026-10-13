@@ -3,6 +3,12 @@ using ECommerce.Domain.Repositories;
 
 namespace ECommerce.Application.UseCases.Admin.Orders;
 
+public record AdminOrderItemResponse(
+    Guid Id,
+    string Name,
+    int Quantity
+);
+
 public record AdminOrderResponse(
     Guid Id,
     string CustomerName,
@@ -11,7 +17,8 @@ public record AdminOrderResponse(
     DateTime UpdatedAt,
     string Status,
     decimal Total,
-    string Currency
+    string Currency,
+    IReadOnlyList<AdminOrderItemResponse> Items
 ){
     public static AdminOrderResponse From(Order order) => new(
         order.Id,
@@ -21,7 +28,10 @@ public record AdminOrderResponse(
         order.UpdatedAt,
         order.Status.ToString(),
         order.Total.Amount,
-        order.Total.Currency
+        order.Total.Currency,
+        order.Items
+            .Select(i => new AdminOrderItemResponse(i.Id, i.ProductName, i.Quantity.Value))
+            .ToList()
     );
 }
 

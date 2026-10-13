@@ -22,6 +22,8 @@ services:
       Google__ApiRedirectUri: http://localhost:15174/api/auth/callback
     ports:
       - "${BACKEND_PORT:-14001}:8080"
+    volumes:
+      - uploads-data:/app/wwwroot/images
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,5 +86,6 @@ services:
     restart: unless-stopped
 
 volumes:
+  uploads-data:
   postgres-data:
   mongo-data:

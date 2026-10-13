@@ -8,5 +8,6 @@ public record CreateProductRequest(
     decimal Price,
     string Currency,
     int Stock,
-    Guid CategoryId
+    Guid CategoryId,
+    IReadOnlyList<string>? ImageUrls = null
 );

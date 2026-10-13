@@ -1,0 +1,63 @@
+using ECommerce.Domain.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Configurations;
+
+public class ProductConfiguration : IEntityTypeConfiguration<Product>
+{
+    public void Configure(EntityTypeBuilder<Product> builder)
+    {
+        builder.ToTable("products");
+
+        builder.HasKey(p => p.Id);
+
+        builder.Property(p => p.Id)
+        .ValueGeneratedNever();
+
+        builder.Property(p => p.Name)
+        .HasMaxLength(200)
+        .IsRequired();
+
+        builder.Property(p => p.Description)
+        .HasMaxLength(1000).IsRequired();
+
+        builder.Property(p => p.CreatedAt)
+        .IsRequired();
+
+        builder.Property(p => p.IsPublished)
+        .IsRequired();
+
+        builder.OwnsOne(p => p.Price, money =>
+        {
+            money.Property(m => m.Amount)
+                .HasColumnName("price_amount")
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            money.Property(m => m.Currency)
+                .HasColumnName("price_currency")
+                .HasMaxLength(3)
+                .IsRequired();
+        });
+
+        builder.OwnsOne(p => p.Stock, q =>
+        {
+            q.Property(x => x.Value)
+            .HasColumnName("stock")
+            .IsRequired();
+        });
+
+        builder.HasOne(p => p.Category)
+            .WithMany()
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Images como colección de tipos propios (tabla product_images)
+        builder.HasMany(p => p.Images)
+            .WithOne()
+            .HasForeignKey("ProductId")
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

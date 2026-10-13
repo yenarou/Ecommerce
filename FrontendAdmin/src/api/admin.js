@@ -59,6 +59,15 @@ export async function updateProductStock(productId, stock) {
   return data.updateProductStock
 }
 
+export async function updateProductImage(productId, imageUrl) {
+  const data = await gql(`
+    mutation($productId: UUID!, $imageUrl: String!) {
+      updateProductImage(productId: $productId, imageUrl: $imageUrl) { ${PRODUCT_FIELDS} }
+    }
+  `, { productId, imageUrl })
+  return data.replaceProductImage
+}
+
 export async function deleteProduct(productId) {
   return gql(`mutation($productId: UUID!) { deleteProduct(productId: $productId) }`, { productId })
 }
@@ -103,6 +112,7 @@ export async function getAdminOrders() {
   const data = await gql(`query {
     adminOrders {
       id customerName customerEmail createdAt updatedAt status total currency
+      items { name quantity }
     }
   }`)
   return data.adminOrders || []

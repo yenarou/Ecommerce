@@ -18,6 +18,10 @@ public class Product
         Images = images;
     }
 
+    private Product()
+    {
+    }
+
     public Guid Id { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
@@ -26,7 +30,7 @@ public class Product
     public DateTime CreatedAt { get; private set; }
     public Category Category { get; private set; }
     public bool IsPublished { get; private set; }
-    public ICollection<Image> Images { get; private set; }
+    public ICollection<Image> Images { get; private set; } = new List<Image>();
     
     public static Product Create(string name, string description, Money price, Quantity stock, Category category, ICollection<Image> images)
     {

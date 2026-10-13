@@ -12,6 +12,7 @@ public class Customization
         Description = description;
         CreatedAt = createdAt;
         AdditionalPrice = additionalPrice;
+        IsWrap = wrap;
     }
 
     public Guid Id { get; private set; }

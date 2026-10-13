@@ -93,6 +93,7 @@ builder.Services.AddScoped<CreateProductUseCase>();
 builder.Services.AddScoped<UpdateProductUseCase>();
 builder.Services.AddScoped<UpdateProductPriceUseCase>();
 builder.Services.AddScoped<UpdateProductStockUseCase>();
+builder.Services.AddScoped<UpdateProductImageUseCase>();
 builder.Services.AddScoped<DeleteProductUseCase>();
 builder.Services.AddScoped<SetProductPublicationUseCase>();
 

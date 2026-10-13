@@ -36,6 +36,9 @@ public class CreateProductUseCase(
             category,
             new List<Image>());
 
+        foreach (var url in request.ImageUrls ?? [])
+            product.AddImage(url, request.Name);
+
         await productRepository.Save(product);
 
         return ProductMapper.ToResponse(product);

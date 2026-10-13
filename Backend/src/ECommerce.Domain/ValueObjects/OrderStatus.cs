@@ -4,6 +4,9 @@ namespace ECommerce.Domain.ValueObjects;
 
 public sealed class OrderStatus : IEquatable<OrderStatus>
 {
+    public static bool operator ==(OrderStatus? a, OrderStatus? b) => Equals(a, b);
+    public static bool operator !=(OrderStatus? a, OrderStatus? b) => !Equals(a, b);
+    
     public static readonly OrderStatus Pending = new(nameof(Pending));
     public static readonly OrderStatus Confirmed = new(nameof(Confirmed));
     public static readonly OrderStatus Shipped = new(nameof(Shipped));

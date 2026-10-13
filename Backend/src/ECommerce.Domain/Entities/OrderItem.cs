@@ -3,7 +3,7 @@ using ECommerce.Domain.ValueObjects;
 namespace ECommerce.Domain.Models;
 
 public class OrderItem
-{
+{   
     private OrderItem()
     {
     }
@@ -14,6 +14,9 @@ public class OrderItem
         Order = order;
         Product = product;
         Quantity = quantity;
+        ProductId = product.Id;
+        ProductName = product.Name;
+        UnitPrice = product.Price;
         Customization = customization;
     }
 
@@ -23,13 +26,18 @@ public class OrderItem
     public Customization? Customization { get; private set; }
     public Quantity Quantity { get; private set; }
 
+    public Guid ProductId { get; private set; }
+    public string ProductName { get; private set; } = string.Empty;
+    public Money UnitPrice { get; private set; }
+    //public Product Product { get; private set; } solo en memoria, no se guarda en Postgres
+
     internal static OrderItem Create(Order order, Product product, Quantity quantity, Customization? customization = null)
     {
         if (order == null) throw new ArgumentNullException(nameof(order), "Cart cannot be null.");
 
         if (product == null) throw new ArgumentNullException(nameof(product), "Product cannot be null.");
         
-        return new OrderItem(Guid.NewGuid(), order, product, quantity);
+        return new OrderItem(Guid.NewGuid(), order, product, quantity, customization);
     }
 
     public void UpdateQuantity(int quantity)

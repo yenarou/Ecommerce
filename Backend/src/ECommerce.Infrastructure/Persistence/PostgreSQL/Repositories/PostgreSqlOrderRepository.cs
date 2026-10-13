@@ -7,6 +7,52 @@ namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRepository
 {
+    private IQueryable<Order> OrdersWithRelations =>
+        context.Orders
+            .Include(o => o.User)
+            .Include(o => o.Items);
+
+    public async Task<Order?> GetById(Guid orderId) =>
+        await OrdersWithRelations.FirstOrDefaultAsync(o => o.Id == orderId);
+
+    public async Task<ICollection<Order>> GetByUserId(Guid userId) =>
+        await OrdersWithRelations
+            .Where(o => EF.Property<Guid>(o, "UserId") == userId)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+
+    public async Task<ICollection<Order>> GetAll() =>
+        await OrdersWithRelations
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync();
+
+    public async Task Save(Order order)
+    {
+        if (context.Entry(order).State == EntityState.Detached)
+            await context.Orders.AddAsync(order);
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task Delete(Guid orderId)
+    {
+        var order = await context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        if (order is null) return;
+
+        context.Orders.Remove(order);
+        await context.SaveChangesAsync();
+    }
+}
+
+/*using ECommerce.Domain.Models;
+using ECommerce.Domain.Repositories;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
+using Microsoft.EntityFrameworkCore;
+
+namespace ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
+
+public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRepository
+{
     public async Task<ICollection<Order>> GetAll()
     {
         return await context.Orders
@@ -56,4 +102,4 @@ public class PostgreSqlOrderRepository(ApplicationDbContext context) : IOrderRep
         context.Orders.Remove(order);
         await context.SaveChangesAsync();
     }
-}
+}*/

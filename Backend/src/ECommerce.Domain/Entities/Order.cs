@@ -25,9 +25,15 @@ public class Order
     public DateTime UpdatedAt { get; private set; }
     public Address Address { get; private set; }
     public OrderStatus Status { get; private set; }
-    public ICollection<OrderItem> Items { get; private set; }
-    #warning 
-    public Money Total { get; private set; }
+    public ICollection<OrderItem> Items { get; private set; } = new List<OrderItem>();
+    public Money Total { get; private set; } = Money.Create(0, "MXN");
+
+    private void RecalculateTotal()
+    {
+        var amount = Items.Sum(i => (i.UnitPrice.Amount + (i.Customization?.AdditionalPrice ?? 0)) * i.Quantity.Value);
+        Total = Money.Create(amount, "MXN");
+        UpdatedAt = DateTime.UtcNow;
+    }
 
     public static Order Create(User user, Address address)
     {
@@ -47,6 +53,7 @@ public class Order
         var orderItem = OrderItem.Create(this, cartItem.Product, cartItem.Quantity);
 
         Items.Add(orderItem);
+        RecalculateTotal();
     }
 
     public void AddOrderItem(OrderItem orderItem)
@@ -55,6 +62,7 @@ public class Order
             throw new InvalidOperationException($"Cannot add items to an order with status '{Status}'.");
 
         Items.Add(orderItem);
+        RecalculateTotal();
     }
 
     public void AddOrderItems(IEnumerable<OrderItem> orderItems)
@@ -65,6 +73,7 @@ public class Order
             throw new InvalidOperationException($"Cannot add items to an order with status '{Status}'.");
 
         foreach (var orderItem in orderItems) Items.Add(orderItem);
+        RecalculateTotal();
     }
 
     public void AddOrderItems(Cart cart)

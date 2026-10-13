@@ -9,7 +9,7 @@ using HotChocolate;
 
 namespace ECommerce.Api.GraphQL.Mutations;
 
-public record CreateProductInput(string Name, string Description, decimal Price, string Currency, int Stock, Guid CategoryId);
+public record CreateProductInput(string Name, string Description, decimal Price, string Currency, int Stock, Guid CategoryId, List<string>? ImageUrls = null);
 public record UpdateProductInput(string Name, string Description, decimal Price, string Currency, int Stock, Guid CategoryId);
 public record CreateCategoryInput(string Slug, string Name, string Description);
 public record UpdateCategoryInput(string Name, string Description);
@@ -18,7 +18,7 @@ public class AdminMutation
 {
     public async Task<ProductResponse> CreateProduct(CreateProductInput input, [Service] CreateProductUseCase useCase) =>
         await useCase.Execute(new ECommerce.Application.DTOs.Requests.Admin.CreateProductRequest(
-            input.Name, input.Description, input.Price, input.Currency, input.Stock, input.CategoryId));
+            input.Name, input.Description, input.Price, input.Currency, input.Stock, input.CategoryId, input.ImageUrls));
 
     public Task<ProductResponse> UpdateProduct(Guid productId, UpdateProductInput input, [Service] UpdateProductUseCase useCase) =>
         useCase.Execute(productId, input.Name, input.Description, input.Price, input.Currency, input.Stock, input.CategoryId);
@@ -31,6 +31,9 @@ public class AdminMutation
 
     public Task<ProductResponse> SetProductPublication(Guid productId, bool published, [Service] SetProductPublicationUseCase useCase) =>
         useCase.Execute(productId, published);
+
+    public Task<ProductResponse> UpdateProductImage(Guid productId, string imageUrl, [Service] UpdateProductImageUseCase useCase) =>
+        useCase.Execute(productId, imageUrl);
 
     public async Task<bool> DeleteProduct(Guid productId, [Service] DeleteProductUseCase useCase)
     {

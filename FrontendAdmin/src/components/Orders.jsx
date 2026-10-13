@@ -59,7 +59,7 @@ export default function Orders() {
                     ))}
                   </select>
                 </td>
-                <td>—</td>
+                <td>{o.items?.map((i) => `${i.name} x${i.quantity}`).join(', ') || '—'}</td>
               </tr>
             ))}
           </tbody>

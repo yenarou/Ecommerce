@@ -10,47 +10,47 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.ToTable("orders");
-
         builder.HasKey(order => order.Id);
 
         builder.Property(order => order.Id)
-            .ValueGeneratedNever();
+        .ValueGeneratedNever();
 
         builder.Property(order => order.CreatedAt)
-            .IsRequired();
+        .IsRequired();
 
         builder.Property(order => order.UpdatedAt)
-            .IsRequired();
+        .IsRequired();
 
         builder.Property(order => order.Status)
-            .HasConversion<string>()
+            .HasConversion(
+                status => status.Value,
+                value => OrderStatus.FromString(value))
+            .HasMaxLength(20)
             .IsRequired();
 
-        // Address
         builder.OwnsOne(order => order.Address, address =>
         {
             address.Property(a => a.Street)
-                .HasColumnName("address_street")
-                .IsRequired();
+            .HasColumnName("address_street")
+            .IsRequired();
 
             address.Property(a => a.City)
-                .HasColumnName("address_city")
-                .IsRequired();
+            .HasColumnName("address_city")
+            .IsRequired();
 
             address.Property(a => a.State)
-                .HasColumnName("address_state")
-                .IsRequired();
+            .HasColumnName("address_state")
+            .IsRequired();
 
             address.Property(a => a.ZipCode)
-                .HasColumnName("address_zip_code")
-                .IsRequired();
+            .HasColumnName("address_zip_code")
+            .IsRequired();
 
             address.Property(a => a.Country)
-                .HasColumnName("address_country")
-                .IsRequired();
+            .HasColumnName("address_country")
+            .IsRequired();
         });
 
-        // Total
         builder.OwnsOne(order => order.Total, money =>
         {
             money.Property(m => m.Amount)
@@ -64,16 +64,14 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                 .IsRequired();
         });
 
-        // User
         builder.HasOne(order => order.User)
             .WithMany()
             .HasForeignKey("UserId")
             .IsRequired();
 
-        // Items
         builder.HasMany(order => order.Items)
             .WithOne(item => item.Order)
-            .HasForeignKey(item => item.Order.Id)
+            .HasForeignKey("OrderId")
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
