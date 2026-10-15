@@ -1,8 +1,9 @@
+using ECommerce.Domain.Events;
 using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Domain.Entities;
 
-public class Product
+public class Product : Entity
 {
     private Product()
     {
@@ -101,9 +102,18 @@ public class Product
 
     public void UpdateStock(Quantity stock)
     {
-        if (stock == null) throw new ArgumentNullException(nameof(stock), "Stock cannot be null.");
+        ArgumentNullException.ThrowIfNull(stock);
+
+        if (Stock == stock)
+            return;
+
+        var previousStock = Stock;
 
         Stock = stock;
+
+        AddDomainEvent(
+            new StockChangedDomainEvent(Id, previousStock, stock)
+        );
     }
 
     public void UpdatePrice(Money price)
