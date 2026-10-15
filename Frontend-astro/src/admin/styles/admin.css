@@ -486,3 +486,38 @@ body {
     min-width: 750px;
   }
 }
+
+
+.status-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 6px 32px 6px 14px;
+  border: 1px solid transparent;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23475569'><path d='M5 7l5 6 5-6z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  transition: box-shadow 0.15s, filter 0.15s;
+}
+
+.status-select:hover { filter: brightness(0.97); }
+
+.status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.status-select option {
+  background: #fff;
+  color: #0f172a;
+}
+
+.status-pending   { background-color: #fef3c7; color: #92400e; border-color: #fde68a; }
+.status-confirmed { background-color: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+.status-shipped   { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+.status-delivered { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+.status-cancelled { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
