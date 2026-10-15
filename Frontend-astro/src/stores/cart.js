@@ -13,7 +13,7 @@ function makeId() {
 
 export const useCartStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       items: [],
       loadError: null,
 
@@ -46,7 +46,30 @@ export const useCartStore = create(
               },
             }))
 
-            set({ items, loadError: null })
+            // mezcla, navegador con servidor
+            const clave = (it) =>
+              `${it.product_id}|${(it.customization_text ?? '').trim()}|${Boolean(it.wrap)}`
+            const locales = get().items
+            const mezclados = items.map((it) => ({ ...it }))
+            let hayCambios = false
+
+            for (const local of locales) {
+              const existente = mezclados.find((it) => clave(it) === clave(local))
+              if (!existente) {
+                mezclados.push(local)
+                hayCambios = true
+              } else if (local.quantity > existente.quantity) {
+                existente.quantity = local.quantity
+                hayCambios = true
+              }
+            }
+
+            set({ items: mezclados, loadError: null })
+            if (hayCambios) {
+              updateCart(mezclados).catch((e) =>
+                console.error('No se pudo guardar el carrito:', e),
+              )
+            }
           })
           .catch((error) => {
             if (useAuth.getState().user?.token === token) {

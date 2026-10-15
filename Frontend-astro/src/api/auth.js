@@ -24,16 +24,17 @@ async function post(path, body) {
     throw new Error('No se pudo conectar con el servidor. Intenta de nuevo.')
   }
 
-    if (!res.ok) {
-    let message = null
-    try {
-      message = (await res.json()).message
-    } catch {}
+  if (!res.ok) {
+    if (path === 'register' && res.status === 409) {
+      throw new Error('Ya existe una cuenta con ese correo. Inicia sesión o usa otro correo.')
+    }
+    if (res.status === 429) {
+      throw new Error('Demasiados intentos. Espera un momento e inténtalo de nuevo.')
+    }
     throw new Error(
-      message ||
-        (path === 'login'
-          ? 'No se pudo iniciar sesión. Revisa tu correo y contraseña.'
-          : 'No se pudo crear la cuenta. Revisa tus datos o prueba con otro correo.')
+      path === 'login'
+        ? 'Correo o contraseña incorrectos.'
+        : 'No se pudo crear la cuenta. Revisa tus datos e inténtalo de nuevo.'
     )
   }
   return res.json()

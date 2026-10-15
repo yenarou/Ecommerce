@@ -4,24 +4,33 @@ using ECommerce.Api.GraphQL.Mutations;
 using ECommerce.Application.Factories;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.Interfaces.Factories;
+using ECommerce.Application.UseCases.Admin.Categories;
+using ECommerce.Application.UseCases.Admin.Orders;
+using ECommerce.Application.UseCases.Admin.Products;
 using ECommerce.Application.UseCases.Auth;
 using ECommerce.Application.UseCases.Catalog;
 using ECommerce.Application.UseCases.Checkout;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
+using ECommerce.Domain.Services;
+using ECommerce.Domain.ValueObjects;
 using ECommerce.Infrastructure.Auth;
+using ECommerce.Infrastructure.Payments;
 using ECommerce.Infrastructure.Persistence.MongoDB.Configuration;
 using ECommerce.Infrastructure.Persistence.MongoDB.Repositories;
 using ECommerce.Infrastructure.Persistence.MongoDB.Seed;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Context;
 using ECommerce.Infrastructure.Persistence.PostgreSQL.Repositories;
+using ECommerce.Infrastructure.Persistence.PostgreSQL.Seed;
+using ECommerce.Infrastructure.Storage;
+using HotChocolate.Types;
+using ECommerce.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
-using ECommerce.Infrastructure.Payments;
 
 using ExceptionHandlerMiddleware = ECommerce.Api.Middleware.ExceptionHandlerMiddleware;
 
@@ -58,6 +67,7 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ICartFactory, CartFactory>();
+builder.Services.AddScoped<IImageStorage, LocalImageStorage>();
 
 // Use Cases - Auth
 builder.Services.AddScoped<AuthenticateWithGoogleUseCase>();
@@ -76,9 +86,35 @@ builder.Services.AddScoped<UpdateCartUseCase>();
 builder.Services.AddScoped<GetActiveCartUseCase>();
 builder.Services.AddScoped<ConfirmOrderPaymentUseCase>();
 builder.Services.AddScoped<PayOrderUseCase>();
+builder.Services.AddScoped<GetUserOrderHistoryUseCase>();
+
+// Use Cases - Admin Products
+builder.Services.AddScoped<LoginAdminUseCase>();
+builder.Services.AddScoped<GetAdminProductsUseCase>();
+builder.Services.AddScoped<CreateProductUseCase>();
+builder.Services.AddScoped<UpdateProductUseCase>();
+builder.Services.AddScoped<UpdateProductPriceUseCase>();
+builder.Services.AddScoped<UpdateProductStockUseCase>();
+builder.Services.AddScoped<UpdateProductImageUseCase>();
+builder.Services.AddScoped<DeleteProductUseCase>();
+builder.Services.AddScoped<SetProductPublicationUseCase>();
+
+// Use Cases - AdminOrder
+builder.Services.AddScoped<GetAdminOrdersUseCase>();
+builder.Services.AddScoped<GetAdminOrderUseCase>();
+builder.Services.AddScoped<UpdateOrderStatusUseCase>();
+
+// PostgreSQL Seed - Admin Seeder
+builder.Services.AddScoped<AdminUserSeeder>();
+
+// Use Cases - Categories
+builder.Services.AddScoped<CreateCategoryUseCase>();
+builder.Services.AddScoped<UpdateCategoryUseCase>();
+builder.Services.AddScoped<DeleteCategoryUseCase>();
 
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<GoogleOptions>(builder.Configuration.GetSection("Google"));
 builder.Services.Configure<MercadoPagoOptions>(builder.Configuration.GetSection("MercadoPago"));
@@ -91,7 +127,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:15174")
+            .WithOrigins("http://localhost:15174", "http://localhost:15175")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -110,7 +146,9 @@ builder.Services
             ValidAudience = jwt.Audience,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey)),
-            ValidateLifetime = true
+            ValidateLifetime = true,
+            //roles
+            RoleClaimType = "role"
         };
     });
 builder.Services.AddAuthorization();
@@ -120,6 +158,8 @@ builder.Services
     .AddQueryType<Query>()
     .AddMutationType<Mutation>()
     .AddType<CheckoutMutation>()
+    .AddType<AdminMutation>()
+    .AddType<UploadType>()
     .ModifyRequestOptions(options =>
     {
         options.IncludeExceptionDetails = true;
@@ -160,6 +200,8 @@ using (var scope = app.Services.CreateScope())
                 ADD COLUMN IF NOT EXISTS "IsWrap" boolean NOT NULL DEFAULT FALSE;
             ALTER TABLE "Customization"
                 ALTER COLUMN "Description" DROP NOT NULL;
+            ALTER TABLE "users"
+                ADD COLUMN IF NOT EXISTS "Role" integer NOT NULL DEFAULT 0;
             """);
     }
     catch (Exception ex)
@@ -180,6 +222,51 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         app.Logger.LogError(ex, "No se pudieron insertar los datos iniciales de MongoDB");
+    }
+}
+
+// crear administrador de prueba development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var services = scope.ServiceProvider;
+    var configuration = services.GetRequiredService<IConfiguration>();
+    var db = services.GetRequiredService<ApplicationDbContext>();
+    var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+
+    var name = configuration["AdminUser:Name"];
+    var emailAddress = configuration["AdminUser:Email"];
+    var password = configuration["AdminUser:Password"];
+
+    if (!string.IsNullOrWhiteSpace(name) &&
+        !string.IsNullOrWhiteSpace(emailAddress) &&
+        !string.IsNullOrWhiteSpace(password))
+    {
+        var email = Email.Create(emailAddress);
+
+        var existingUser = await db.Users
+            .FirstOrDefaultAsync(u => u.Email == email);
+
+        if (existingUser is null)
+        {
+            var admin = User.CreateLocalUser(
+                name,
+                email,
+                passwordHasher.Hash(password),
+                UserRole.Admin
+            );
+
+            db.Users.Add(admin);
+            await db.SaveChangesAsync();
+
+            Console.WriteLine("Administrador de prueba creado.");
+        }
+        else
+        {
+            Console.WriteLine(
+                "La cuenta ya existe. No se modificó su rol ni su contraseña.");
+        }
     }
 }
 

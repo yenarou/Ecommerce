@@ -60,6 +60,9 @@ public class ExceptionHandlerMiddleware
             InvalidOrderStatusTransition e =>
                 (409, "Invalid Order Status Transition", e.Message),
 
+            UnauthorizedAccessException e =>
+                (403, "Forbidden", e.Message),
+
 
             DomainException e =>
                 (400, "Domain Error", e.Message),

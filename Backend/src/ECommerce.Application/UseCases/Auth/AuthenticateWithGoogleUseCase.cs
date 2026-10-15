@@ -28,6 +28,6 @@ public class AuthenticateWithGoogleUseCase(
         }
 
         var token = tokenService.Generate(user);
-        return new AuthResponse(token, user.Id, user.Name);
+        return new AuthResponse(token, user.Id, user.Name, user.Role.ToString());
     }
 }

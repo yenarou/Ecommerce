@@ -1,0 +1,5 @@
+﻿
+MSBUILD : error MSB1003: Especifique un archivo de proyecto o de soluci├│n. El directorio de trabajo actual no contiene un archivo de proyecto ni de 
+soluci├│n.
+
+

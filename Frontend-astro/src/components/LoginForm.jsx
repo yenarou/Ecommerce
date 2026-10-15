@@ -24,7 +24,7 @@ export default function LoginForm() {
       const user = await login(form.email, form.password)
       setUser(user)
       await useCartStore.getState().loadFromServer()
-      window.location.href = '/'
+      window.location.href = user.rol === 'Admin' ? '/admin' : '/'
     } catch (err) {
       setError(err.message || 'No se pudo iniciar sesión')
       setLoading(false)

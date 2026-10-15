@@ -1,0 +1,7 @@
+---
+import AdminLayout from '../../admin/layouts/AdminLayout.astro'
+import AdminApp from '../../admin/components/AdminApp.jsx'
+---
+<AdminLayout title="Panel de administración">
+  <AdminApp client:only="react" />
+</AdminLayout>

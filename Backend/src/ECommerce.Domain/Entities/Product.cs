@@ -37,7 +37,7 @@ public class Product
     public Category Category { get; private set; }
     public Guid CategoryId { get; private set; }
     public bool IsPublished { get; private set; }
-    public ICollection<Image> Images { get; private set; }
+    public ICollection<Image> Images { get; private set; } = new List<Image>();
     
     public static Product Create(string name, string description, Money price, Quantity stock, Category category, ICollection<Image> images)
     {

@@ -51,7 +51,8 @@ export default function Checkout() {
       return
     }
     if (result.status === 'failed') {
-      window.location.href = '/pago/error'
+      const motivo = result.statusDetail ? `?motivo=${encodeURIComponent(result.statusDetail)}` : ''
+      window.location.href = `/pago/error${motivo}`
       return
     }
     const q = new URLSearchParams()

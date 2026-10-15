@@ -86,8 +86,17 @@ public class MercadoPagoGateway : IPaymentGateway
         var json = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
+        {
+            
+            if ((int)response.StatusCode == 402)
+            {
+                var rejected = TryParseRejected(json);
+                if (rejected is not null) return rejected;
+            }
+
             throw new InvalidOperationException(
                 $"Mercado Pago rechazó la solicitud ({(int)response.StatusCode}): {json}");
+        }
 
         return ParseResult(json);
     }
@@ -149,6 +158,52 @@ public class MercadoPagoGateway : IPaymentGateway
             reference);
     }
 
+        private static PaymentResult? TryParseRejected(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            var order = root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object
+                ? data
+                : root;
+
+            string? detail = GetString(order, "status_detail");
+
+            if (order.TryGetProperty("transactions", out var transactions)
+                && transactions.TryGetProperty("payments", out var payments)
+                && payments.ValueKind == JsonValueKind.Array
+                && payments.GetArrayLength() > 0)
+            {
+                detail = GetString(payments[0], "status_detail") ?? detail;
+            }
+
+            if (detail is null or "failed"
+                && root.TryGetProperty("errors", out var errors)
+                && errors.ValueKind == JsonValueKind.Array
+                && errors.GetArrayLength() > 0)
+            {
+                detail = GetString(errors[0], "code") ?? detail;
+            }
+
+            Guid? orderId = Guid.TryParse(GetString(order, "external_reference"), out var parsed)
+                ? parsed
+                : null;
+
+            return new PaymentResult(
+                GetString(order, "id") ?? string.Empty,
+                orderId,
+                "failed",
+                detail,
+                null,
+                null);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
     private static string? GetString(JsonElement element, string name)
     {
         return element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String

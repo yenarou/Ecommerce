@@ -7,6 +7,7 @@
 # Local databases and environment files
 **/db/data.sqlite
 **/.env
+**/.env.example
 
 # Local tooling
 .vscode/
@@ -40,3 +41,5 @@ TestResults/
 .DS_Store
 Thumbs.db
 Backend/src/ECommerce.Api/appsettings.Development.json
+
+!.env.example
