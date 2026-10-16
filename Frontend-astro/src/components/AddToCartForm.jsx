@@ -1,18 +1,37 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCart } from '../stores/cart'
 
 export default function AddToCartForm({ product }) {
-    const { addItem, items, sync } = useCart()
+  const { addItem, items, sync, updateProductStock } = useCart()
 
+  const [stock, setStock] = useState(product.stock)
   const [quantity, setQuantity] = useState(1)
-    const [personalization, setPersonalization] = useState('')
-    const [wrap, setWrap] = useState(false)
-    const [justAdded, setJustAdded] = useState(false)
+  const [personalization, setPersonalization] = useState('')
+  const [wrap, setWrap] = useState(false)
+  const [justAdded, setJustAdded] = useState(false)
 
-    const inCart = items
+  useEffect(() => {
+    const stockElement = document.querySelector('#product-stock')
+    const currentStock = Number(stockElement?.getAttribute('data-stock'))
+    if (Number.isFinite(currentStock)) {
+      setStock(currentStock)
+      updateProductStock(product.id, currentStock)
+    }
+
+    function handleStockUpdate(event) {
+      if (event.detail.productId !== product.id) return
+      setStock(event.detail.stock)
+      updateProductStock(product.id, event.detail.stock)
+    }
+
+    window.addEventListener('product-stock-updated', handleStockUpdate)
+    return () => window.removeEventListener('product-stock-updated', handleStockUpdate)
+  }, [product.id, updateProductStock])
+
+  const inCart = items
     .filter((it) => it.product_id === product.id)
     .reduce((sum, it) => sum + it.quantity, 0)
-    const remaining = product.stock - inCart
+  const remaining = stock - inCart
 
   function handleQuantityChange(next) {
     const clamped = Math.max(1, Math.min(remaining, next))
@@ -20,7 +39,7 @@ export default function AddToCartForm({ product }) {
   }
 
   async function handleAddToCart() {
-    addItem(product, quantity, personalization, wrap)
+    addItem({ ...product, stock }, quantity, personalization, wrap)
     setJustAdded(true)
     await sync()
   }

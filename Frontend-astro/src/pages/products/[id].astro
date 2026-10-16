@@ -42,7 +42,12 @@ const category = product?.category
         <dl class="product-detail__facts">
           <div>
             <dt>Disponibilidad</dt>
-            <dd>{product.stock > 0 ? `${product.stock} piezas` : 'Agotado'}</dd>
+            <dd
+              id="product-stock"
+              data-product-id={product.id}
+              data-stock={product.stock}
+              aria-live="polite"
+            >{product.stock > 0 ? `${product.stock} piezas` : 'Agotado'}</dd>
           </div>
         </dl>
 
@@ -56,3 +61,24 @@ const category = product?.category
     <main class="container"><h1>Producto no encontrado</h1></main>
   )}
 </Layout>
+
+<script>
+  import { subscribeToStockUpdates } from '../../api/catalog'
+
+  const stockElement = document.querySelector('#product-stock')
+  const productId = stockElement?.getAttribute('data-product-id')
+
+  if (stockElement && productId) {
+    subscribeToStockUpdates(
+      productId,
+      ({ stock }) => {
+        stockElement.textContent = stock > 0 ? `${stock} piezas` : 'Agotado'
+        stockElement.dataset.stock = String(stock)
+        window.dispatchEvent(new CustomEvent('product-stock-updated', {
+          detail: { productId, stock },
+        }))
+      },
+      (error) => console.error('No se pudo actualizar el inventario del producto.', error),
+    )
+  }
+</script>
