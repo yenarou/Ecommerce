@@ -5,12 +5,14 @@ import Dashboard from './Dashboard.jsx'
 import Products from './Products.jsx'
 import Categories from './Categories.jsx'
 import Orders from './Orders.jsx'
+import Graphs from './Graphs.jsx'
 
 const links = [
   ['dashboard', 'Dashboard'],
   ['products', 'Productos'],
   ['categories', 'Categorías'],
   ['orders', 'Órdenes'],
+  ['graphs', 'Gráficas'],
 ]
 
 export default function AdminApp() {
@@ -60,6 +62,7 @@ export default function AdminApp() {
           <a href="/" className="btn secondary">Volver a la tienda</a>
           <button className="btn secondary" onClick={handleLogout}>Cerrar sesión</button>
         </div>
+        {section === 'graphs' && <Graphs />}
         {section === 'dashboard' && <Dashboard />}
         {section === 'products' && <Products />}
         {section === 'categories' && <Categories />}

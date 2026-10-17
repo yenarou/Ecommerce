@@ -4,3 +4,10 @@ export const GRAPHQL_URL = GRAPHQL_ENV
 export const API_URL = GRAPHQL_ENV.replace(/\/graphql\/?$/, '')
 
 export const ORDER_STATUSES = ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled']
+export const STATUS_LABELS = {
+    Pending: 'Pendiente',
+    Confirmed: 'Confirmado',
+    Shipped: 'Enviado',
+    Delivered: 'Entregado',
+    Cancelled: 'Cancelado',
+}

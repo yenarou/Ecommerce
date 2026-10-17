@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getAdminOrders, updateOrderStatus } from '../api/admin'
-import { ORDER_STATUSES } from '../lib/config'
+import { ORDER_STATUSES, STATUS_LABELS } from '../lib/config'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -50,12 +50,12 @@ export default function Orders() {
                 <td>{new Date(o.createdAt).toLocaleString('es-MX')}</td>
                 <td>{o.total}</td>
                 <td>
-                  <select
+                  <select className={'status-select status-${o.status.toLowerCase()}'}
                     value={o.status}
                     onChange={(e) => change(o, e.target.value)}
                   >
                     {ORDER_STATUSES.map((s) => (
-                      <option key={s}>{s}</option>
+                      <option key={s} value={s}>{STATUS_LABELS[s] || s}</option>
                     ))}
                   </select>
                 </td>
