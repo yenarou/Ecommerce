@@ -1,6 +1,5 @@
 import { gql } from './client'
 import { useAuth } from '../stores/auth'
-import { fetchProductById } from './catalog'
 
 export async function getOrders(token = useAuth.getState().user?.token) {
   if (!token) {
@@ -27,27 +26,23 @@ export async function getOrders(token = useAuth.getState().user?.token) {
           id
           productId
           quantity
+          product {
+            id
+            name
+            price
+            currency
+          }
+          customization {
+            description
+            isWrap
+          }
         }
       }
     }
   `
 
   const data = await gql(query, {}, { Authorization: `Bearer ${token}` })
-  const productIds = [...new Set(
-    data.orders.flatMap((order) => order.items.map((item) => item.productId)),
-  )]
-  const products = await Promise.all(
-    productIds.map(async (productId) => [productId, await fetchProductById(productId)]),
-  )
-  const productsById = new Map(products)
-
-  return data.orders.map((order) => ({
-    ...order,
-    items: order.items.map((item) => ({
-      ...item,
-      product: productsById.get(item.productId),
-    })),
-  }))
+  return data.orders
 }
 
 export async function createOrder(address) {
