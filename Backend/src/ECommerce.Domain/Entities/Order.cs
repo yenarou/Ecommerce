@@ -119,15 +119,18 @@ public class Order
 
     public Money GetTotal()
     {
-        string currency = Items.FirstOrDefault().Product.Price.Currency;
+        if(Items.Count == 0)
+            throw new InvalidOperationException("Order has no items.");
+        
+        string currency = Items.FirstOrDefault().UnitPrice.Currency;
 
         Money total = Money.Create(0, currency); 
         
         foreach (var item in Items)
         {
             total = total.Add(Money.Create(
-                item.Product.Price.Amount * item.Quantity.Value,
-                item.Product.Price.Currency));
+                item.UnitPrice.Amount * item.Quantity.Value,
+                item.UnitPrice.Currency));
         }
         
         return total;
