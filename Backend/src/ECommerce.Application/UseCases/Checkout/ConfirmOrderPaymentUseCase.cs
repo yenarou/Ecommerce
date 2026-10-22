@@ -18,8 +18,8 @@ public class ConfirmOrderPaymentUseCase(
 
         foreach (var item in order.Items)
         {
-            var product = await productRepository.GetById(item.Product.Id)
-                ?? throw new InvalidOperationException($"Product {item.Product.Id} not found.");
+            var product = await productRepository.GetById(item.ProductId)
+                ?? throw new InvalidOperationException($"Product {item.ProductId} not found.");
 
             product.UpdateStock(product.Stock.Decrease(item.Quantity.Value));
 

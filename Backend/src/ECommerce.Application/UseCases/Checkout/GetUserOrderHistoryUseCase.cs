@@ -18,15 +18,9 @@ public class GetUserOrderHistoryUseCase(ICurrentUser currentUser, IOrderReposito
         {
             foreach (var item in order.Items)
             {
-                if (!item.ProductId.HasValue)
+                if (item.ProductId  == Guid.Empty)
                     throw new InvalidOperationException(
                         $"Order item {item.Id} has no stored product ID.");
-
-                var product = await productRepository.GetById(item.ProductId.Value);
-                if (product is null)
-                    throw new ProductNotFoundException(item.ProductId.Value.ToString());
-
-                item.RestoreProduct(product);
             }
         }
 

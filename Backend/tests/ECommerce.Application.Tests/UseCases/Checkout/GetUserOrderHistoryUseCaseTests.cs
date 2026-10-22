@@ -55,10 +55,11 @@ public class GetUserOrderHistoryUseCaseTests
     }
 
     [Fact]
-    public async Task Execute_ShouldRestoreProductsFromStoredProductIds()
+    public async Task Execute_ShouldReturnProductDataStoredInOrderItem()
     {
         var user = CreateUser();
         var category = Category.Create("test", "Test");
+
         var product = Product.Create(
             "Test product",
             "Test description",
@@ -66,27 +67,29 @@ public class GetUserOrderHistoryUseCaseTests
             Quantity.Create(5),
             category,
             []);
+
         var cart = Cart.Create(user);
         cart.AddCartItem(product, Quantity.Create(2));
+
         var order = CreateOrder(user);
         order.AddOrderItems(cart);
 
         _currentUserMock
             .Setup(x => x.GetUserAsync())
             .ReturnsAsync(user);
+
         _orderRepositoryMock
             .Setup(x => x.GetByUserId(user.Id))
             .ReturnsAsync([order]);
-        _productRepositoryMock
-            .Setup(x => x.GetById(product.Id))
-            .ReturnsAsync(product);
 
         var result = await _useCase.Execute();
 
         var responseItem = Assert.Single(Assert.Single(result).Items);
+
         Assert.Equal(product.Id, responseItem.ProductId);
         Assert.Equal(product.Id, responseItem.Product.Id);
-        _productRepositoryMock.Verify(x => x.GetById(product.Id), Times.Once);
+        Assert.Equal("Test product", responseItem.Product.Name);
+        Assert.Equal(10m, responseItem.Product.Price);
     }
 
     [Fact]
