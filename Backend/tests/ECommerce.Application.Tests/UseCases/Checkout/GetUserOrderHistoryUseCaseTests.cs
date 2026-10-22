@@ -90,6 +90,46 @@ public class GetUserOrderHistoryUseCaseTests
         Assert.Equal(product.Id, responseItem.Product.Id);
         Assert.Equal("Test product", responseItem.Product.Name);
         Assert.Equal(10m, responseItem.Product.Price);
+        Assert.Null(responseItem.Product.Image);
+    }
+
+    [Fact]
+    public async Task Execute_ShouldReturnStoredProductImage()
+    {
+        var user = CreateUser();
+        var category = Category.Create("test", "Test");
+        var image = Image.Create("https://example.com/product.jpg", "Test product");
+        var product = Product.Create(
+            "Test product",
+            "Test description",
+            Money.Create(10m, "MXN"),
+            Quantity.Create(5),
+            category,
+            [image]);
+
+        var cart = Cart.Create(user);
+        cart.AddCartItem(product, Quantity.Create(2));
+        var order = CreateOrder(user);
+        order.AddOrderItems(cart);
+
+        _currentUserMock
+            .Setup(x => x.GetUserAsync())
+            .ReturnsAsync(user);
+        _orderRepositoryMock
+            .Setup(x => x.GetByUserId(user.Id))
+            .ReturnsAsync([order]);
+        _productRepositoryMock
+            .Setup(x => x.GetById(product.Id))
+            .ReturnsAsync(product);
+
+        var result = await _useCase.Execute();
+
+        var responseImage = Assert.Single(Assert.Single(result).Items).Product.Image;
+        Assert.NotNull(responseImage);
+        Assert.Equal(image.Id, responseImage.Id);
+        Assert.Equal(image.Url, responseImage.Url);
+        Assert.Equal(image.Alt, responseImage.Alt);
+        _productRepositoryMock.Verify(x => x.GetById(product.Id), Times.Once);
     }
 
     [Fact]

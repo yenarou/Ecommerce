@@ -31,6 +31,11 @@ export async function getOrders(token = useAuth.getState().user?.token) {
             name
             price
             currency
+            image {
+              id
+              url
+              alt
+            }
           }
           customization {
             description

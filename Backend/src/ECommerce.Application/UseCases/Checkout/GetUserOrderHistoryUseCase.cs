@@ -1,6 +1,7 @@
 using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.Mappers;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
 
@@ -24,8 +25,20 @@ public class GetUserOrderHistoryUseCase(ICurrentUser currentUser, IOrderReposito
             }
         }
 
-        var result = OrderMapper.ToResponse(orders);
-        
-        return result;
+        var productImages = new Dictionary<Guid, Image?>();
+
+        foreach (var item in orders.SelectMany(order => order.Items))
+        {
+            if (productImages.ContainsKey(item.ProductId))
+                continue;
+
+            var product = await productRepository.GetById(item.ProductId);
+            var images = product?.Images;
+            productImages[item.ProductId] =
+                images?.FirstOrDefault(image => image.Id == item.ProductImageId)
+                ?? images?.FirstOrDefault();
+        }
+
+        return OrderMapper.ToResponse(orders, productImages);
     }
 }

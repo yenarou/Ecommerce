@@ -5,7 +5,9 @@ namespace ECommerce.Application.Mappers;
 
 public static class OrderMapper
 {
-    public static OrderResponse ToResponse(this Order order)
+    public static OrderResponse ToResponse(
+        this Order order,
+        IReadOnlyDictionary<Guid, Image?>? productImages = null)
     {
         return new OrderResponse(
             order.Id,
@@ -14,17 +16,26 @@ public static class OrderMapper
             order.Address.ToResponse(),
             order.Status,
             order.Items
-                .Select(item => item.ToResponse())
+                .Select(item =>
+                {
+                    var image = productImages is not null &&
+                        productImages.TryGetValue(item.ProductId, out var productImage)
+                            ? productImage
+                            : null;
+
+                    return item.ToResponse(image);
+                })
                 .ToList()
         );
     }
     
     public static
         ICollection<OrderResponse> ToResponse(
-            ICollection<Order> orders)
+            ICollection<Order> orders,
+            IReadOnlyDictionary<Guid, Image?>? productImages = null)
     {
         return orders
-            .Select(ToResponse)
+            .Select(order => order.ToResponse(productImages))
             .ToList();
     }
 }

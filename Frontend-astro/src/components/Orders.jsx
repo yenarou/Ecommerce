@@ -98,7 +98,7 @@ export default function Orders() {
 
                 <ul className="order-card__items">
                   {order.items.map((item, index) => {
-                    const image = item.product?.images?.[0]
+                    const image = item.product?.image
 
                     return (
                       <li className="order-item" key={item.id}>

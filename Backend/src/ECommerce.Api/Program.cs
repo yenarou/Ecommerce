@@ -181,7 +181,14 @@ builder.Services
     
     {
         options.IncludeExceptionDetails = true;
-    });
+    })
+    .ModifyCostOptions(costOptions =>
+    {
+        costOptions.MaxFieldCost = 100000;
+        costOptions.MaxTypeCost = int.MaxValue;
+    });;
+
+
 var app = builder.Build();
 
 // Errores con código y mensaje claros (en lugar de un 500 genérico)

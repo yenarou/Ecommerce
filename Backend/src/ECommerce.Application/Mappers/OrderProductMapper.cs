@@ -11,7 +11,12 @@ public static class OrderProductMapper
             product.Id,
             product.Name,
             product.Price.Amount,
-            product.Price.Currency
+            product.Price.Currency,
+            new ImageResponse(
+                product.Images.FirstOrDefault()?.Id,
+                product.Images.FirstOrDefault()?.Url,
+                product.Images.FirstOrDefault()?.Alt
+            )
         );
     }
 }

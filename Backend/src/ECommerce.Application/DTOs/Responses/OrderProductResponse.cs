@@ -4,5 +4,6 @@ public record OrderProductResponse(
     Guid Id,
     string Name,
     decimal Price,
-    string Currency
+    string Currency,
+    ImageResponse? Image
 );
