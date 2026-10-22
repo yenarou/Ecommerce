@@ -1,6 +1,7 @@
 ﻿using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.UseCases.Catalog;
 using ECommerce.Application.UseCases.Checkout;
+using ECommerce.Application.UseCases.Admin.Inventory;
 using ECommerce.Application.UseCases.Admin.Products;
 using ECommerce.Application.UseCases.Admin.Orders;
 
@@ -8,6 +9,10 @@ namespace ECommerce.Api.GraphQL;
 
 public class Query
 {
+    //backoffice
+    public async Task<ICollection<StockMovementResponse>> AdminStockMovements([Service] GetStockMovementsUseCase useCase, Guid? productId = null, int take = 100) =>
+        await useCase.Execute(productId, take);
+
     public async Task<ICollection<ProductResponse>> AdminProducts([Service] GetAdminProductsUseCase useCase) =>
         await useCase.Execute();
 

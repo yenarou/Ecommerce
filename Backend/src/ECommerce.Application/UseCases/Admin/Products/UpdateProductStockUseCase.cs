@@ -1,30 +1,32 @@
 using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.Mappers;
+using ECommerce.Application.Services;
 using ECommerce.Domain.Exceptions;
+using ECommerce.Domain.Models;
 using ECommerce.Domain.Repositories;
 using ECommerce.Application.DTOs.Requests.Admin;
-using   ECommerce.Domain.Entities;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
 
 namespace ECommerce.Application.UseCases.Admin.Products;
 
 public class UpdateProductStockUseCase(
-    IProductRepository productRepository)
+    IProductRepository productRepository,
+    InventoryService inventory)
 {
-    public async Task<ProductResponse> Execute(
-        Guid productId,
-        int stock)
+    public async Task<ProductResponse> Execute(Guid productId, int stock, string createdBy = "admin")
     {
-        var product =
-            await productRepository.GetById(productId);
+        if (stock < 0)
+            throw new ArgumentOutOfRangeException(nameof(stock), stock, "Stock cannot be negative.");
 
-        if (product is null)
-            throw new ProductNotFoundException(productId.ToString());
+        var product = await productRepository.GetById(productId)
+            ?? throw new ProductNotFoundException(productId.ToString());
 
-        product.UpdateStock(
-            Quantity.Create(stock));
+        var delta = stock - product.Stock.Value;
+        if (delta == 0)
+            return ProductMapper.ToResponse(product);
 
-        await productRepository.Save(product);
+        product = await inventory.Apply(productId, delta, StockMovementReason.Adjustment, null, createdBy);
 
         return ProductMapper.ToResponse(product);
     }

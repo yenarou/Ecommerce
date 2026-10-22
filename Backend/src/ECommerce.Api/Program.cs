@@ -2,8 +2,10 @@ using System.Text;
 using ECommerce.Api.GraphQL;
 using ECommerce.Api.GraphQL.Mutations;
 using ECommerce.Application.Factories;
+using ECommerce.Application.Services;
 using ECommerce.Application.Interfaces;
 using ECommerce.Application.Interfaces.Factories;
+using ECommerce.Application.UseCases.Admin.Inventory;
 using ECommerce.Application.UseCases.Admin.Categories;
 using ECommerce.Application.UseCases.Admin.Orders;
 using ECommerce.Application.UseCases.Admin.Products;
@@ -56,8 +58,8 @@ builder.Services.AddScoped<ICategoryRepository, MongoDbCategoryRepository>();
 builder.Services.AddScoped<IOrderRepository, PostgreSqlOrderRepository>();
 builder.Services.AddScoped<IProductRepository, MongoDbProductRepository>();
 builder.Services.AddScoped<IUserRepository, PostgreSqlUserRepository>();
-
-
+//backoffice
+builder.Services.AddScoped<IStockMovementRepository, PostgreSqlStockMovementRepository>();
 
 // Services
 builder.Services.AddHttpContextAccessor();
@@ -68,6 +70,8 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ICartFactory, CartFactory>();
 builder.Services.AddScoped<IImageStorage, LocalImageStorage>();
+//backoffice
+builder.Services.AddScoped<InventoryService>();
 
 // Use Cases - Auth
 builder.Services.AddScoped<AuthenticateWithGoogleUseCase>();
@@ -98,6 +102,9 @@ builder.Services.AddScoped<UpdateProductStockUseCase>();
 builder.Services.AddScoped<UpdateProductImageUseCase>();
 builder.Services.AddScoped<DeleteProductUseCase>();
 builder.Services.AddScoped<SetProductPublicationUseCase>();
+//backoffice
+builder.Services.AddScoped<GetStockMovementsUseCase>();
+builder.Services.AddScoped<AdjustProductStockUseCase>();
 
 // Use Cases - AdminOrder
 builder.Services.AddScoped<GetAdminOrdersUseCase>();

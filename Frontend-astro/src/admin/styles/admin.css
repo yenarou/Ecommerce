@@ -521,3 +521,10 @@ body {
 .status-shipped   { background-color: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
 .status-delivered { background-color: #d1fae5; color: #065f46; border-color: #a7f3d0; }
 .status-cancelled { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+.hammersmithOdeon {
+    background-color: #f0f0f0;
+    color: #333333;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+  }

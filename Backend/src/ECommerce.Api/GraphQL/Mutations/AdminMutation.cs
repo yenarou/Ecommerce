@@ -1,9 +1,11 @@
 using ECommerce.Application.DTOs.Responses;
 using ECommerce.Application.Mappers;
+using System.Security.Claims;
+using ECommerce.Application.UseCases.Admin.Inventory;
 using ECommerce.Application.UseCases.Admin.Products;
 using ECommerce.Application.UseCases.Admin.Categories;
 using ECommerce.Application.UseCases.Admin.Orders;
-using   ECommerce.Domain.Entities;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Services;
 using HotChocolate;
 using HotChocolate.Types;
@@ -28,8 +30,13 @@ public class AdminMutation
     public Task<ProductResponse> UpdateProductPrice(Guid productId, decimal price, string currency, [Service] UpdateProductPriceUseCase useCase) =>
         useCase.Execute(productId, price, currency);
 
-    public Task<ProductResponse> UpdateProductStock(Guid productId, int stock, [Service] UpdateProductStockUseCase useCase) =>
-        useCase.Execute(productId, stock);
+    //modificacion para backoffice
+    public Task<ProductResponse> UpdateProductStock(Guid productId, int stock, ClaimsPrincipal user, [Service] UpdateProductStockUseCase useCase) =>
+        useCase.Execute(productId, stock, GetUserEmail(user));
+
+    //ajuste de stock
+    public Task<ProductResponse> AdjustProductStock(Guid productId, int quantity, ClaimsPrincipal user, [Service] AdjustProductStockUseCase useCase) =>
+        useCase.Execute(productId, quantity, GetUserEmail(user));
 
     public Task<ProductResponse> SetProductPublication(Guid productId, bool published, [Service] SetProductPublicationUseCase useCase) =>
         useCase.Execute(productId, published);
@@ -69,4 +76,8 @@ public class AdminMutation
         await using var stream = file.OpenReadStream();
         return await imageStorage.SaveAsync(stream, file.Name, file.ContentType);
     }
+
+    //email para backoffice
+    private static string GetUserEmail(ClaimsPrincipal user) =>
+        user.FindFirst("email")?.Value ?? user.FindFirst(ClaimTypes.Email)?.Value ?? "admin";
 }

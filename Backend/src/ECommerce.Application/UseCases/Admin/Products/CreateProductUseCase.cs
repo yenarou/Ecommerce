@@ -1,4 +1,6 @@
 using ECommerce.Application.DTOs.Responses;
+using ECommerce.Application.Services;
+using ECommerce.Domain.Models;
 using ECommerce.Application.Mappers;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
@@ -10,7 +12,8 @@ namespace ECommerce.Application.UseCases.Admin.Products;
 
 public class CreateProductUseCase(
     IProductRepository productRepository,
-    ICategoryRepository categoryRepository)
+    ICategoryRepository categoryRepository,
+    InventoryService inventory)
 {
     public async Task<ProductResponse> Execute(
         CreateProductRequest request)
@@ -40,6 +43,10 @@ public class CreateProductUseCase(
             product.AddImage(url, request.Name);
 
         await productRepository.Save(product);
+
+        //inventario del backoffice
+        if (product.Stock.Value > 0)
+            await inventory.Log(product, product.Stock.Value, StockMovementReason.Initial);
 
         return ProductMapper.ToResponse(product);
     }

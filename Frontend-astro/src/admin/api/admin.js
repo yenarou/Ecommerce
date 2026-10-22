@@ -14,6 +14,16 @@ const PRODUCT_FIELDS = `
   categoryName
   images { id url alt }
 `
+//backoffice
+const MOVEMENT_FIELDS = `
+  id 
+  productId 
+  productName 
+  quantity 
+  reason 
+  createdBy 
+  createdAt
+`
 
 export async function getAdminProducts() {
   const data = await gql(`query { adminProducts { ${PRODUCT_FIELDS} } }`)
@@ -155,4 +165,23 @@ export async function uploadProductImage(file) {
   const payload = await response.json()
   if (payload.errors?.length) throw new Error(payload.errors.map(e => e.message).join('\n'))
   return payload.data.uploadProductImage
+}
+
+//backoffice
+export async function getStockMovements(productId = null, take = 100) {
+  const data = await gql(`
+    query($productId: UUID, $take: Int!) {
+      adminStockMovements(productId: $productId, take: $take) { ${MOVEMENT_FIELDS} }
+    }
+  `, { productId, take })
+  return data.adminStockMovements || []
+}
+
+export async function adjustProductStock(productId, quantity) {
+  const data = await gql(`
+    mutation($productId: UUID!, $quantity: Int!) {
+      adjustProductStock(productId: $productId, quantity: $quantity) { ${PRODUCT_FIELDS} }
+    }
+  `, { productId, quantity })
+  return data.adjustProductStock
 }

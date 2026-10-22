@@ -1,4 +1,6 @@
 using ECommerce.Application.DTOs.Responses;
+using ECommerce.Application.Services;
+using ECommerce.Domain.Models;
 using ECommerce.Application.Mappers;
 using ECommerce.Domain.Exceptions;
 using ECommerce.Domain.Repositories;
@@ -8,7 +10,8 @@ namespace ECommerce.Application.UseCases.Admin.Products;
 
 public class UpdateProductUseCase(
     IProductRepository productRepository,
-    ICategoryRepository categoryRepository)
+    ICategoryRepository categoryRepository,
+    InventoryService inventory)
 {
     public async Task<ProductResponse> Execute(
         Guid productId,
@@ -37,6 +40,9 @@ public class UpdateProductUseCase(
         var money = Money.Create(price, currency);
         var quantity = Quantity.Create(stock);
 
+        //backoffice
+        var previousStock = product.Stock.Value;
+
         //actualizar usando los métodos del Domain
         product.UpdateName(name);
         product.UpdateDescription(description);
@@ -46,6 +52,9 @@ public class UpdateProductUseCase(
 
         //guardar los cambios
         await productRepository.Save(product);
+
+        //inventario
+        await inventory.Log(product, product.Stock.Value - previousStock, StockMovementReason.Adjustment);
 
         //regresar el producto actualizado como DTO
         return ProductMapper.ToResponse(product);
