@@ -1,6 +1,8 @@
 using System.Text;
 using ECommerce.Api.GraphQL;
 using ECommerce.Api.GraphQL.Mutations;
+using ECommerce.Api.GraphQL.Subscriptions;
+using ECommerce.Application.Events;
 using ECommerce.Application.Factories;
 using ECommerce.Application.Services;
 using ECommerce.Application.Interfaces;
@@ -27,6 +29,9 @@ using ECommerce.Infrastructure.Persistence.PostgreSQL.Seed;
 using ECommerce.Infrastructure.Storage;
 using HotChocolate.Types;
 using ECommerce.Domain.Entities;
+using ECommerce.Domain.Events;
+using ECommerce.Infrastructure.Events;
+using ECommerce.Infrastructure.Events.Handlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
@@ -72,6 +77,16 @@ builder.Services.AddScoped<ICartFactory, CartFactory>();
 builder.Services.AddScoped<IImageStorage, LocalImageStorage>();
 //backoffice
 builder.Services.AddScoped<InventoryService>();
+
+// Events
+builder.Services.AddScoped<
+    IDomainEventDispatcher,
+    DomainEventDispatcher
+>();
+builder.Services.AddScoped<
+    IDomainEventHandler<StockChangedDomainEvent>,
+    StockChangedDomainEventHandler>();
+
 
 // Use Cases - Auth
 builder.Services.AddScoped<AuthenticateWithGoogleUseCase>();
@@ -167,7 +182,10 @@ builder.Services
     .AddType<CheckoutMutation>()
     .AddType<AdminMutation>()
     .AddType<UploadType>()
+    .AddSubscriptionType<ProductSubscriptions>()
+    .AddInMemorySubscriptions()
     .ModifyRequestOptions(options =>
+    
     {
         options.IncludeExceptionDetails = true;
     });
@@ -288,6 +306,8 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseWebSockets();
 
 app.MapControllers();
 

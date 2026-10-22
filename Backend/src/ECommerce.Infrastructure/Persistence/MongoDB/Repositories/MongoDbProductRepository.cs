@@ -1,11 +1,12 @@
-﻿using ECommerce.Domain.Entities;
+﻿using ECommerce.Application.Events;
+using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using ECommerce.Domain.ValueObjects;
 using MongoDB.Driver;
 
 namespace ECommerce.Infrastructure.Persistence.MongoDB.Repositories;
 
-public class MongoDbProductRepository(IMongoDatabase database) : IProductRepository
+public class MongoDbProductRepository(IMongoDatabase database, IDomainEventDispatcher eventDispatcher) : IProductRepository
 {
     private readonly IMongoCollection<Product> _products =
         database.GetCollection<Product>("products");
@@ -87,13 +88,16 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
 
     public async Task Save(Product product)
     {
+        ArgumentNullException.ThrowIfNull(product);
+
         var categoryExists = await _categories
             .Find(category => category.Id == product.CategoryId)
             .AnyAsync();
 
         if (!categoryExists)
             throw new InvalidOperationException(
-                $"Cannot save product {product.Id}: category {product.CategoryId} does not exist.");
+                $"Cannot save product {product.Id}: " +
+                $"category {product.CategoryId} does not exist.");
 
         var filter = Builders<Product>.Filter.Eq(
             existing => existing.Id,
@@ -106,6 +110,17 @@ public class MongoDbProductRepository(IMongoDatabase database) : IProductReposit
             {
                 IsUpsert = true
             });
+
+        // MongoDB ya guardó el producto. Ahora se despachan los eventos.
+        var domainEvents = product.DomainEvents.ToArray();
+
+        if (domainEvents.Length == 0)
+            return;
+
+        await eventDispatcher.DispatchAsync(domainEvents);
+
+        // Limpiar únicamente después de que el despacho termine correctamente.
+        product.ClearDomainEvents();
     }
 
     public async Task Delete(Guid productId)
