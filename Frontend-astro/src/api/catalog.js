@@ -1,4 +1,4 @@
-import { gql } from './client'
+import { getGraphQLWebSocketUrl, gql } from './client'
 
 function normalizeProduct(p) {
   if (!p) return null
@@ -87,6 +87,104 @@ export async function fetchProductById(id) {
     }
   `, { id })
   return normalizeProduct(data.product)
+}
+
+export function subscribeToStockUpdates(productId, onStockUpdated, onError = console.error) {
+  const subscriptionId = 'product-stock'
+  let socket = null
+  let reconnectTimer = null
+  let reconnectDelay = 1000
+  let disposed = false
+
+  function reportError(error) {
+    if (!disposed) onError(error)
+  }
+
+  function connect() {
+    if (disposed) return
+
+    const currentSocket = new WebSocket(getGraphQLWebSocketUrl(), 'graphql-transport-ws')
+    socket = currentSocket
+
+    currentSocket.addEventListener('open', () => {
+      currentSocket.send(JSON.stringify({ type: 'connection_init' }))
+    })
+
+    currentSocket.addEventListener('message', (event) => {
+      if (socket !== currentSocket) return
+
+      let message
+      try {
+        message = JSON.parse(event.data)
+      } catch (error) {
+        reportError(new Error('El servidor envió un mensaje de suscripción inválido.', { cause: error }))
+        return
+      }
+
+      if (message.type === 'connection_ack') {
+        currentSocket.send(JSON.stringify({
+          id: subscriptionId,
+          type: 'subscribe',
+          payload: {
+            query: `
+              subscription StockUpdated($productId: UUID!) {
+                stockUpdated(productId: $productId) {
+                  productId
+                  stock
+                }
+              }
+            `,
+            variables: { productId },
+          },
+        }))
+        return
+      }
+
+      if (message.type === 'ping') {
+        currentSocket.send(JSON.stringify({ type: 'pong', payload: message.payload }))
+        return
+      }
+
+      if (message.type === 'next' && message.id === subscriptionId) {
+        const stockUpdate = message.payload?.data?.stockUpdated
+        if (stockUpdate && typeof stockUpdate.stock === 'number') {
+          onStockUpdated(stockUpdate)
+        } else if (message.payload?.errors?.length) {
+          reportError(new Error(message.payload.errors[0].message))
+        }
+        return
+      }
+
+      if (message.type === 'error' && message.id === subscriptionId) {
+        reportError(new Error(message.payload?.[0]?.message || 'Falló la suscripción al inventario.'))
+      }
+    })
+
+    currentSocket.addEventListener('error', () => {
+      reportError(new Error('No fue posible conectar con las actualizaciones de inventario.'))
+    })
+
+    currentSocket.addEventListener('close', (event) => {
+      if (!disposed && socket === currentSocket) {
+        reportError(new Error(`La conexión de inventario se cerró inesperadamente (${event.code}).`))
+        reconnectTimer = setTimeout(connect, reconnectDelay)
+        reconnectDelay = Math.min(reconnectDelay * 2, 30000)
+      }
+    })
+  }
+
+  connect()
+
+  return () => {
+    disposed = true
+    clearTimeout(reconnectTimer)
+    if (socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ id: subscriptionId, type: 'complete' }))
+      socket.close()
+    } else if (socket?.readyState === WebSocket.CONNECTING) {
+      socket.close()
+    }
+  }
 }
 
 const USE_MOCK_ORDERS = true

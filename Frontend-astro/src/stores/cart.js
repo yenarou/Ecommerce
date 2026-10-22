@@ -126,6 +126,14 @@ export const useCartStore = create(
             .filter((it) => it.quantity > 0) }
           }),
 
+      updateProductStock: (productId, stock) =>
+        set((state) => ({
+          items: state.items.map((it) =>
+            it.product_id === productId
+              ? { ...it, product: { ...it.product, stock } }
+              : it),
+        })),
+
       removeItem: (itemId) =>
         set((state) => ({ items: state.items.filter((it) => it.id !== itemId) })),
 
@@ -157,6 +165,7 @@ export function useCart() {
   const updateQuantity = useCartStore((s) => s.updateQuantity)
   const removeItem = useCartStore((s) => s.removeItem)
   const clearCart = useCartStore((s) => s.clearCart)
+  const updateProductStock = useCartStore((s) => s.updateProductStock)
   const sync = useCartStore((s) => s.sync)
   const loadError = useCartStore((s) => s.loadError)
 
@@ -168,5 +177,5 @@ export function useCart() {
     return { subtotal, itemCount }
   }, [items])
 
-  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, sync, loadError, totals }
+  return { cartId: CART_ID, items, addItem, updateQuantity, removeItem, clearCart, updateProductStock, sync, loadError, totals }
 }
