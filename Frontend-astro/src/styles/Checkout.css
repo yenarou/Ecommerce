@@ -116,3 +116,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+
+
+.saved-address {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.saved-address label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.saved-address__remove {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.checkout-form__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}

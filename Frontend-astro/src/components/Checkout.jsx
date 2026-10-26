@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCart } from '../stores/cart'
 import { updateCart } from '../api/cart'
 import { createOrder, payOrder } from '../api/orders'
 import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react'
+import { getSavedAddresses, saveAddress, removeAddress } from '../lib/savedAddresses'
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
@@ -31,9 +32,31 @@ export default function Checkout() {
   const user = useAuth((s) => s.user)
   const logout = useAuth((s) => s.logout)
 
+  //direccion en cache
+  const userId = user?.id || user?.email || null
+  const [savedAddresses, setSavedAddresses] = useState([])
+  const [addressChoice, setAddressChoice] = useState('new')
+  const [saveForLater, setSaveForLater] = useState(true)
+
+  useEffect(() => {
+    const saved = getSavedAddresses(userId)
+    setSavedAddresses(saved)
+    setAddressChoice(saved.length ? saved[0].id : 'new')
+  }, [userId])
+
+  function handleRemoveAddress(id){
+    removeAddress(userId, id)
+    const saved = getSavedAddresses(userId)
+    setSavedAddresses(saved)
+    if(addressChoice === id) setAddressChoice(saved.length ? saved[0].id : 'new')
+  }
+  //direccion en cache
+  
   function handleChange(e) {
+    //mejor manejo de phone con clean, revisar cambios del jsx (se quito el oninput)
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    const clean = name === 'phone' ? value.replace(/\D/g, ''): value
+    setForm((prev) => ({ ...prev, [name]: clean }))
   }
 
   function buildPayer() {
@@ -101,17 +124,27 @@ export default function Checkout() {
     }
 
     try {
-      const address = {
+      //direccion en cache
+      const selectedSaved = savedAddresses.find((a) => a.id === addressChoice)
+      const address = selectedSaved ? {
+        street: selectedSaved.street,
+        city: selectedSaved.city,
+        state: selectedSaved.state,
+        zipCode: selectedSaved.zipCode,
+        country: selectedSaved.country,
+      } : {
         street: form.address,
         city: form.city,
         state: form.state,
         zipCode: form.zipCode,
-        country: form.country
+        country: form.country,
       }
 
       await updateCart(items)
       const response = await createOrder(address)
       const orderId = response.createOrder.id
+
+      if(selectedSaved || saveForLater) saveAddress(userId, address)
 
       if (form.paymentMethod === 'card') {
         setOrderInfo({ id: orderId, total: Number(response.createOrder.total) })
@@ -205,35 +238,74 @@ export default function Checkout() {
             </div>
             <div className="checkout-form__field">
               <label htmlFor="phone">Teléfono</label>
-              <input type="tel" maxLength="10" minLength="10" pattern="[0-9]{10}" placeholder="Ej: 3312345678" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="phone" name="phone" required value={form.phone} onChange={handleChange} />
+              <input type="tel" maxLength="10" minLength="10" pattern="[0-9]{10}" placeholder="Ej: 3312345678" id="phone" name="phone" required value={form.phone} onChange={handleChange} />
             </div>
           </div>
 
-          <div className="checkout-form__field">
-            <label htmlFor="address">Dirección</label>
-            <input type="text" autocomplete="address-line1" placeholder="Av. Juárez 123" id="address" name="address" required value={form.address} onChange={handleChange} />
-          </div>
 
-          <div className="checkout-form__field">
-            <label htmlFor="city">Ciudad</label>
-            <input type="text" id="city" autocomplete="address-level2" placeholder="Ej: Guadalajara" name="city" required value={form.city} onChange={handleChange} />
-          </div>
 
-          <div className="checkout-form__row">
+
+          {savedAddresses.length > 0 && (
             <div className="checkout-form__field">
-              <label htmlFor="state">Estado</label>
-              <input type="text" id="state" name="state" required value={form.state} onChange={handleChange} />
-            </div>
-            <div className="checkout-form__field">
-              <label htmlFor="zipCode">Código Postal</label>
-              <input type="text" id="zipCode" name="zipCode" required value={form.zipCode} onChange={handleChange} />
-            </div>
-          </div>
+              <label>Dirección de envío</label>
 
-          <div className="checkout-form__field">
-            <label htmlFor="country">País</label>
-            <input type="text" id="country" name="country" required value={form.country} onChange={handleChange} />
-          </div>
+              {savedAddresses.map((a) => (
+                <div key={a.id} className="saved-address">
+                  <label>
+                    <input type="radio" name="addressChoice" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)}/>{' '}
+                    {a.street}, {a.city}, {a.state}, {a.zipCode}, {a.country}
+                  </label>
+                  <button type="button" className="saved-address__remove" onClick={() => handleRemoveAddress(a.id)}>Eliminar</button>
+                </div>
+              ))}
+
+              <div className="saved-address">
+                <label>
+                  <input type="radio" name="addressChoice" checked={addressChoice === 'new'} onChange={() => setAddressChoice('new')}/>{' '}
+                  Ingresar una nueva dirección
+                </label>
+              </div>
+
+            </div>
+          )}
+
+          {addressChoice === 'new' && (
+            <>
+              <div className="checkout-form__field">
+                <label htmlFor="address">Dirección</label>
+                <input type="text" autoComplete="address-line1" placeholder="Av. Juárez 123" id="address" name="address" required value={form.address} onChange={handleChange} />
+              </div>
+
+              <div className="checkout-form__field">
+                <label htmlFor="city">Ciudad</label>
+                <input type="text" id="city" autoComplete="address-level2" placeholder="Ej: Guadalajara" name="city" required value={form.city} onChange={handleChange} />
+              </div>
+
+              <div className="checkout-form__row">
+                <div className="checkout-form__field">
+                <label htmlFor="state">Estado</label>
+                <input type="text" id="state" name="state" required value={form.state} onChange={handleChange} />
+              </div>
+
+              <div className="checkout-form__field">
+                <label htmlFor="zipCode">Código Postal</label>
+                <input type="text" id="zipCode" name="zipCode" required value={form.zipCode} onChange={handleChange} />
+              </div>
+              </div>
+
+              <div className="checkout-form__field">
+                <label htmlFor="country">País</label>
+                <input type="text" id="country" name="country" required value={form.country} onChange={handleChange} />
+              </div>
+
+              <label className="checkout-form__check">
+                <input type="checkbox" checked={saveForLater} onChange={(e) => setSaveForLater(e.target.checked)}/>{' '}
+                Guardar esta dirección para mi próxima compra
+              </label>
+            </>
+          )}
+
+
 
           <h2>Pago</h2>
           <div className="checkout-form__field">
