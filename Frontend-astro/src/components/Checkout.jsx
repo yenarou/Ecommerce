@@ -251,8 +251,8 @@ export default function Checkout() {
 
               {savedAddresses.map((a) => (
                 <div key={a.id} className="saved-address">
-                  <label>
-                    <input type="radio" name="addressChoice" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)}/>{' '}
+                  <label className="liveAid">
+                    <input className="mfn" type="radio" name="addressChoice" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)}/>{' '}
                     {a.street}, {a.city}, {a.state}, {a.zipCode}, {a.country}
                   </label>
                   <button type="button" className="saved-address__remove" onClick={() => handleRemoveAddress(a.id)}>Eliminar</button>
@@ -260,8 +260,8 @@ export default function Checkout() {
               ))}
 
               <div className="saved-address">
-                <label>
-                  <input type="radio" name="addressChoice" checked={addressChoice === 'new'} onChange={() => setAddressChoice('new')}/>{' '}
+                <label className="liveAid">
+                  <input className="mfn" type="radio" name="addressChoice" checked={addressChoice === 'new'} onChange={() => setAddressChoice('new')}/>{' '}
                   Ingresar una nueva dirección
                 </label>
               </div>
