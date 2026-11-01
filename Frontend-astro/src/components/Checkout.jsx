@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useCart } from '../stores/cart'
 import { updateCart } from '../api/cart'
-import { createOrder, payOrder } from '../api/orders'
 import { initMercadoPago, CardPayment } from '@mercadopago/sdk-react'
 import { getSavedAddresses, saveAddress, removeAddress } from '../lib/savedAddresses'
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
+import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
+import { createOrder, payOrder, createPayPalOrder, capturePayPalOrder } from '../api/orders'
+
+const PAYPAL_CLIENT_ID = import.meta.env.PUBLIC_PAYPAL_CLIENT_ID
 
 if (import.meta.env.PUBLIC_MP_PUBLIC_KEY) {
   initMercadoPago(import.meta.env.PUBLIC_MP_PUBLIC_KEY, { locale: 'es-MX' })
@@ -146,8 +149,9 @@ export default function Checkout() {
 
       if(selectedSaved || saveForLater) saveAddress(userId, address)
 
-      if (form.paymentMethod === 'card') {
-        setOrderInfo({ id: orderId, total: Number(response.createOrder.total) })
+      //agregamos pagoamigo  
+      if (form.paymentMethod === 'card' || form.paymentMethod === 'paypal') {
+        setOrderInfo({ id: orderId, total: Number(response.createOrder.total), method: form.paymentMethod, })
         return
       }
 
@@ -198,6 +202,34 @@ export default function Checkout() {
   }
 
   if (orderInfo) {
+    //pagoamigo
+    if (orderInfo.method === 'paypal') {
+    return (
+      <div className="container checkout-page">
+        <h1 className="checkout-page__title">Pago con PayPal</h1>
+        <p>Total a pagar: ${orderInfo.total.toFixed(2)} MXN</p>
+        <PayPalScriptProvider options={{ 'client-id': PAYPAL_CLIENT_ID, currency: 'MXN' }}>
+          <PayPalButtons
+            style={{ layout: 'vertical' }}
+            createOrder={() => createPayPalOrder(orderInfo.id)}
+            onApprove={async (data) => {
+              try {
+                const res = await capturePayPalOrder(orderInfo.id, data.orderID)
+                goToResult(res)
+              } catch (err) {
+                alert(err.message || 'No se pudo procesar el pago con PayPal')
+              }
+            }}
+            onError={(err) => {
+              console.error(err)
+              alert('Ocurrió un error con PayPal. Intenta de nuevo.')
+            }}
+          />
+        </PayPalScriptProvider>
+      </div>
+    )
+    }
+
     return (
       <div className="container checkout-page">
         <h1 className="checkout-page__title">Pago con tarjeta</h1>
@@ -314,6 +346,7 @@ export default function Checkout() {
               <option value="card">Tarjeta de crédito o débito</option>
               <option value="spei">Transferencia SPEI</option>
               <option value="oxxo">Efectivo en OXXO</option>
+              {PAYPAL_CLIENT_ID && <option value="paypal">PayPal</option>}
             </select>
           </div>
 

@@ -140,6 +140,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<GoogleOptions>(builder.Configuration.GetSection("Google"));
 builder.Services.Configure<MercadoPagoOptions>(builder.Configuration.GetSection("MercadoPago"));
+//PagoAmigo
+builder.Services.Configure<PayPalOptions>(builder.Configuration.GetSection("PayPal"));
+builder.Services.AddHttpClient<IPayPalGateway, PayPalGateway>();
+builder.Services.AddScoped<CreatePayPalOrderUseCase>();
+builder.Services.AddScoped<CapturePayPalOrderUseCase>();
 
 // Autenticación: el backend valida el token (JWT) en las rutas con [Authorize]
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();

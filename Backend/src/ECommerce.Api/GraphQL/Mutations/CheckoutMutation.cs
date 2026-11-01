@@ -29,6 +29,22 @@ public class CheckoutMutation
         return await useCase.Execute(request);
     }
 
+    //PagoAmigo
+    public async Task<string> CreatePayPalOrder(
+        Guid orderId,
+        CreatePayPalOrderUseCase useCase)
+        {
+            return await useCase.Execute(orderId);
+        }
+
+    public async Task<PayOrderResponse> CapturePayPalOrder(
+        Guid orderId,
+        string payPalOrderId,
+        CapturePayPalOrderUseCase useCase)
+        {
+            return await useCase.Execute(orderId, payPalOrderId);
+        }
+
     public async Task<CartResponse> GetCart(GetActiveCartUseCase useCase)
     {
         return await useCase.Execute();

@@ -105,3 +105,35 @@ export async function payOrder({ orderId, paymentOption, payer, card }) {
     headers
   )
 }
+
+//PagoAmigo
+export async function createPayPalOrder(orderId) {
+  const mutation = `
+    mutation CreatePayPalOrder($orderId: UUID!) {
+      createPayPalOrder(orderId: $orderId)
+    }
+  `
+  const token = useAuth.getState().user?.token
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const data = await gql(mutation, { orderId }, headers)
+  return data.createPayPalOrder
+}
+
+export async function capturePayPalOrder(orderId, payPalOrderId) {
+  const mutation = `
+    mutation CapturePayPalOrder($orderId: UUID!, $payPalOrderId: String!) {
+      capturePayPalOrder(orderId: $orderId, payPalOrderId: $payPalOrderId) {
+        orderId
+        status
+        statusDetail
+        ticketUrl
+        reference
+        paid
+      }
+    }
+  `
+  const token = useAuth.getState().user?.token
+  const headers = token ? { Authorization: `Bearer ${token}` } : {}
+  const data = await gql(mutation, { orderId, payPalOrderId }, headers)
+  return data.capturePayPalOrder
+}

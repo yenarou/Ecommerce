@@ -4,6 +4,10 @@ services:
       context: ./Backend
       dockerfile: Dockerfile
     environment:
+      PayPal__ClientId: ${PAYPAL_CLIENT_ID}
+      PayPal__ClientSecret: ${PAYPAL_CLIENT_SECRET}
+      PayPal__BaseUrl: https://api-m.sandbox.paypal.com
+
       ASPNETCORE_ENVIRONMENT: Development
       ApiBaseUrl: http://localhost:14001
       AdminUser__Name: Administrador
@@ -49,6 +53,7 @@ services:
       context: ./Frontend-astro
       dockerfile: Dockerfile
       args:
+        PUBLIC_PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
         PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:14001/graphql}
         PUBLIC_MP_PUBLIC_KEY: ${PUBLIC_MP_PUBLIC_KEY:-}
     environment:
