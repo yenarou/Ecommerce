@@ -10,7 +10,10 @@ const category = slug ? await fetchCategoryBySlug(slug) : null
 if (!category) Astro.response.status = 404
 const products: any[] = category?.products ?? []
 ---
-<Layout title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}>
+<Layout
+  title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}
+  description={category ? `${category.description} Colección de ${category.name.toLowerCase()} tejidos a crochet en Hilo y Alma.` : undefined}
+>
   {category ? (
   <div class="container category-detail">
     <nav class="category-detail__crumbs" aria-label="Ruta de navegación">
@@ -31,7 +34,7 @@ const products: any[] = category?.products ?? []
           </p>
         ) : (
           <div class="category-detail__grid">
-            {products.map((product) => <ProductCard product={product} />)}
+            {products.map((product, i) => <ProductCard product={product} level={2} priority={i < 2} />)}
           </div>
         )}
       </main>

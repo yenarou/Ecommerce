@@ -8,7 +8,10 @@ import '../styles/Home.css'
 
 const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 6 })
 ---
-<Layout>
+<Layout
+  title="Hilo y Alma | Figuras de crochet en Guadalajara"
+  description="Taller de crochet en Guadalajara: figuras, llaveros y decoración tejidos a mano. Elige una pieza del catálogo o pide una personalizada."
+>
   <div class="container home">
     <Hero />
 
