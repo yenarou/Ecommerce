@@ -54,7 +54,7 @@ const jsonLd = product && {
           <div class="product-detail__thumbs">
             {product.images.slice(1).map((img: any) => (
               <div class="product-detail__thumb">
-                <img src={img.url} alt={img.alt} width="200" height="200" loading="lazy" decoding="async" />
+                <img src={img.url} alt={img.alt || product.name} width="200" height="200" loading="lazy" decoding="async" />
               </div>
             ))}
           </div>
@@ -80,7 +80,7 @@ const jsonLd = product && {
 
         <hr class="stitch-divider" />
 
-        <AddToCartForm client:load product={product} />
+        <AddToCartForm client:idle product={product} />
       </div>
     </div>
   </main>

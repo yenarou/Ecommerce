@@ -9,6 +9,7 @@
   --color-moss: #5f6f52;       /* verde musgo — acento secundario */
   --color-mustard: #c98a2c;    /* mostaza — resaltes, precios */
   --color-line: #d8cbb3;       /* líneas divisorias */
+  --color-mustard-text: #8a5a10;
   --color-line-strong: #b9a983;
 
   --font-display: 'Fraunces', 'Georgia', serif;
@@ -150,7 +151,7 @@ main {
 }
 
 .price {
-  color: var(--color-mustard);
+  color: var(--color-mustard-text);
   font-weight: 600;
 }
 
@@ -166,5 +167,13 @@ main {
 @media (max-width: 640px) {
   .container {
     padding: 0 var(--space-3);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
