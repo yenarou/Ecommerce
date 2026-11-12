@@ -153,3 +153,13 @@
   cursor: pointer;
   text-decoration: underline;
 }
+@media (max-width: 780px) {
+  .topbar__right {
+    order: 3;
+    width: 100%;
+    min-height: 2.8rem;
+  }
+  .topbar__cart {
+    margin-left: auto;
+  }
+}
