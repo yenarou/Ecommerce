@@ -8,8 +8,32 @@ const { id } = Astro.params
 const product = id ? await fetchProductById(id) : null
 if (!product) Astro.response.status = 404
 const category = product?.category
+const productDescription = product
+  ? `${product.name}: ${product.description || 'Pieza hecha a mano con acabado artesanal y posibilidad de personalización.'}`
+  : 'Producto no encontrado.'
+const productJsonLd = product ? {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.description,
+  sku: product.id,
+  image: product.images?.map(img => img.url) || [],
+  brand: { '@type': 'Brand', name: 'Hilo y Alma' },
+  offers: {
+    '@type': 'Offer',
+    price: product.price,
+    priceCurrency: product.currency,
+    availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: `https://www.hilo-yalma.com/products/${product.id}`,
+  },
+} : null
 ---
-<Layout title={product ? `${product.name} | Hilo y Alma` : 'Producto no encontrado'}>
+<Layout
+  title={product ? `${product.name} | Hilo y Alma` : 'Producto no encontrado'}
+  description={productDescription}
+  canonical={product ? `https://www.hilo-yalma.com/products/${product.id}` : 'https://www.hilo-yalma.com'}
+  type="product"
+>
   {product ? (
   <div class="container product-detail">
     <nav class="product-detail__crumbs" aria-label="Ruta de navegación">
@@ -21,13 +45,20 @@ const category = product?.category
     <div class="product-detail__layout">
       <div class="product-detail__gallery">
         <div class="product-detail__main-image">
-          <img src={product.images[0]?.url} alt={product.images[0]?.alt || product.name} />
+          <img
+            src={product.images[0]?.url}
+            alt={product.images[0]?.alt || product.name}
+            width="1200"
+            height="1200"
+            loading="eager"
+            decoding="async"
+          />
         </div>
         {product.images.length > 1 && (
           <div class="product-detail__thumbs">
             {product.images.slice(1).map(img => (
               <div class="product-detail__thumb">
-                <img src={img.url} alt={img.alt} />
+                <img src={img.url} alt={img.alt} width="800" height="800" loading="lazy" decoding="async" />
               </div>
             ))}
           </div>
@@ -59,6 +90,10 @@ const category = product?.category
   </div>
   ) : (
     <main class="container"><h1>Producto no encontrado</h1></main>
+  )}
+
+  {productJsonLd && (
+    <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />
   )}
 </Layout>
 

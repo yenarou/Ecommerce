@@ -11,11 +11,11 @@ import AuthLinks from './AuthLinks.jsx'
     </a>
 
     <div class="topbar__right">
-  <AuthLinks client:only="react" />
+  <AuthLinks client:idle />
   <a href="/carrito" class="topbar__cart">
     <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
     <span>Carrito</span>
-    <CartCount client:only="react" />
+    <CartCount client:idle />
   </a>
     </div>
 </div>

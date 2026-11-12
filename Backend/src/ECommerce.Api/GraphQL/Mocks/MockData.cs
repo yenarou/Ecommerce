@@ -50,7 +50,7 @@ public static class MockData
             [
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000001"),
-                    $"{ImageBaseUrl}shyguy.png",
+                    $"{ImageBaseUrl}shyguy.webp",
                     "Shy-Guy tejido a mano"
                 )
             ],
@@ -68,12 +68,12 @@ public static class MockData
             [
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000002"),
-                    $"{ImageBaseUrl}marioycapi.png",
+                    $"{ImageBaseUrl}marioycapi.webp",
                     "Mario tejido a mano"
                 ),
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000003"),
-                    $"{ImageBaseUrl}mario.png",
+                    $"{ImageBaseUrl}mario.webp",
                     "Mario tejido a mano"
                 )
             ],
@@ -91,12 +91,12 @@ public static class MockData
             [
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000004"),
-                    $"{ImageBaseUrl}snoopy.png",
+                    $"{ImageBaseUrl}snoopy.webp",
                     "Snoop Dogg tejido"
                 ),
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000005"),
-                    $"{ImageBaseUrl}snoop.png",
+                    $"{ImageBaseUrl}snoop.webp",
                     "Snoop Dogg tejido"
                 )
             ],
@@ -114,7 +114,7 @@ public static class MockData
             [
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000006"),
-                    $"{ImageBaseUrl}sunflower.png",
+                    $"{ImageBaseUrl}sunflower.webp",
                     "Flor del sol tejida"
                 )
             ],
@@ -132,7 +132,7 @@ public static class MockData
             [
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000007"),
-                    $"{ImageBaseUrl}flores.png",
+                    $"{ImageBaseUrl}flores.webp",
                     "Ramo de flores de crochet"
                 )
             ],
@@ -150,7 +150,7 @@ public static class MockData
             [
                 new ImageResponse(
                     Guid.Parse("30000000-0000-0000-0000-000000000008"),
-                    $"{ImageBaseUrl}mandalas.png",
+                    $"{ImageBaseUrl}mandalas.webp",
                     "Mandalas colgantes"
                 )
             ],

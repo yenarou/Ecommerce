@@ -80,6 +80,7 @@ export default function AddToCartForm({ product }) {
 
       <div className="product-detail__actions">
         <button
+          type="button"
           className="btn btn-primary"
           onClick={handleAddToCart}
           disabled={remaining <= 0}

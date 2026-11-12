@@ -4,18 +4,42 @@ import TopBar from '../components/TopBar.astro'
 import Footer from '../components/Footer.astro'
 import CartBootstrap from '../components/CartBootstrap.jsx'
 
-const { title = 'Hilo y Alma' } = Astro.props
+const {
+  title = 'Hilo y Alma',
+  description = 'Taller de crochet con piezas hechas a mano, personalizadas y enviadas con atención.',
+  image = '/images/heroImg2.png',
+  canonical,
+  type = 'website',
+} = Astro.props
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://www.hilo-yalma.com'
+const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).toString()
+const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).toString()
 ---
 <!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#8b3a3a" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Hilo y Alma" />
+    <meta property="og:locale" content="es_MX" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <title>{title}</title>
   </head>
   <body>
-    <CartBootstrap client:only="react" />
+    <CartBootstrap client:idle />
     <TopBar />
     <slot />
     <Footer />

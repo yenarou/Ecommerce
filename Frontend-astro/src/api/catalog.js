@@ -47,17 +47,15 @@ export async function fetchCategoryBySlug(slug) {
   const category = normalizeCategory(data.category)
   if (!category) return null
 
-  const firstPage = await fetchProducts({ page: 1, pageSize: 50 })
-  const products = [...firstPage.items]
-
-  for (let page = 2; page <= firstPage.totalPages; page += 1) {
-    const nextPage = await fetchProducts({ page, pageSize: 50 })
-    products.push(...nextPage.items)
-  }
+  const firstPage = await fetchProducts({
+    page: 1,
+    pageSize: 8,
+    categorySlug: slug,
+  })
 
   return {
     ...category,
-    products: products.filter(product => product.categoryId === category.id),
+    products: firstPage.items,
   }
 }
 

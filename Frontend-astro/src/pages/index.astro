@@ -6,9 +6,10 @@ import ProductCard from '../components/ProductCard.astro'
 import { fetchProducts } from '../api/catalog'
 import '../styles/Home.css'
 
-const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 6 })
+const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 3 })
+const pageDescription = 'Descubre figuras, llaveros y piezas de crochet hechas a mano en Hilo y Alma. Personaliza tu pedido y compra con entrega local y nacional.'
 ---
-<Layout>
+<Layout title="Hilo y Alma | Crochet hecho a mano" description={pageDescription} canonical="https://www.hilo-yalma.com/">
   <div class="container home">
     <Hero />
 
@@ -40,6 +41,19 @@ const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pag
           Desde la página de cada producto puedes escribir una indicación de
           personalización y elegir un empaque de regalo antes de pasar al carrito.
         </p>
+      </div>
+    </section>
+
+    <section class="home__delivery">
+      <p class="home__delivery-label">Entregas</p>
+      <h2>Con entregas en ceti colomos</h2>
+      <div class="home__map-wrap">
+        <iframe
+          title="Mapa de CETI Colomos"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=-103.4326%2C20.692%2C-103.3499%2C20.7348&layer=mapnik&marker=20.714%2C-103.391"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
       </div>
     </section>
   </div>

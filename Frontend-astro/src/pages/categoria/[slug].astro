@@ -9,8 +9,15 @@ const { slug } = Astro.params
 const category = slug ? await fetchCategoryBySlug(slug) : null
 if (!category) Astro.response.status = 404
 const products: any[] = category?.products ?? []
+const pageDescription = category
+  ? `Explora la colección ${category.name} en Hilo y Alma: piezas únicas de crochet y opciones de personalización.`
+  : 'Colección no encontrada en Hilo y Alma.'
 ---
-<Layout title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}>
+<Layout
+  title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}
+  description={pageDescription}
+  canonical={category ? `https://www.hilo-yalma.com/categoria/${category.slug}` : 'https://www.hilo-yalma.com'}
+>
   {category ? (
   <div class="container category-detail">
     <nav class="category-detail__crumbs" aria-label="Ruta de navegación">

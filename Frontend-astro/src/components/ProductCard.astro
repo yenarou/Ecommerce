@@ -3,9 +3,16 @@ import './ProductCard.css'
 
 const { product } = Astro.props
 ---
-<a href={`/products/${product.id}`} class="product-card">
+<a href={`/products/${product.id}`} class="product-card" aria-label={`Ver producto ${product.name}`}>
   <div class="product-card__image">
-    <img src={product.images[0]?.url} alt={product.images[0]?.alt || product.name} />
+    <img
+      src={product.images[0]?.url}
+      alt={product.images[0]?.alt || product.name}
+      width="800"
+      height="600"
+      loading="lazy"
+      decoding="async"
+    />
     {product.stock <= 3 && product.stock > 0 && <span class="product-card__tag">Últimas piezas</span>}
     {product.stock == 0 && <span class="product-card__tag">No disponible</span>}
   </div>

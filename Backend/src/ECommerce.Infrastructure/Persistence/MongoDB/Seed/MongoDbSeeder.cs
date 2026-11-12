@@ -19,6 +19,7 @@ public sealed class MongoDbSeeder(
 
         await MigrateCategorySlugsAsync(database);
         await MigrateProductCategoryIdsAsync(database);
+        await MigrateLegacyProductImageUrlsAsync(database);
         await products.Indexes.CreateOneAsync(
             new CreateIndexModel<Product>(
                 Builders<Product>.IndexKeys.Ascending(product => product.CategoryId)));
@@ -28,7 +29,7 @@ public sealed class MongoDbSeeder(
         if (existingProducts > 0)
         {
             logger.LogInformation(
-                "Se conservan los {Count} productos existentes; no se ejecuta el seeding.",
+                "Se conservan los {Count} productos existentes; se normalizan las URLs de imagen legacy.",
                 existingProducts);
             return;
         }
@@ -68,7 +69,7 @@ public sealed class MongoDbSeeder(
                 figuras,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/shyguy.png",
+                        "http://localhost:14001/images/products/shyguy.webp",
                         "Shy-Guy tejido a mano"
                     )
                 ]
@@ -82,11 +83,11 @@ public sealed class MongoDbSeeder(
                 figuras,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/marioycapi.png",
+                        "http://localhost:14001/images/products/marioycapi.webp",
                         "Mario tejido a mano"
                     ),
                     Image.Create(
-                        "http://localhost:14001/images/products/mario.png",
+                        "http://localhost:14001/images/products/mario.webp",
                         "Mario tejido a mano"
                     )
                 ]
@@ -100,11 +101,11 @@ public sealed class MongoDbSeeder(
                 llaveros,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/snoopy.png",
+                        "http://localhost:14001/images/products/snoopy.webp",
                         "Snoop Dogg tejido"
                     ),
                     Image.Create(
-                        "http://localhost:14001/images/products/snoop.png",
+                        "http://localhost:14001/images/products/snoop.webp",
                         "Snoop Dogg tejido"
                     )
                 ]
@@ -118,7 +119,7 @@ public sealed class MongoDbSeeder(
                 llaveros,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/sunflower.png",
+                        "http://localhost:14001/images/products/sunflower.webp",
                         "Flor del sol tejida"
                     )
                 ]
@@ -132,7 +133,7 @@ public sealed class MongoDbSeeder(
                 decoracion,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/flores.png",
+                        "http://localhost:14001/images/products/flores.webp",
                         "Ramo de flores de crochet"
                     )
                 ]
@@ -146,7 +147,7 @@ public sealed class MongoDbSeeder(
                 decoracion,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/mandalas.png",
+                        "http://localhost:14001/images/products/mandalas.webp",
                         "Mandalas colgantes"
                     )
                 ]
@@ -161,6 +162,60 @@ public sealed class MongoDbSeeder(
 
         logger.LogInformation(
             "Seeding de MongoDB completado correctamente.");
+    }
+
+    private static async Task MigrateLegacyProductImageUrlsAsync(IMongoDatabase database)
+    {
+        var products = database.GetCollection<BsonDocument>("products");
+        var productCursor = await products.FindAsync(new BsonDocument());
+        var legacyProducts = await productCursor.ToListAsync();
+
+        foreach (var product in legacyProducts)
+        {
+            if (!product.TryGetValue("Images", out var imagesValue) ||
+                imagesValue is not BsonArray imagesArray)
+            {
+                continue;
+            }
+
+            var normalized = false;
+            var updatedImages = new BsonArray();
+
+            foreach (var imageEntry in imagesArray)
+            {
+                if (imageEntry is not BsonDocument imageDocument)
+                {
+                    updatedImages.Add(imageEntry);
+                    continue;
+                }
+
+                if (!imageDocument.TryGetValue("Url", out var urlValue) ||
+                    !urlValue.IsString)
+                {
+                    updatedImages.Add(imageDocument);
+                    continue;
+                }
+
+                var currentUrl = urlValue.AsString;
+                if (string.IsNullOrWhiteSpace(currentUrl) ||
+                    !currentUrl.Contains(".png", StringComparison.OrdinalIgnoreCase))
+                {
+                    updatedImages.Add(imageDocument);
+                    continue;
+                }
+
+                imageDocument["Url"] = currentUrl.Replace(".png", ".webp", StringComparison.OrdinalIgnoreCase);
+                updatedImages.Add(imageDocument);
+                normalized = true;
+            }
+
+            if (normalized)
+            {
+                await products.UpdateOneAsync(
+                    new BsonDocument("_id", product["_id"]),
+                    Builders<BsonDocument>.Update.Set("Images", updatedImages));
+            }
+        }
     }
 
     private static async Task MigrateProductCategoryIdsAsync(IMongoDatabase database)
