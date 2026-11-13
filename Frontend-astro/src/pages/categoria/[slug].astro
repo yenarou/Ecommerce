@@ -5,9 +5,14 @@ import ProductCard from '../../components/ProductCard.astro'
 import { fetchCategoryBySlug } from '../../api/catalog'
 import '../../styles/CategoryDetail.css'
 
+//cambio de condicione porque no decia nada el cabroncillo
 const { slug } = Astro.params
 const category = slug ? await fetchCategoryBySlug(slug) : null
-if (!category) Astro.response.status = 404
+if (!category) {
+  Astro.response.status = 404
+} else {
+  Astro.response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300')
+}
 const products: any[] = category?.products ?? []
 ---
 <Layout title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}>
@@ -31,7 +36,7 @@ const products: any[] = category?.products ?? []
           </p>
         ) : (
           <div class="category-detail__grid">
-            {products.map((product) => <ProductCard product={product} />)}
+            {products.map((product, i) => <ProductCard product={product} priority={i < 2} />)}
           </div>
         )}
       </main>

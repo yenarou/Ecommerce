@@ -1,11 +1,15 @@
 ---
 import './ProductCard.css'
+import { thumbUrl } from '../lib/images'
 
-const { product } = Astro.props
+const { product, priority = false } = Astro.props
+const image = product.images?.[0]
 ---
 <a href={`/products/${product.id}`} class="product-card">
   <div class="product-card__image">
-    <img src={product.images[0]?.url} alt={product.images[0]?.alt || product.name} />
+    {image && (
+      <img src={thumbUrl(image.url)} alt={image.alt || product.name} width="400" height="400" decoding="async" loading={priority ? 'eager' : 'lazy'} fetchpriority={priority ? 'high' : 'auto'} onerror={`this.onerror=null;this.src='${image.url}'`} />
+    )}
     {product.stock <= 3 && product.stock > 0 && <span class="product-card__tag">Últimas piezas</span>}
     {product.stock == 0 && <span class="product-card__tag">No disponible</span>}
   </div>

@@ -1,5 +1,7 @@
 ---
 import './TopBar.css'
+import { Image } from 'astro:assets'
+import carritoImg from '../assets/carrito.png'
 import CartCount from './CartCount.jsx'
 import AuthLinks from './AuthLinks.jsx'
 ---
@@ -11,12 +13,19 @@ import AuthLinks from './AuthLinks.jsx'
     </a>
 
     <div class="topbar__right">
-  <AuthLinks client:only="react" />
-  <a href="/carrito" class="topbar__cart">
-    <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
-    <span>Carrito</span>
-    <CartCount client:only="react" />
-  </a>
+      <div class="topbar__auth">
+        <AuthLinks client:idle />
+      </div>
+
+      <a href="/carrito" class="topbar__cart">
+        <Image class="topbar__cart-image"
+          src={carritoImg} alt="" width={48} height={48} format="webp" loading="eager"
+        />
+        <span>Carrito</span>
+        <span class="topbar__cart-count">
+          <CartCount client:idle />
+        </span>
+      </a>
     </div>
-</div>
+  </div>
 </header>

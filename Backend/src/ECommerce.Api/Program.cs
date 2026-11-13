@@ -306,7 +306,11 @@ app.UseCors("Frontend");
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
-app.UseStaticFiles();
+//mejora de rendimiento
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable"
+});
 
 
 app.UseAuthentication();

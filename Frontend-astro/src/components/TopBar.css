@@ -55,6 +55,7 @@
   font-weight: 500;
   padding-bottom: 2px;
   border-bottom: 2px solid transparent;
+  margin-right: 17px;
 }
 
 .topbar__nav-link:hover {
@@ -86,21 +87,22 @@
 }
 
 .topbar__cart-image {
-  width: 1.8rem;
-  height: 1.8rem;
-  object-fit: contain;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  background: var(--color-mustard);
+  object-fit: contain;
   background: var(--color-mustard);
   padding: 0.2rem;
 }
 
 .topbar__cart-count {
+  display: inline-block;
+  min-width: 1.5em;   /* para que el contador no empuje al aparecer */
   background: var(--color-thread);
   color: var(--color-paper-soft);
   border-radius: 999px;
-  min-width: 1.5em;
   height: 1.5em;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: var(--step--1);
@@ -133,14 +135,16 @@
 .topbar__auth {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 180px; 
+  min-height: 40px;
 }
 
 .topbar__user {
   color: var(--color-ink-soft);
   font-weight: 500;
   white-space: nowrap;
+  margin-right: 17px;
 }
 
 .topbar__logout {

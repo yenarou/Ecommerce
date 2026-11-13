@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets'
+import heroImg from '../assets/heroImg2.png'
 import './Hero.css'
 ---
 <section class="hero">
@@ -15,6 +17,7 @@ import './Hero.css'
     </p>
   </div>
   <div class="hero__image" aria-hidden="true">
-    <img src="/images/heroImg2.png" alt="" />
+    <!-- cambio de propiedades porque se ponia mamona -->
+    <Image src={heroImg} alt="" widths={[480, 768, 1024]} sizes="(max-width: 768px) 90vw, 560px" format="webp" quality={75} loading="eager" fetchpriority="high" decoding="async" />
   </div>
 </section>
