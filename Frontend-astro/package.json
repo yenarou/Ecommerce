@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/netlify": "^8.2.14",
     "@astrojs/node": "^11.1.6",
     "@astrojs/react": "^7.0.0",
     "@mercadopago/sdk-react": "^1.0.7",
@@ -26,5 +27,10 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@vite-pwa/astro": "^2.0.3",
+    "sharp": "^0.35.5",
+    "workbox-window": "^7.4.1"
   }
 }
