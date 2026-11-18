@@ -9,7 +9,7 @@ services:
       PayPal__BaseUrl: https://api-m.sandbox.paypal.com
 
       ASPNETCORE_ENVIRONMENT: Development
-      ApiBaseUrl: http://localhost:14001
+      ApiBaseUrl: https://duration-crops-possible-selected.trycloudflare.com
       AdminUser__Name: Administrador
       AdminUser__Email: admin23@gmail.com
       AdminUser__Password: ${ADMIN_PASSWORD}

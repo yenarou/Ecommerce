@@ -154,7 +154,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:15174", "http://localhost:15175")
+            .WithOrigins("http://localhost:15174", "http://localhost:15175", "https://hiloyalma.netlify.app")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
