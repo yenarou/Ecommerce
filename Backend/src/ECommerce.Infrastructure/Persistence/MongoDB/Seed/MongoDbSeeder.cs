@@ -1,5 +1,6 @@
 ﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.ValueObjects;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -8,6 +9,7 @@ namespace ECommerce.Infrastructure.Persistence.MongoDB.Seed;
 
 public sealed class MongoDbSeeder(
     IMongoDatabase database,
+    IConfiguration configuration,
     ILogger<MongoDbSeeder> logger)
 {
     public async Task SeedAsync()
@@ -59,6 +61,11 @@ public sealed class MongoDbSeeder(
 
         logger.LogInformation("Creando productos...");
 
+        var imageBaseUrl = (configuration["ApiBaseUrl"] ?? "http://localhost:14001")
+            .TrimEnd('/');
+        string ImageUrl(string fileName) =>
+            $"{imageBaseUrl}/images/products/{fileName}";
+
         var productsToInsert = new List<Product>
         {
             Product.Create(
@@ -69,7 +76,7 @@ public sealed class MongoDbSeeder(
                 figuras,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/shyguy.webp",
+                        ImageUrl("shyguy.webp"),
                         "Shy-Guy tejido a mano"
                     )
                 ]
@@ -83,11 +90,11 @@ public sealed class MongoDbSeeder(
                 figuras,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/marioycapi.webp",
+                        ImageUrl("marioycapi.webp"),
                         "Mario tejido a mano"
                     ),
                     Image.Create(
-                        "http://localhost:14001/images/products/mario.webp",
+                        ImageUrl("mario.webp"),
                         "Mario tejido a mano"
                     )
                 ]
@@ -101,11 +108,11 @@ public sealed class MongoDbSeeder(
                 llaveros,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/snoopy.webp",
+                        ImageUrl("snoopy.webp"),
                         "Snoop Dogg tejido"
                     ),
                     Image.Create(
-                        "http://localhost:14001/images/products/snoop.webp",
+                        ImageUrl("snoop.webp"),
                         "Snoop Dogg tejido"
                     )
                 ]
@@ -119,7 +126,7 @@ public sealed class MongoDbSeeder(
                 llaveros,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/sunflower.webp",
+                        ImageUrl("sunflower.webp"),
                         "Flor del sol tejida"
                     )
                 ]
@@ -133,7 +140,7 @@ public sealed class MongoDbSeeder(
                 decoracion,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/flores.webp",
+                        ImageUrl("flores.webp"),
                         "Ramo de flores de crochet"
                     )
                 ]
@@ -147,7 +154,7 @@ public sealed class MongoDbSeeder(
                 decoracion,
                 [
                     Image.Create(
-                        "http://localhost:14001/images/products/mandalas.webp",
+                        ImageUrl("mandalas.webp"),
                         "Mandalas colgantes"
                     )
                 ]
@@ -164,11 +171,13 @@ public sealed class MongoDbSeeder(
             "Seeding de MongoDB completado correctamente.");
     }
 
-    private static async Task MigrateLegacyProductImageUrlsAsync(IMongoDatabase database)
+    private async Task MigrateLegacyProductImageUrlsAsync(IMongoDatabase database)
     {
         var products = database.GetCollection<BsonDocument>("products");
         var productCursor = await products.FindAsync(new BsonDocument());
         var legacyProducts = await productCursor.ToListAsync();
+        var imageBaseUrl = (configuration["ApiBaseUrl"] ?? "http://localhost:14001")
+            .TrimEnd('/');
 
         foreach (var product in legacyProducts)
         {
@@ -197,14 +206,43 @@ public sealed class MongoDbSeeder(
                 }
 
                 var currentUrl = urlValue.AsString;
-                if (string.IsNullOrWhiteSpace(currentUrl) ||
-                    !currentUrl.Contains(".png", StringComparison.OrdinalIgnoreCase))
+                if (!Uri.TryCreate(currentUrl, UriKind.Absolute, out var imageUri))
                 {
                     updatedImages.Add(imageDocument);
                     continue;
                 }
 
-                imageDocument["Url"] = currentUrl.Replace(".png", ".webp", StringComparison.OrdinalIgnoreCase);
+                var imagePath = imageUri.AbsolutePath;
+                if (!imagePath.StartsWith("/images/products/", StringComparison.OrdinalIgnoreCase) &&
+                    !imagePath.StartsWith("/uploads/products/", StringComparison.OrdinalIgnoreCase))
+                {
+                    updatedImages.Add(imageDocument);
+                    continue;
+                }
+
+                var fileName = Path.GetFileName(imagePath);
+                var isUploadedImage = Guid.TryParse(
+                    Path.GetFileNameWithoutExtension(fileName),
+                    out _);
+                if (!isUploadedImage)
+                {
+                    fileName = fileName.Replace(
+                        ".png",
+                        ".webp",
+                        StringComparison.OrdinalIgnoreCase);
+                }
+
+                var imageFolder = isUploadedImage
+                    ? "uploads/products"
+                    : "images/products";
+                var normalizedUrl = $"{imageBaseUrl}/{imageFolder}/{Uri.EscapeDataString(fileName)}";
+                if (currentUrl == normalizedUrl)
+                {
+                    updatedImages.Add(imageDocument);
+                    continue;
+                }
+
+                imageDocument["Url"] = normalizedUrl;
                 updatedImages.Add(imageDocument);
                 normalized = true;
             }

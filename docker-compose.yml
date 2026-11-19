@@ -36,7 +36,7 @@ services:
       start_period: 15s
 
     volumes:
-      - uploads-data:/app/wwwroot/images
+      - uploads-data:/app/wwwroot/uploads
     depends_on:
       postgres:
         condition: service_healthy

@@ -8,7 +8,7 @@ public class LocalImageStorage(
     IWebHostEnvironment environment,
     IConfiguration configuration) : IImageStorage
 {
-    private const string ImagesFolder = "images/products";
+    private const string ImagesFolder = "uploads/products";
 
     public async Task<string> SaveAsync(
         Stream stream,

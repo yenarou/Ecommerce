@@ -18,4 +18,4 @@ RUN apt-get update \
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "ECommerce.Api.dll"]
+ENTRYPOINT ["sh", "-c", "exec dotnet ECommerce.Api.dll --urls http://0.0.0.0:${PORT:-8080}"]

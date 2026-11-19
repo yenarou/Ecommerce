@@ -141,6 +141,10 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<GoogleOptions>(builder.Configuration.GetSection("Google"));
 builder.Services.Configure<MercadoPagoOptions>(builder.Configuration.GetSection("MercadoPago"));
 
+var corsAllowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>() ?? ["http://localhost:15174"];
+
 // Autenticación: el backend valida el token (JWT) en las rutas con [Authorize]
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
 
@@ -149,7 +153,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:15174")
+            .WithOrigins(corsAllowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -250,49 +254,15 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// crear administrador de prueba development
-if (app.Environment.IsDevelopment())
+var adminEmail = app.Configuration["AdminUser:Email"];
+var adminPassword = app.Configuration["AdminUser:Password"];
+if (!string.IsNullOrWhiteSpace(adminEmail) &&
+    !string.IsNullOrWhiteSpace(adminPassword))
 {
     using var scope = app.Services.CreateScope();
-
-    var services = scope.ServiceProvider;
-    var configuration = services.GetRequiredService<IConfiguration>();
-    var db = services.GetRequiredService<ApplicationDbContext>();
-    var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-
-    var name = configuration["AdminUser:Name"];
-    var emailAddress = configuration["AdminUser:Email"];
-    var password = configuration["AdminUser:Password"];
-
-    if (!string.IsNullOrWhiteSpace(name) &&
-        !string.IsNullOrWhiteSpace(emailAddress) &&
-        !string.IsNullOrWhiteSpace(password))
-    {
-        var email = Email.Create(emailAddress);
-
-        var existingUser = await db.Users
-            .FirstOrDefaultAsync(u => u.Email == email);
-
-        if (existingUser is null)
-        {
-            var admin = User.CreateLocalUser(
-                name,
-                email,
-                passwordHasher.Hash(password),
-                UserRole.Admin
-            );
-
-            db.Users.Add(admin);
-            await db.SaveChangesAsync();
-
-            Console.WriteLine("Administrador de prueba creado.");
-        }
-        else
-        {
-            Console.WriteLine(
-                "La cuenta ya existe. No se modificó su rol ni su contraseña.");
-        }
-    }
+    await scope.ServiceProvider
+        .GetRequiredService<AdminUserSeeder>()
+        .SeedAsync();
 }
 
 app.UseHttpsRedirection();
