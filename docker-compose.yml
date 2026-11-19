@@ -60,20 +60,6 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  frontend-admin:
-    build:
-      context: ./FrontendAdmin
-      dockerfile: Dockerfile
-      args:
-        PUBLIC_GRAPHQL_URL: http://localhost:14001/graphql
-        PUBLIC_API_URL: http://localhost:14001
-        PUBLIC_AUTH_URL: http://localhost:14001
-    ports:
-      - "15175:15175"
-    depends_on:
-      - backend
-    restart: unless-stopped
-
   postgres:
     image: postgres:17-alpine
     environment:

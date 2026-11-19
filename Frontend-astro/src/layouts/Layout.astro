@@ -24,8 +24,10 @@ const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).toStr
     <meta name="description" content={description} />
     <meta name="theme-color" content="#8b3a3a" />
     <meta name="robots" content="index,follow" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="canonical" href={canonicalUrl} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/icons/pwa-192x192.png" />
+    <link rel="apple-touch-icon" href="/icons/pwa-192x192.png" />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -37,6 +39,11 @@ const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).toStr
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <title>{title}</title>
+    <script>
+      import { registerSW } from 'virtual:pwa-register'
+
+      registerSW({ immediate: true })
+    </script>
   </head>
   <body>
     <CartBootstrap client:idle />
