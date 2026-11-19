@@ -30,6 +30,11 @@ const ogImage = new URL(image, canonical).href
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#8b3a3a" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    
     <meta name="twitter:card" content="summary_large_image" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
@@ -38,5 +43,6 @@ const ogImage = new URL(image, canonical).href
     <TopBar />
     <slot />
     <Footer />
+    <script is:inline src="/registerSW.js"></script>
   </body>
 </html>
