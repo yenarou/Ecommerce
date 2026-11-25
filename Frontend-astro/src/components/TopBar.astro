@@ -3,6 +3,7 @@ import './TopBar.css'
 import CartCount from './CartCount.jsx'
 import AuthLinks from './AuthLinks.jsx'
 import InstallButton from './InstallButton.jsx'
+import NotifyButton from './NotifyButton.jsx';
 ---
 <header class="topbar">
   <div class="container topbar__inner">
@@ -23,3 +24,4 @@ import InstallButton from './InstallButton.jsx'
 </header>
 
 <InstallButton client:only="react" />
+<NotifyButton client:only="react" />

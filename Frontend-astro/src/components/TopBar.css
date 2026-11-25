@@ -182,3 +182,19 @@
 .install-btn:hover {
   background: var(--color-thread-dark);
 }
+
+.notify-btn {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  z-index: 50;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink, #2b241e);
+  color: #f6f1e7;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #c98a2c;
+}
+.notify-btn:hover { background: #6a5f52; }

@@ -3,6 +3,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { getActiveCart, updateCart } from '../api/cart'
 import { useAuth } from './auth'
+import { encolarCarrito } from '../lib/outbox'
+import { API_URL } from '../api/client'
 
 const CART_ID = 'cart-local-demo'
 let activeCartRequest = null
@@ -140,17 +142,27 @@ export const useCartStore = create(
       clearCart: () => set({ items: [] }),
 
       sync: async () => {
-        const state = useCartStore.getState()
-        const user = useAuth.getState().user
-        if (user && user.token) {
-          try {
-            await updateCart(state.items)
-            console.log('Carrito sincronizado con el servidor')
-          } catch (err) {
-            console.error('Error al sincronizar carrito:', err)
-          }
-        }
+  const state = useCartStore.getState()
+  const user = useAuth.getState().user
+  if (user && user.token) {
+    try {
+      await updateCart(state.items)
+      console.log('Carrito sincronizado con el servidor')
+    } catch (err) {
+      const sinRed = !navigator.onLine || err instanceof TypeError
+      if (sinRed) {
+        const ok = await encolarCarrito({
+          url: API_URL,
+          token: user.token,
+          items: state.items,
+        })
+        console.log(ok ? 'Sin red: carrito en cola para sincronizar' : 'Sin red y sin Background Sync')
+      } else {
+        console.error('Error al sincronizar carrito:', err)
       }
+    }
+  }
+}
     }),
     {
       name: 'cart',
