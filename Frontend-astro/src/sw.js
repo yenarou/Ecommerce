@@ -16,7 +16,9 @@ const ASSETS = `assets-${VERSION}`;
 const CACHES_ACTUALES = [PRECACHE, PAGES, ASSETS];
 const OFFLINE_URL = '/offline.html';
 const MAX_ASSETS = 80;
-const PRIVADAS = ['/carrito', '/checkout', '/admin', '/ordenes', '/pago', '/login', '/registro', '/api'];
+const PRIVADAS = [
+  '/carrito', '/checkout', '/admin', '/ordenes', '/pago', '/login', '/registro', '/api',
+].flatMap((ruta) => [ruta, `/en${ruta}`])
 
 self.addEventListener('install', (event) => {
   const urls = MANIFEST.map((e) => new URL(e.url, self.registration.scope).href);

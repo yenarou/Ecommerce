@@ -2,15 +2,16 @@
 import Layout from '../../layouts/Layout.astro'
 import AddToCartForm from '../../components/AddToCartForm.jsx'
 import { fetchProductById } from '../../api/catalog'
-import { useTranslations, rutaLocal } from '../../i18n/ui.js'
+import { useTranslations, rutaLocal, traducirProducto } from '../../i18n/ui.js'
 import '../../styles/ProductDetail.css'
 
 const locale = Astro.currentLocale ?? 'es'
 const t = useTranslations(locale)
 
 const { id } = Astro.params
-const product = id ? await fetchProductById(id) : null
-if (!product) Astro.response.status = 404
+const productRaw = id ? await fetchProductById(id) : null
+if (!productRaw) Astro.response.status = 404
+const product = traducirProducto(locale, productRaw)
 const category = product?.category
 
 const jsonLd = product && {
@@ -86,7 +87,7 @@ const jsonLd = product && {
 
         <hr class="stitch-divider" />
 
-        <AddToCartForm client:idle product={product} locale={locale} />
+        <AddToCartForm client:idle product={productRaw} locale={locale} />
       </div>
     </div>
   </main>

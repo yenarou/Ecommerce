@@ -1,10 +1,11 @@
 ---
 import './ProductCard.css'
-import { useTranslations, rutaLocal } from '../i18n/ui.js'
+import { useTranslations, rutaLocal, traducirProducto } from '../i18n/ui.js'
 
 const locale = Astro.currentLocale ?? 'es'
 const t = useTranslations(locale)
-const { product, level = 3, priority = false } = Astro.props
+const { product: productRaw, level = 3, priority = false } = Astro.props
+const product = traducirProducto(locale, productRaw)
 ---
 <a href={rutaLocal(locale, `/products/${product.id}`)} class="product-card">
   <div class="product-card__image">

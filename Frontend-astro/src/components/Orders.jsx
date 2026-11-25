@@ -1,33 +1,27 @@
 import { useEffect, useState } from 'react'
 import { getOrders } from '../api/orders'
 import { useAuth } from '../stores/auth'
+import { useTranslations, rutaLocal, traducirProducto } from '../i18n/ui.js'
 import '../styles/Orders.css'
-
-const statusLabels = {
-  Pending: 'Pendiente',
-  Confirmed: 'Confirmada',
-  Shipped: 'Enviada',
-  Delivered: 'Entregada',
-  Cancelled: 'Cancelada',
-}
 
 function getStatusValue(status) {
   return typeof status === 'string' ? status : status?.value
 }
 
-function formatDate(value) {
-  return new Date(value).toLocaleDateString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-export default function Orders() {
+export default function Orders({ locale = 'es' }) {
+  const t = useTranslations(locale)
   const token = useAuth((state) => state.user?.token)
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  function formatDate(value) {
+    return new Date(value).toLocaleDateString(locale === 'en' ? 'en-US' : 'es-MX', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
 
   useEffect(() => {
     let active = true
@@ -48,7 +42,7 @@ export default function Orders() {
         if (active) setOrders(result)
       })
       .catch((requestError) => {
-        if (active) setError(requestError.message || 'No se pudieron cargar tus órdenes.')
+        if (active) setError(requestError.message || t('ord.errCargar'))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -61,44 +55,48 @@ export default function Orders() {
 
   return (
     <main className="container orders-page">
-      <h1 className="orders-page__title">Mis órdenes</h1>
+      <h1 className="orders-page__title">{t('ord.titulo')}</h1>
 
       {!token ? (
         <div className="orders-page__message">
-          <p>Inicia sesión para consultar el historial de tus órdenes.</p>
-          <a className="btn btn-primary" href="/login">Iniciar sesión</a>
+          <p>{t('ord.necesitaLogin')}</p>
+          <a className="btn btn-primary" href={rutaLocal(locale, '/login')}>{t('auth.login')}</a>
         </div>
       ) : loading ? (
-        <p className="orders-page__message" role="status">Cargando tus órdenes...</p>
+        <p className="orders-page__message" role="status">{t('ord.cargando')}</p>
       ) : error ? (
         <div className="orders-page__message orders-page__message--error" role="alert">
           <p>{error}</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="orders-page__message">
-          <p>Aún no tienes órdenes.</p>
-          <a className="btn btn-primary" href="/">Explorar productos</a>
+          <p>{t('ord.vacio')}</p>
+          <a className="btn btn-primary" href={rutaLocal(locale, '/')}>{t('ord.explorar')}</a>
         </div>
       ) : (
         <div className="orders-list">
           {orders.map((order) => {
             const status = getStatusValue(order.status)
+            const estadoTexto = status && t(`ord.st.${status}`) !== `ord.st.${status}`
+              ? t(`ord.st.${status}`)
+              : (status || t('ord.desconocido'))
 
             return (
               <article className="order-card stitch-border" key={order.id}>
                 <header className="order-card__header">
                   <div>
-                    <h2>Orden <span>#{order.id.slice(0, 8)}</span></h2>
-                    <p>Realizada el {formatDate(order.createdAt)}</p>
+                    <h2>{t('ord.orden')} <span>#{order.id.slice(0, 8)}</span></h2>
+                    <p>{t('ord.realizada')} {formatDate(order.createdAt)}</p>
                   </div>
                   <span className={`order-card__status order-card__status--${status?.toLowerCase() || 'unknown'}`}>
-                    {statusLabels[status] || status || 'Estado desconocido'}
+                    {estadoTexto}
                   </span>
                 </header>
 
                 <ul className="order-card__items">
                   {order.items.map((item, index) => {
                     const image = item.product?.images?.[0]
+                    const producto = traducirProducto(locale, item.product)
 
                     return (
                       <li className="order-item" key={item.id}>
@@ -106,27 +104,27 @@ export default function Orders() {
                           <img
                             className="order-item__image"
                             src={image.url}
-                            alt={image.alt || item.product.name}
+                            alt={image.alt || producto.name}
                           />
                         ) : (
                           <div className="order-item__image order-item__image--empty" aria-hidden="true">
-                            Sin imagen
+                            {t('ord.sinImagen')}
                           </div>
                         )}
                         <div className="order-item__product">
-                          <h3>{item.product?.name || `Artículo ${index + 1}`}</h3>
+                          <h3>{producto?.name || `${t('ord.articulo')} ${index + 1}`}</h3>
                           {item.product && (
                             <p className="price">
-                              ${Number(item.product.price).toFixed(2)} {item.product.currency} c/u
+                              ${Number(item.product.price).toFixed(2)} {item.product.currency} {t('cart.cu')}
                             </p>
                           )}
                           {item.customization?.description && (
-                            <p>Personalización: {item.customization.description}</p>
+                            <p>{t('form.personalizacion')}: {item.customization.description}</p>
                           )}
-                          {item.customization?.isWrap && <p>Envolver para regalo</p>}
+                          {item.customization?.isWrap && <p>{t('form.regalo')}</p>}
                         </div>
                         <div className="order-item__details">
-                          <span>Cantidad: {item.quantity}</span>
+                          <span>{t('form.cantidad')}: {item.quantity}</span>
                           {item.product && (
                             <span className="price">
                               ${(Number(item.product.price) * item.quantity).toFixed(2)} {item.product.currency}
@@ -139,7 +137,7 @@ export default function Orders() {
                 </ul>
 
                 <footer className="order-card__footer">
-                  <h3>Dirección de entrega</h3>
+                  <h3>{t('ord.direccion')}</h3>
                   <address>
                     {order.address.street}, {order.address.city}, {order.address.state},{' '}
                     {order.address.zipCode}, {order.address.country}

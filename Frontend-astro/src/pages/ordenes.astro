@@ -1,7 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import Orders from '../components/Orders.jsx'
+import { useTranslations } from '../i18n/ui.js'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 ---
-<Layout title="Mis órdenes | Hilo y Alma">
-  <Orders client:only="react" />
+<Layout title={`${t('ord.titulo')} | Hilo y Alma`}>
+  <Orders client:only="react" locale={locale} />
 </Layout>

@@ -1,7 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import LoginForm from '../components/LoginForm.jsx'
+import { useTranslations } from '../i18n/ui.js'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 ---
-<Layout title="Iniciar sesión | Hilo y Alma">
-  <LoginForm client:idle />
+<Layout title={`${t('au.login.titulo')} | Hilo y Alma`}>
+  <LoginForm client:idle locale={locale} />
 </Layout>

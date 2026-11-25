@@ -1,5 +1,5 @@
 import { useCart } from '../stores/cart'
-import { useTranslations, rutaLocal } from '../i18n/ui.js'
+import { useTranslations, rutaLocal, traducirProducto } from '../i18n/ui.js'
 import '../styles/Cart.css'
 
 export default function Cart({ locale = 'es' }) {
@@ -20,13 +20,15 @@ export default function Cart({ locale = 'es' }) {
       ) : (
         <div className="cart-page__layout">
           <ul className="cart-list">
-            {items.map((item) => {
+            {
+            items.map((item) => {
               const unitPrice = item.product.price
+              const producto = traducirProducto(locale, item.product)
               return (
                 <li key={item.id} className="cart-item">
-                  <img className="cart-item__image" src={item.product.images?.[0]?.url} alt={item.product.name} />
+                  <img className="cart-item__image" src={item.product.images?.[0]?.url} alt={producto.name} />
                   <div className="cart-item__info">
-                    <p className="cart-item__name">{item.product.name}</p>
+                    <p className="cart-item__name">{producto.name}</p>
                     {(item.customization_text || item.wrap) && (
                       <p className="cart-item__customization">
                         {item.customization_text && `${t('form.personalizacion')}: ${item.customization_text}`}

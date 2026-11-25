@@ -1,7 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import PagoResultado from '../../components/PagoResultado.jsx'
+import { useTranslations } from '../../i18n/ui.js'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 ---
-<Layout title="Pago | Hilo y Alma">
-  <PagoResultado client:only="react" estado="exito" />
+<Layout title={`${t('pago.titulo')} | Hilo y Alma`}>
+  <PagoResultado client:only="react" estado="exito" locale={locale} />
 </Layout>

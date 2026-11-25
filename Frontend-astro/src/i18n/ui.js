@@ -113,6 +113,66 @@ export const ui = {
     'chk.debeLogin': 'Debes iniciar sesión para realizar un pedido',
     'chk.sinStock': 'No hay suficiente stock de "{n}"',
     'chk.errPedido': 'Error al crear el pedido',
+        'au.login.titulo': 'Iniciar sesión',
+    'au.correo': 'Correo',
+    'au.password': 'Contraseña',
+    'au.entrar': 'Entrar',
+    'au.entrando': 'Entrando...',
+    'au.errLogin': 'No se pudo iniciar sesión',
+    'au.o': 'o',
+    'au.sinCuenta': '¿No tienes cuenta?',
+    'au.registrate': 'Regístrate',
+    'au.reg.titulo': 'Crear cuenta',
+    'au.usuario': 'Nombre de usuario',
+    'au.confirmar': 'Confirmar contraseña',
+    'au.creando': 'Creando cuenta...',
+    'au.errPassCorta': 'La contraseña debe tener al menos 6 caracteres.',
+    'au.errPassNo': 'Las contraseñas no coinciden.',
+    'au.errReg': 'No se pudo crear la cuenta',
+    'au.yaCuenta': '¿Ya tienes cuenta?',
+    'au.iniciaSesion': 'Inicia sesión',
+    'au.google': 'Continuar con Google',
+    'au.googleNo': 'El inicio con Google aún no está disponible.',
+
+    'ord.titulo': 'Mis órdenes',
+    'ord.necesitaLogin': 'Inicia sesión para consultar el historial de tus órdenes.',
+    'ord.cargando': 'Cargando tus órdenes...',
+    'ord.errCargar': 'No se pudieron cargar tus órdenes.',
+    'ord.vacio': 'Aún no tienes órdenes.',
+    'ord.explorar': 'Explorar productos',
+    'ord.orden': 'Orden',
+    'ord.realizada': 'Realizada el',
+    'ord.desconocido': 'Estado desconocido',
+    'ord.sinImagen': 'Sin imagen',
+    'ord.articulo': 'Artículo',
+    'ord.direccion': 'Dirección de entrega',
+    'ord.st.Pending': 'Pendiente',
+    'ord.st.Confirmed': 'Confirmada',
+    'ord.st.Shipped': 'Enviada',
+    'ord.st.Delivered': 'Entregada',
+    'ord.st.Cancelled': 'Cancelada',
+
+    'pago.titulo': 'Pago',
+    'pago.exito.titulo': '¡Pago recibido!',
+    'pago.exito.texto': 'Tu pedido quedó pagado. Te escribiremos para confirmar tiempos de tejido y entrega.',
+    'pago.pend.titulo': 'Pago pendiente',
+    'pago.pend.texto': 'Tu pedido está reservado. Cuando se acredite tu pago (en OXXO o por SPEI) lo marcaremos como pagado.',
+    'pago.err.titulo': 'No se pudo completar el pago',
+    'pago.err.texto': 'No se realizó ningún cargo. Puedes intentarlo de nuevo desde tu carrito.',
+    'pago.clabe': 'CLABE para tu transferencia:',
+    'pago.ref': 'Referencia de pago:',
+    'pago.instrucciones': 'Ver instrucciones de pago',
+    'pago.volverCarrito': 'Volver al carrito',
+    'pago.m.insufficient_amount': 'Tu tarjeta no tiene saldo suficiente.',
+    'pago.m.bad_filled_card_data': 'Algún dato de tu tarjeta es incorrecto. Revisa el número, la fecha y el código de seguridad.',
+    'pago.m.security_code': 'El código de seguridad es incorrecto.',
+    'pago.m.bad_filled_date': 'La fecha de vencimiento es incorrecta.',
+    'pago.m.expiration': 'La fecha de vencimiento es incorrecta.',
+    'pago.m.card_number': 'El número de tarjeta es incorrecto.',
+    'pago.m.call_for_authorize': 'Debes autorizar el pago llamando a tu banco.',
+    'pago.m.card_disabled': 'Tu tarjeta está inactiva. Llama a tu banco para activarla.',
+    'pago.m.high_risk': 'El pago fue rechazado por seguridad. Prueba con otra tarjeta.',
+    'pago.m.default': 'Tu banco rechazó el pago. Intenta con otra tarjeta.',
   },
   en: {
     'meta.titulo': 'Hilo y Alma | Handmade crochet figures',
@@ -226,6 +286,66 @@ export const ui = {
     'chk.debeLogin': 'You must log in to place an order',
     'chk.sinStock': 'Not enough stock of "{n}"',
     'chk.errPedido': 'Error creating the order',
+        'au.login.titulo': 'Log in',
+    'au.correo': 'Email',
+    'au.password': 'Password',
+    'au.entrar': 'Sign in',
+    'au.entrando': 'Signing in...',
+    'au.errLogin': 'Could not log in',
+    'au.o': 'or',
+    'au.sinCuenta': "Don't have an account?",
+    'au.registrate': 'Sign up',
+    'au.reg.titulo': 'Create account',
+    'au.usuario': 'Username',
+    'au.confirmar': 'Confirm password',
+    'au.creando': 'Creating account...',
+    'au.errPassCorta': 'Password must be at least 6 characters.',
+    'au.errPassNo': 'Passwords do not match.',
+    'au.errReg': 'Could not create the account',
+    'au.yaCuenta': 'Already have an account?',
+    'au.iniciaSesion': 'Log in',
+    'au.google': 'Continue with Google',
+    'au.googleNo': 'Google sign-in is not available yet.',
+
+    'ord.titulo': 'My orders',
+    'ord.necesitaLogin': 'Log in to see your order history.',
+    'ord.cargando': 'Loading your orders...',
+    'ord.errCargar': 'Your orders could not be loaded.',
+    'ord.vacio': 'You have no orders yet.',
+    'ord.explorar': 'Browse products',
+    'ord.orden': 'Order',
+    'ord.realizada': 'Placed on',
+    'ord.desconocido': 'Unknown status',
+    'ord.sinImagen': 'No image',
+    'ord.articulo': 'Item',
+    'ord.direccion': 'Delivery address',
+    'ord.st.Pending': 'Pending',
+    'ord.st.Confirmed': 'Confirmed',
+    'ord.st.Shipped': 'Shipped',
+    'ord.st.Delivered': 'Delivered',
+    'ord.st.Cancelled': 'Cancelled',
+
+    'pago.titulo': 'Payment',
+    'pago.exito.titulo': 'Payment received!',
+    'pago.exito.texto': 'Your order is paid. We will write to you to confirm crafting and delivery times.',
+    'pago.pend.titulo': 'Payment pending',
+    'pago.pend.texto': 'Your order is reserved. Once your payment (at OXXO or by SPEI) is credited, we will mark it as paid.',
+    'pago.err.titulo': 'The payment could not be completed',
+    'pago.err.texto': 'No charge was made. You can try again from your cart.',
+    'pago.clabe': 'CLABE for your transfer:',
+    'pago.ref': 'Payment reference:',
+    'pago.instrucciones': 'View payment instructions',
+    'pago.volverCarrito': 'Back to cart',
+    'pago.m.insufficient_amount': 'Your card has insufficient funds.',
+    'pago.m.bad_filled_card_data': 'Some of your card details are wrong. Check the number, the date and the security code.',
+    'pago.m.security_code': 'The security code is incorrect.',
+    'pago.m.bad_filled_date': 'The expiration date is incorrect.',
+    'pago.m.expiration': 'The expiration date is incorrect.',
+    'pago.m.card_number': 'The card number is incorrect.',
+    'pago.m.call_for_authorize': 'You must authorize the payment by calling your bank.',
+    'pago.m.card_disabled': 'Your card is inactive. Call your bank to activate it.',
+    'pago.m.high_risk': 'The payment was rejected for security reasons. Try another card.',
+    'pago.m.default': 'Your bank rejected the payment. Try another card.',
   },
 }
 
@@ -242,4 +362,38 @@ export function rutaLocal(locale, ruta = '/') {
   const limpia = ruta.startsWith('/') ? ruta : `/${ruta}`
   if (locale === 'es') return limpia
   return limpia === '/' ? '/en' : `/en${limpia}`
+}
+
+export const catalogo = {
+  categorias: {
+    figuras: { en: { name: 'Figures', description: 'Woven plush figures, ideal as a gift or for your collection.' } },
+    llaveros: { en: { name: 'Keychains' } },
+    decoracion: { en: { name: 'Decor' } },
+  },
+    categoriasPorNombre: {
+    'Figuras': { en: { name: 'Figures' } },
+    'Llaveros': { en: { name: 'Keychains' } },
+    'Decoración': { en: { name: 'Decor' } },
+  },
+  productos: {
+    'Flor del sol': { en: { name: 'Sunflower' } },
+    'Ramo de flores': { en: { name: 'Flower bouquet' } },
+    'Shy-Guy': { en: { description: 'A handmade woven character, 15 cm tall.' } },
+  },
+}
+
+export function traducirCategoria(locale, cat) {
+  if (!cat || locale === 'es') return cat
+  const tr =
+    catalogo.categorias[cat.slug]?.[locale] ??
+    catalogo.categoriasPorNombre[cat.name]?.[locale]
+  return tr ? { ...cat, ...tr } : cat
+}
+
+export function traducirProducto(locale, p) {
+  if (!p || locale === 'es') return p
+  const tr = catalogo.productos[p.name]?.[locale]
+  const out = tr ? { ...p, ...tr } : { ...p }
+  if (p.category) out.category = traducirCategoria(locale, p.category)
+  return out
 }

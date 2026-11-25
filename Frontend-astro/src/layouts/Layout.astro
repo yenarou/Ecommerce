@@ -44,7 +44,7 @@ const alternas = Object.keys(idiomas).map((codigo) => ({
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
 
-    <link rel="manifest" href="/manifest.webmanifest" />
+<link rel="manifest" href={locale === 'en' ? '/manifest.en.webmanifest' : '/manifest.webmanifest'} />
     <meta name="theme-color" content="#8b3a3a" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     

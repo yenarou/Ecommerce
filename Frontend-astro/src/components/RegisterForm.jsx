@@ -3,9 +3,11 @@ import { register } from '../api/auth'
 import { useAuth } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import GoogleButton from './GoogleButton.jsx'
+import { useTranslations, rutaLocal } from '../i18n/ui.js'
 import '../styles/Auth.css'
 
-export default function RegisterForm() {
+export default function RegisterForm({ locale = 'es' }) {
+  const t = useTranslations(locale)
   const setUser = useAuth((s) => s.setUser)
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
   const [error, setError] = useState('')
@@ -21,11 +23,11 @@ export default function RegisterForm() {
     setError('')
 
     if (form.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres.')
+      setError(t('au.errPassCorta'))
       return
     }
     if (form.password !== form.confirm) {
-      setError('Las contraseñas no coinciden.')
+      setError(t('au.errPassNo'))
       return
     }
 
@@ -34,47 +36,47 @@ export default function RegisterForm() {
       const user = await register(form.username, form.email, form.password)
       setUser(user)
       await useCartStore.getState().loadFromServer()
-      window.location.href = '/'
+      window.location.href = rutaLocal(locale, '/')
     } catch (err) {
-      setError(err.message || 'No se pudo crear la cuenta')
+      setError(err.message || t('au.errReg'))
       setLoading(false)
     }
   }
 
   return (
     <div className="container auth-page">
-      <h1 className="auth-page__title">Crear cuenta</h1>
+      <h1 className="auth-page__title">{t('au.reg.titulo')}</h1>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-form__field">
-          <label htmlFor="username">Nombre de usuario</label>
+          <label htmlFor="username">{t('au.usuario')}</label>
           <input id="username" name="username" type="text" required autoComplete="username" value={form.username} onChange={handleChange} />
         </div>
         <div className="auth-form__field">
-          <label htmlFor="email">Correo</label>
+          <label htmlFor="email">{t('au.correo')}</label>
           <input id="email" name="email" type="email" required autoComplete="email" value={form.email} onChange={handleChange} />
         </div>
         <div className="auth-form__field">
-          <label htmlFor="password">Contraseña</label>
+          <label htmlFor="password">{t('au.password')}</label>
           <input id="password" name="password" type="password" required autoComplete="new-password" value={form.password} onChange={handleChange} />
         </div>
         <div className="auth-form__field">
-          <label htmlFor="confirm">Confirmar contraseña</label>
+          <label htmlFor="confirm">{t('au.confirmar')}</label>
           <input id="confirm" name="confirm" type="password" required autoComplete="new-password" value={form.confirm} onChange={handleChange} />
         </div>
 
         {error && <p className="auth-form__error" role="alert">{error}</p>}
 
         <button type="submit" className="btn btn-primary auth-form__submit" disabled={loading}>
-          {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+          {loading ? t('au.creando') : t('au.reg.titulo')}
         </button>
       </form>
 
-      <p className="auth-page__divider">o</p>
-      <GoogleButton />
+      <p className="auth-page__divider">{t('au.o')}</p>
+      <GoogleButton locale={locale} />
 
       <p className="auth-page__switch">
-        ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
+        {t('au.yaCuenta')} <a href={rutaLocal(locale, '/login')}>{t('au.iniciaSesion')}</a>
       </p>
     </div>
   )

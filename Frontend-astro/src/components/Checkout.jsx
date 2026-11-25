@@ -7,7 +7,8 @@ import { getSavedAddresses, saveAddress, removeAddress } from '../lib/savedAddre
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
-import { useTranslations, rutaLocal } from '../i18n/ui.js'
+import { useTranslations, rutaLocal, traducirProducto } from '../i18n/ui.js'
+
 
 const initialForm = {
   fullName: '',
@@ -328,7 +329,7 @@ export default function Checkout({ locale = 'es' }) {
               return (
                 <li key={item.id}>
                   <span>
-                    {item.product.name} × {item.quantity}
+                    {traducirProducto(locale, item.product).name} × {item.quantity}
                     {(item.customization_text || item.wrap) && (
                       <span className="checkout-summary__custom">
                         {item.customization_text && ` · ${t('form.personalizacion')}: ${item.customization_text}`}

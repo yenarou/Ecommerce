@@ -3,15 +3,16 @@ import Layout from '../../layouts/Layout.astro'
 import Sidebar from '../../components/Sidebar.astro'
 import ProductCard from '../../components/ProductCard.astro'
 import { fetchCategoryBySlug } from '../../api/catalog'
-import { useTranslations, rutaLocal } from '../../i18n/ui.js'
+import { useTranslations, rutaLocal, traducirCategoria } from '../../i18n/ui.js'
 import '../../styles/CategoryDetail.css'
 
 const locale = Astro.currentLocale ?? 'es'
 const t = useTranslations(locale)
 
 const { slug } = Astro.params
-const category = slug ? await fetchCategoryBySlug(slug) : null
-if (!category) Astro.response.status = 404
+const categoryRaw = slug ? await fetchCategoryBySlug(slug) : null
+if (!categoryRaw) Astro.response.status = 404
+const category = traducirCategoria(locale, categoryRaw)
 const products: any[] = category?.products ?? []
 ---
 <Layout

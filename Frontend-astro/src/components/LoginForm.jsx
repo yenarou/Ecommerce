@@ -3,9 +3,11 @@ import { login } from '../api/auth'
 import { useAuth } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import GoogleButton from './GoogleButton.jsx'
+import { useTranslations, rutaLocal } from '../i18n/ui.js'
 import '../styles/Auth.css'
 
-export default function LoginForm() {
+export default function LoginForm({ locale = 'es' }) {
+  const t = useTranslations(locale)
   const setUser = useAuth((s) => s.setUser)
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
@@ -24,39 +26,39 @@ export default function LoginForm() {
       const user = await login(form.email, form.password)
       setUser(user)
       await useCartStore.getState().loadFromServer()
-      window.location.href = user.rol === 'Admin' ? '/admin' : '/'
+      window.location.href = user.rol === 'Admin' ? '/admin' : rutaLocal(locale, '/')
     } catch (err) {
-      setError(err.message || 'No se pudo iniciar sesión')
+      setError(err.message || t('au.errLogin'))
       setLoading(false)
     }
   }
 
   return (
     <div className="container auth-page">
-      <h1 className="auth-page__title">Iniciar sesión</h1>
+      <h1 className="auth-page__title">{t('au.login.titulo')}</h1>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-form__field">
-          <label htmlFor="email">Correo</label>
+          <label htmlFor="email">{t('au.correo')}</label>
           <input id="email" name="email" type="email" required autoComplete="email" value={form.email} onChange={handleChange} />
         </div>
         <div className="auth-form__field">
-          <label htmlFor="password">Contraseña</label>
+          <label htmlFor="password">{t('au.password')}</label>
           <input id="password" name="password" type="password" required autoComplete="current-password" value={form.password} onChange={handleChange} />
         </div>
 
         {error && <p className="auth-form__error" role="alert">{error}</p>}
 
         <button type="submit" className="btn btn-primary auth-form__submit" disabled={loading}>
-          {loading ? 'Entrando...' : 'Entrar'}
+          {loading ? t('au.entrando') : t('au.entrar')}
         </button>
       </form>
 
-      <p className="auth-page__divider">o</p>
-      <GoogleButton />
+      <p className="auth-page__divider">{t('au.o')}</p>
+      <GoogleButton locale={locale} />
 
       <p className="auth-page__switch">
-        ¿No tienes cuenta? <a href="/registro">Regístrate</a>
+        {t('au.sinCuenta')} <a href={rutaLocal(locale, '/registro')}>{t('au.registrate')}</a>
       </p>
     </div>
   )

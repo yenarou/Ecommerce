@@ -1,11 +1,11 @@
 ---
 import { fetchCategories } from '../api/catalog'
-import { useTranslations, rutaLocal } from '../i18n/ui.js'
+import { useTranslations, rutaLocal, traducirCategoria } from '../i18n/ui.js'
 import './Sidebar.css'
 
 const locale = Astro.currentLocale ?? 'es'
 const t = useTranslations(locale)
-const categories: any[] = await fetchCategories()
+const categories: any[] = (await fetchCategories()).map((c: any) => traducirCategoria(locale, c))
 ---
 <aside class="sidebar" aria-label={t('sidebar.aria')}>
   <div class="sidebar__block">
