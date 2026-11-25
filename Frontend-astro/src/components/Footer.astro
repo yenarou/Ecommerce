@@ -1,23 +1,26 @@
 ---
 import './Footer.css'
+import { useTranslations } from '../i18n/ui.js'
+
+const t = useTranslations(Astro.currentLocale ?? 'es')
 ---
 <footer class="footer">
   <div class="container footer__inner">
     <div>
       <h2 class="footer__brand">Hilo &amp; Alma</h2>
-      <p class="footer__text">Taller de crochet | Zona Metropolitana de Guadalajara</p>
+      <p class="footer__text">{t('footer.taller')}</p>
     </div>
     <div class="footer__cols">
       <div>
-        <h3 class="footer__col-title">Contactos</h3>
+        <h3 class="footer__col-title">{t('footer.contactos')}</h3>
         <p class="footer__text">andy@ceti.mx</p>
         <p class="footer__text">diego@ceti.mx</p>
         <p class="footer__text">genaro@ceti.mx</p>
       </div>
       <div>
-        <h3 class="footer__col-title">Envíos</h3>
-        <p class="footer__text">Entrega local y envío nacional</p>
-        <p class="footer__text">Piezas hechas por encargo</p>
+        <h3 class="footer__col-title">{t('footer.envios')}</h3>
+        <p class="footer__text">{t('footer.envios1')}</p>
+        <p class="footer__text">{t('footer.envios2')}</p>
       </div>
     </div>
   </div>

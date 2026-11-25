@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useTranslations } from '../i18n/ui.js';
 
-export default function InstallButton() {
+export default function InstallButton({ locale = 'es' }) {
+  const t = useTranslations(locale);
   const [disponible, setDisponible] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function InstallButton() {
 
   return (
     <button type="button" className="install-btn" onClick={instalar}>
-      Instalar app
+      {t('pwa.instalar')}
     </button>
   );
 }

@@ -7,10 +7,7 @@ import { getSavedAddresses, saveAddress, removeAddress } from '../lib/savedAddre
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
-
-if (import.meta.env.PUBLIC_MP_PUBLIC_KEY) {
-  initMercadoPago(import.meta.env.PUBLIC_MP_PUBLIC_KEY, { locale: 'es-MX' })
-}
+import { useTranslations, rutaLocal } from '../i18n/ui.js'
 
 const initialForm = {
   fullName: '',
@@ -24,13 +21,22 @@ const initialForm = {
   paymentMethod: 'card',
 }
 
-export default function Checkout() {
+export default function Checkout({ locale = 'es' }) {
+  const t = useTranslations(locale)
   const { items, totals, clearCart } = useCart()
   const [form, setForm] = useState(initialForm)
   const [placed, setPlaced] = useState(false)
   const [orderInfo, setOrderInfo] = useState(null)
   const user = useAuth((s) => s.user)
   const logout = useAuth((s) => s.logout)
+
+  useEffect(() => {
+    if (import.meta.env.PUBLIC_MP_PUBLIC_KEY) {
+      initMercadoPago(import.meta.env.PUBLIC_MP_PUBLIC_KEY, {
+        locale: locale === 'en' ? 'en-US' : 'es-MX',
+      })
+    }
+  }, [locale])
 
   //direccion en cache
   const userId = user?.id || user?.email || null
@@ -50,10 +56,8 @@ export default function Checkout() {
     setSavedAddresses(saved)
     if(addressChoice === id) setAddressChoice(saved.length ? saved[0].id : 'new')
   }
-  //direccion en cache
-  
+
   function handleChange(e) {
-    //mejor manejo de phone con clean, revisar cambios del jsx (se quito el oninput)
     const { name, value } = e.target
     const clean = name === 'phone' ? value.replace(/\D/g, ''): value
     setForm((prev) => ({ ...prev, [name]: clean }))
@@ -70,18 +74,18 @@ export default function Checkout() {
 
   function goToResult(result) {
     if (result.paid) {
-      window.location.href = '/pago/exito'
+      window.location.href = rutaLocal(locale, '/pago/exito')
       return
     }
     if (result.status === 'failed') {
       const motivo = result.statusDetail ? `?motivo=${encodeURIComponent(result.statusDetail)}` : ''
-      window.location.href = `/pago/error${motivo}`
+      window.location.href = `${rutaLocal(locale, '/pago/error')}${motivo}`
       return
     }
     const q = new URLSearchParams()
     if (result.reference) q.set('ref', result.reference)
     if (result.ticketUrl) q.set('ticket', result.ticketUrl)
-    window.location.href = `/pago/pendiente?${q.toString()}`
+    window.location.href = `${rutaLocal(locale, '/pago/pendiente')}?${q.toString()}`
   }
 
   async function handleCardSubmit(formData, additionalData) {
@@ -103,7 +107,7 @@ export default function Checkout() {
       })
       goToResult(res.payOrder)
     } catch (err) {
-      alert(err.message || 'No se pudo procesar el pago')
+      alert(err.message || t('chk.errPago'))
       throw err
     }
   }
@@ -112,14 +116,14 @@ export default function Checkout() {
     e.preventDefault()
 
     if (!user) {
-      alert('Debes iniciar sesión para realizar un pedido')
-      window.location.href = '/login'
+      alert(t('chk.debeLogin'))
+      window.location.href = rutaLocal(locale, '/login')
       return
     }
 
     const sinStock = items.find((it) => it.quantity > it.product.stock)
     if (sinStock) {
-      alert(`No hay suficiente stock de "${sinStock.product.name}"`)
+      alert(t('chk.sinStock').replace('{n}', sinStock.product.name))
       return
     }
 
@@ -159,14 +163,14 @@ export default function Checkout() {
       goToResult(res.payOrder)
 
     } catch (err) {
-      alert(err.message || 'Error al crear el pedido')
+      alert(err.message || t('chk.errPedido'))
     }
   }
   if (!user && !placed) {
     return (
       <div className="container checkout-page">
-        <p>Para confirmar tu pedido necesitas iniciar sesión.</p>
-        <a href="/login" className="btn btn-primary">Iniciar sesión</a>
+        <p>{t('chk.necesitaLogin')}</p>
+        <a href={rutaLocal(locale, '/login')} className="btn btn-primary">{t('auth.login')}</a>
       </div>
     )
   }
@@ -174,9 +178,9 @@ export default function Checkout() {
   if (items.length === 0 && !placed) {
     return (
       <div className="container checkout-page">
-        <p>Tu carrito está vacío.</p>
-        <a href="/" className="btn btn-primary">
-          Ver colecciones
+        <p>{t('chk.vacio')}</p>
+        <a href={rutaLocal(locale, '/')} className="btn btn-primary">
+          {t('cart.verColecciones')}
         </a>
       </div>
     )
@@ -185,13 +189,12 @@ export default function Checkout() {
   if (placed) {
     return (
       <div className="container checkout-page checkout-page--confirm">
-        <h1>¡Pedido recibido!</h1>
+        <h1>{t('chk.recibido')}</h1>
         <p>
-          Te escribiremos a <strong>{form.email || 'tu correo'}</strong> para confirmar tiempos de
-          tejido y entrega.
+          {t('chk.recibido1')} <strong>{form.email || t('chk.tuCorreo')}</strong> {t('chk.recibido2')}
         </p>
-        <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
-          Volver al inicio
+        <button className="btn btn-primary" onClick={() => window.location.href = rutaLocal(locale, '/')}>
+          {t('chk.volver')}
         </button>
       </div>
     )
@@ -200,8 +203,8 @@ export default function Checkout() {
   if (orderInfo) {
     return (
       <div className="container checkout-page">
-        <h1 className="checkout-page__title">Pago con tarjeta</h1>
-        <p>Total a pagar: ${orderInfo.total.toFixed(2)} MXN</p>
+        <h1 className="checkout-page__title">{t('chk.pagoTarjeta')}</h1>
+        <p>{t('chk.totalPagar')}: ${orderInfo.total.toFixed(2)} MXN</p>
         <CardPayment
           initialization={{ amount: orderInfo.total, payer: { email: form.email } }}
           onSubmit={handleCardSubmit}
@@ -213,20 +216,20 @@ export default function Checkout() {
 
   return (
     <div className="container checkout-page">
-      <h1 className="checkout-page__title">Checkout</h1>
+      <h1 className="checkout-page__title">{t('chk.titulo')}</h1>
 
       <div className="checkout-page__layout">
         <form className="checkout-form" onSubmit={handleSubmit}>
-          <h2>Datos de envío</h2>
+          <h2>{t('chk.datos')}</h2>
 
           <div className="checkout-form__field">
-            <label htmlFor="fullName">Nombre completo</label>
+            <label htmlFor="fullName">{t('chk.nombre')}</label>
             <input type="text" id="fullName" name="fullName" required value={form.fullName} onChange={handleChange} />
           </div>
 
           <div className="checkout-form__row">
             <div className="checkout-form__field">
-              <label htmlFor="email">Correo</label>
+              <label htmlFor="email">{t('chk.correo')}</label>
               <input
                 id="email"
                 name="email"
@@ -237,17 +240,14 @@ export default function Checkout() {
               />
             </div>
             <div className="checkout-form__field">
-              <label htmlFor="phone">Teléfono</label>
-              <input type="tel" maxLength="10" minLength="10" pattern="[0-9]{10}" placeholder="Ej: 3312345678" id="phone" name="phone" required value={form.phone} onChange={handleChange} />
+              <label htmlFor="phone">{t('chk.telefono')}</label>
+              <input type="tel" maxLength="10" minLength="10" pattern="[0-9]{10}" placeholder={t('chk.telEj')} id="phone" name="phone" required value={form.phone} onChange={handleChange} />
             </div>
           </div>
 
-
-
-
           {savedAddresses.length > 0 && (
             <div className="checkout-form__field">
-              <label>Dirección de envío</label>
+              <label>{t('chk.direccionEnvio')}</label>
 
               {savedAddresses.map((a) => (
                 <div key={a.id} className="saved-address">
@@ -255,14 +255,14 @@ export default function Checkout() {
                     <input className="mfn" type="radio" name="addressChoice" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)}/>{' '}
                     {a.street}, {a.city}, {a.state}, {a.zipCode}, {a.country}
                   </label>
-                  <button type="button" className="saved-address__remove" onClick={() => handleRemoveAddress(a.id)}>Eliminar</button>
+                  <button type="button" className="saved-address__remove" onClick={() => handleRemoveAddress(a.id)}>{t('chk.eliminar')}</button>
                 </div>
               ))}
 
               <div className="saved-address">
                 <label className="liveAid">
                   <input className="mfn" type="radio" name="addressChoice" checked={addressChoice === 'new'} onChange={() => setAddressChoice('new')}/>{' '}
-                  Ingresar una nueva dirección
+                  {t('chk.nueva')}
                 </label>
               </div>
 
@@ -272,58 +272,56 @@ export default function Checkout() {
           {addressChoice === 'new' && (
             <>
               <div className="checkout-form__field">
-                <label htmlFor="address">Dirección</label>
-                <input type="text" autoComplete="address-line1" placeholder="Av. Juárez 123" id="address" name="address" required value={form.address} onChange={handleChange} />
+                <label htmlFor="address">{t('chk.direccion')}</label>
+                <input type="text" autoComplete="address-line1" placeholder={t('chk.dirEj')} id="address" name="address" required value={form.address} onChange={handleChange} />
               </div>
 
               <div className="checkout-form__field">
-                <label htmlFor="city">Ciudad</label>
-                <input type="text" id="city" autoComplete="address-level2" placeholder="Ej: Guadalajara" name="city" required value={form.city} onChange={handleChange} />
+                <label htmlFor="city">{t('chk.ciudad')}</label>
+                <input type="text" id="city" autoComplete="address-level2" placeholder={t('chk.ciudadEj')} name="city" required value={form.city} onChange={handleChange} />
               </div>
 
               <div className="checkout-form__row">
                 <div className="checkout-form__field">
-                <label htmlFor="state">Estado</label>
-                <input type="text" id="state" name="state" required value={form.state} onChange={handleChange} />
+                  <label htmlFor="state">{t('chk.estado')}</label>
+                  <input type="text" id="state" name="state" required value={form.state} onChange={handleChange} />
+                </div>
+
+                <div className="checkout-form__field">
+                  <label htmlFor="zipCode">{t('chk.cp')}</label>
+                  <input type="text" id="zipCode" name="zipCode" required value={form.zipCode} onChange={handleChange} />
+                </div>
               </div>
 
               <div className="checkout-form__field">
-                <label htmlFor="zipCode">Código Postal</label>
-                <input type="text" id="zipCode" name="zipCode" required value={form.zipCode} onChange={handleChange} />
-              </div>
-              </div>
-
-              <div className="checkout-form__field">
-                <label htmlFor="country">País</label>
+                <label htmlFor="country">{t('chk.pais')}</label>
                 <input type="text" id="country" name="country" required value={form.country} onChange={handleChange} />
               </div>
 
               <label className="checkout-form__check">
                 <input type="checkbox" checked={saveForLater} onChange={(e) => setSaveForLater(e.target.checked)}/>{' '}
-                Guardar esta dirección para mi próxima compra
+                {t('chk.guardar')}
               </label>
             </>
           )}
 
-
-
-          <h2>Pago</h2>
+          <h2>{t('chk.pago')}</h2>
           <div className="checkout-form__field">
-            <label htmlFor="paymentMethod">Método de pago</label>
+            <label htmlFor="paymentMethod">{t('chk.metodo')}</label>
             <select id="paymentMethod" name="paymentMethod" value={form.paymentMethod} onChange={handleChange}>
-              <option value="card">Tarjeta de crédito o débito</option>
-              <option value="spei">Transferencia SPEI</option>
-              <option value="oxxo">Efectivo en OXXO</option>
+              <option value="card">{t('chk.tarjeta')}</option>
+              <option value="spei">{t('chk.spei')}</option>
+              <option value="oxxo">{t('chk.oxxo')}</option>
             </select>
           </div>
 
           <button type="submit" className="btn btn-primary checkout-form__submit">
-            Confirmar pedido = ${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}
+            {t('chk.confirmar')} = ${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}
           </button>
         </form>
 
         <aside className="checkout-summary stitch-border">
-          <h2 className="checkout-summary__title">Tu pedido</h2>
+          <h2 className="checkout-summary__title">{t('chk.tuPedido')}</h2>
           <ul className="checkout-summary__list">
             {items.map((item) => {
               const unitPrice = item.product.price
@@ -333,8 +331,8 @@ export default function Checkout() {
                     {item.product.name} × {item.quantity}
                     {(item.customization_text || item.wrap) && (
                       <span className="checkout-summary__custom">
-                        {item.customization_text && ` · Personalización: ${item.customization_text}`}
-                        {item.wrap && ' · Envolver para regalo'}
+                        {item.customization_text && ` · ${t('form.personalizacion')}: ${item.customization_text}`}
+                        {item.wrap && ` · ${t('form.regalo')}`}
                       </span>
                     )}
                   </span>
@@ -344,7 +342,7 @@ export default function Checkout() {
             })}
           </ul>
           <div className="checkout-summary__total">
-            <span>Total</span>
+            <span>{t('chk.total')}</span>
             <span>${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}</span>
           </div>
         </aside>

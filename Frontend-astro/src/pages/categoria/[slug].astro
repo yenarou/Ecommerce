@@ -3,7 +3,11 @@ import Layout from '../../layouts/Layout.astro'
 import Sidebar from '../../components/Sidebar.astro'
 import ProductCard from '../../components/ProductCard.astro'
 import { fetchCategoryBySlug } from '../../api/catalog'
+import { useTranslations, rutaLocal } from '../../i18n/ui.js'
 import '../../styles/CategoryDetail.css'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 
 const { slug } = Astro.params
 const category = slug ? await fetchCategoryBySlug(slug) : null
@@ -11,13 +15,13 @@ if (!category) Astro.response.status = 404
 const products: any[] = category?.products ?? []
 ---
 <Layout
-  title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}
-  description={category ? `${category.description} Colección de ${category.name.toLowerCase()} tejidos a crochet en Hilo y Alma.` : undefined}
+  title={category ? `${category.name} | Hilo y Alma` : t('cat.noEncontrada')}
+  description={category ? `${category.description} ${t('cat.meta').replace('{n}', category.name.toLowerCase())}` : undefined}
 >
   {category ? (
   <div class="container category-detail">
-    <nav class="category-detail__crumbs" aria-label="Ruta de navegación">
-      <a href="/">Inicio</a> <span aria-hidden="true">/</span> {category.name}
+    <nav class="category-detail__crumbs" aria-label={t('common.ruta')}>
+      <a href={rutaLocal(locale, '/')}>{t('common.inicio')}</a> <span aria-hidden="true">/</span> {category.name}
     </nav>
 
     <div class="category-detail__layout">
@@ -29,9 +33,7 @@ const products: any[] = category?.products ?? []
         <hr class="stitch-divider" />
 
         {products.length === 0 ? (
-          <p class="category-detail__empty">
-            Todavía no hay piezas publicadas en esta colección.
-          </p>
+          <p class="category-detail__empty">{t('cat.vacia')}</p>
         ) : (
           <div class="category-detail__grid">
             {products.map((product, i) => <ProductCard product={product} level={2} priority={i < 2} />)}
@@ -41,6 +43,6 @@ const products: any[] = category?.products ?? []
     </div>
   </div>
   ) : (
-    <main class="container"><h1>Colección no encontrada</h1></main>
+    <main class="container"><h1>{t('cat.noEncontrada')}</h1></main>
   )}
 </Layout>

@@ -6,6 +6,11 @@ import { AstroPWAIntegration } from '@vite-pwa/astro';
 export default defineConfig({
   site: process.env.SITE_URL ?? 'http://localhost:15174',
   output: 'server',
+    i18n: {
+    defaultLocale: 'es',
+    locales: ['es', 'en'],
+    routing: { prefixDefaultLocale: false },
+  },
   adapter: node({ mode: 'standalone' }),
   integrations: [
     react(),

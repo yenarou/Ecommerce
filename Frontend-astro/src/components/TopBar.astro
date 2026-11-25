@@ -3,25 +3,31 @@ import './TopBar.css'
 import CartCount from './CartCount.jsx'
 import AuthLinks from './AuthLinks.jsx'
 import InstallButton from './InstallButton.jsx'
-import NotifyButton from './NotifyButton.jsx';
+import NotifyButton from './NotifyButton.jsx'
+import LanguageSelector from './LanguageSelector.astro'
+import { useTranslations, rutaLocal } from '../i18n/ui.js'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 ---
 <header class="topbar">
   <div class="container topbar__inner">
-    <a href="/" class="topbar__brand">
+    <a href={rutaLocal(locale, '/')} class="topbar__brand">
       <span class="topbar__brand-mark" aria-hidden="true">✳</span>
       <span>Hilo <em>y</em> Alma</span>
     </a>
 
     <div class="topbar__right">
-      <AuthLinks client:only="react" />
-      <a href="/carrito" class="topbar__cart">
+      <LanguageSelector />
+      <AuthLinks client:only="react" locale={locale} />
+      <a href={rutaLocal(locale, '/carrito')} class="topbar__cart">
         <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
-        <span>Carrito</span>
+        <span>{t('nav.carrito')}</span>
         <CartCount client:only="react" />
       </a>
     </div>
   </div>
 </header>
 
-<InstallButton client:only="react" />
-<NotifyButton client:only="react" />
+<InstallButton client:only="react" locale={locale} />
+<NotifyButton client:only="react" locale={locale} />

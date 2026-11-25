@@ -1,9 +1,12 @@
 ---
 import './ProductCard.css'
+import { useTranslations, rutaLocal } from '../i18n/ui.js'
 
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 const { product, level = 3, priority = false } = Astro.props
 ---
-<a href={`/products/${product.id}`} class="product-card">
+<a href={rutaLocal(locale, `/products/${product.id}`)} class="product-card">
   <div class="product-card__image">
     <img
       src={product.images[0]?.url}
@@ -14,8 +17,8 @@ const { product, level = 3, priority = false } = Astro.props
       loading={priority ? 'eager' : 'lazy'}
       fetchpriority={priority ? 'high' : 'auto'}
     />
-    {product.stock <= 3 && product.stock > 0 && <span class="product-card__tag">Últimas piezas</span>}
-    {product.stock == 0 && <span class="product-card__tag">No disponible</span>}
+    {product.stock <= 3 && product.stock > 0 && <span class="product-card__tag">{t('card.ultimas')}</span>}
+    {product.stock == 0 && <span class="product-card__tag">{t('card.agotado')}</span>}
   </div>
   <div class="product-card__body">
     {level === 2

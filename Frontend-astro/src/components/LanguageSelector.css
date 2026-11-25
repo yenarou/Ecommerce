@@ -1,0 +1,13 @@
+.lang { display: inline-flex; gap: 4px; }
+.lang__link {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--ink-soft, #6a5f52);
+  text-decoration: none;
+  font-weight: 600;
+}
+.lang__link--activo { background: var(--thread, #8b3a3a); color: var(--paper-soft, #f6f1e7); }

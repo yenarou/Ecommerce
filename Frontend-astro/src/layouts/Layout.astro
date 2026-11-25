@@ -1,30 +1,43 @@
 ---
 import '../styles/tokens.css'
+import '../styles/responsive.css'
 import TopBar from '../components/TopBar.astro'
 import Footer from '../components/Footer.astro'
 import CartBootstrap from '../components/CartBootstrap.jsx'
+import { idiomas, useTranslations, quitarPrefijo, rutaLocal } from '../i18n/ui.js'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 
 const {
-  title = 'Hilo y Alma | Figuras de crochet hechas a mano',
-  description = 'Figuras, llaveros y decoración tejidos a crochet en Guadalajara. Elige una pieza o pide una personalizada.',
+  title = t('meta.titulo'),
+  description = t('meta.descripcion'),
   image = '/images/heroImg2.png',
   jsonLd = null,
 } = Astro.props
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href
+const sitio = Astro.site ?? Astro.url.origin
+const canonical = new URL(Astro.url.pathname, sitio).href
 const ogImage = new URL(image, canonical).href
+const rutaBase = quitarPrefijo(Astro.url.pathname)
+const alternas = Object.keys(idiomas).map((codigo) => ({
+  codigo,
+  href: new URL(rutaLocal(codigo, rutaBase), sitio).href,
+}))
 ---
 <!doctype html>
-<html lang="es">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {alternas.map((a) => <link rel="alternate" hreflang={a.codigo} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternas[0].href} />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="es_MX" />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : 'es_MX'} />
     <meta property="og:site_name" content="Hilo y Alma" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

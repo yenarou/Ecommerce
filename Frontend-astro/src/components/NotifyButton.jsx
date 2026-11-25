@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useTranslations } from '../i18n/ui.js'
 
-export default function NotifyButton() {
+export default function NotifyButton({ locale = 'es' }) {
+  const t = useTranslations(locale)
   const [permiso, setPermiso] = useState(null)
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export default function NotifyButton() {
     if (resultado === 'granted') {
       const reg = await navigator.serviceWorker.ready
       reg.showNotification('Hilo y Alma', {
-        body: 'Avisos activados. Te avisaremos cuando se sincronice tu carrito.',
+        body: t('pwa.avisosOk'),
         icon: '/icons/icon-192.png',
       })
     }
@@ -23,7 +25,7 @@ export default function NotifyButton() {
 
   return (
     <button type="button" className="notify-btn" onClick={activar}>
-    Activar avisos
+      {t('pwa.avisos')}
     </button>
   )
 }

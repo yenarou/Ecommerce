@@ -2,8 +2,10 @@ import { useEffect } from 'react'
 import { useAuth } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { getMe } from '../api/auth'
+import { useTranslations, rutaLocal } from '../i18n/ui.js'
 
-export default function AuthLinks() {
+export default function AuthLinks({ locale = 'es' }) {
+  const t = useTranslations(locale)
   const user = useAuth((s) => s.user)
   const logout = useAuth((s) => s.logout)
   const clearCart = useCartStore((s) => s.clearCart)
@@ -25,21 +27,21 @@ export default function AuthLinks() {
   if (!user) {
     return (
       <div className="topbar__auth">
-        <a href="/login" className="topbar__nav-link">Iniciar sesión</a>
-        <a href="/ordenes" className="topbar__nav-link">Mis órdenes</a>
-        <a href="/registro" className="topbar__nav-link">Registrarse</a>
+        <a href={rutaLocal(locale, '/login')} className="topbar__nav-link">{t('auth.login')}</a>
+        <a href={rutaLocal(locale, '/ordenes')} className="topbar__nav-link">{t('auth.ordenes')}</a>
+        <a href={rutaLocal(locale, '/registro')} className="topbar__nav-link">{t('auth.registro')}</a>
       </div>
     )
   }
 
   return (
     <div className="topbar__auth">
-      <span className="topbar__user">Hola, {user.username}</span>
-      <a href="/ordenes" className="topbar__nav-link">Mis órdenes</a>
+      <span className="topbar__user">{t('auth.hola')} {user.username}</span>
+      <a href={rutaLocal(locale, '/ordenes')} className="topbar__nav-link">{t('auth.ordenes')}</a>
       {user?.rol === 'Admin' && (
-        <a href="/admin" className="topbar__nav-link">Panel de administración</a>
-        )}
-      <button type="button" className="topbar__logout" onClick={handleLogout}>Salir</button>
+        <a href="/admin" className="topbar__nav-link">{t('auth.admin')}</a>
+      )}
+      <button type="button" className="topbar__logout" onClick={handleLogout}>{t('auth.salir')}</button>
     </div>
   )
 }

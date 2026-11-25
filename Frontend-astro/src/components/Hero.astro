@@ -1,18 +1,18 @@
 ---
 import './Hero.css'
+import { useTranslations } from '../i18n/ui.js'
+
+const t = useTranslations(Astro.currentLocale ?? 'es')
 ---
 <section class="hero">
   <div class="hero__text">
-    <p class="hero__eyebrow">Taller de crochet · Guadalajara</p>
+    <p class="hero__eyebrow">{t('hero.eyebrow')}</p>
     <h1 class="hero__title">
-      Pequeñas piezas,
+      {t('hero.titulo1')}
       <br />
-      hechas para quedarse.
+      {t('hero.titulo2')}
     </h1>
-    <p class="hero__subtitle">
-      Figuras, llaveros y decoración tejidos a mano, con tiempo y atención
-      al detalle. Elige una pieza o hazla tuya.
-    </p>
+    <p class="hero__subtitle">{t('hero.subtitulo')}</p>
   </div>
   <div class="hero__image" aria-hidden="true">
     <img src="/images/heroImg2.webp" alt="" width="640" height="640" decoding="async" fetchpriority="high" />

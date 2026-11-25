@@ -2,7 +2,11 @@
 import Layout from '../../layouts/Layout.astro'
 import AddToCartForm from '../../components/AddToCartForm.jsx'
 import { fetchProductById } from '../../api/catalog'
+import { useTranslations, rutaLocal } from '../../i18n/ui.js'
 import '../../styles/ProductDetail.css'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
 
 const { id } = Astro.params
 const product = id ? await fetchProductById(id) : null
@@ -25,16 +29,16 @@ const jsonLd = product && {
 }
 ---
 <Layout
-  title={product ? `${product.name} | Hilo y Alma` : 'Producto no encontrado'}
+  title={product ? `${product.name} | Hilo y Alma` : t('prod.noEncontrado')}
   description={product ? (product.description ?? '').slice(0, 155) : undefined}
   image={product?.images[0]?.url}
   jsonLd={jsonLd}
 >
   {product ? (
   <main class="container product-detail">
-    <nav class="product-detail__crumbs" aria-label="Ruta de navegación">
-      <a href="/">Inicio</a> <span aria-hidden="true">/</span>{' '}
-      {category && <a href={`/categoria/${category.slug}`}>{category.name}</a>}{' '}
+    <nav class="product-detail__crumbs" aria-label={t('common.ruta')}>
+      <a href={rutaLocal(locale, '/')}>{t('common.inicio')}</a> <span aria-hidden="true">/</span>{' '}
+      {category && <a href={rutaLocal(locale, `/categoria/${category.slug}`)}>{category.name}</a>}{' '}
       <span aria-hidden="true">/</span> {product.name}
     </nav>
 
@@ -68,38 +72,43 @@ const jsonLd = product && {
 
         <dl class="product-detail__facts">
           <div>
-            <dt>Disponibilidad</dt>
+            <dt>{t('prod.disponibilidad')}</dt>
             <dd
               id="product-stock"
               data-product-id={product.id}
               data-stock={product.stock}
+              data-pieces={t('prod.piezas')}
+              data-soldout={t('prod.agotado')}
               aria-live="polite"
-            >{product.stock > 0 ? `${product.stock} piezas` : 'Agotado'}</dd>
+            >{product.stock > 0 ? `${product.stock} ${t('prod.piezas')}` : t('prod.agotado')}</dd>
           </div>
         </dl>
 
         <hr class="stitch-divider" />
 
-        <AddToCartForm client:idle product={product} />
+        <AddToCartForm client:idle product={product} locale={locale} />
       </div>
     </div>
   </main>
   ) : (
-    <main class="container"><h1>Producto no encontrado</h1></main>
+    <main class="container"><h1>{t('prod.noEncontrado')}</h1></main>
   )}
 </Layout>
 
 <script>
   import { subscribeToStockUpdates } from '../../api/catalog'
 
-const stockElement = document.querySelector<HTMLElement>('#product-stock')
+  const stockElement = document.querySelector<HTMLElement>('#product-stock')
   const productId = stockElement?.getAttribute('data-product-id')
 
   if (stockElement && productId) {
+    const piezas = stockElement.dataset.pieces ?? 'piezas'
+    const agotado = stockElement.dataset.soldout ?? 'Agotado'
+
     subscribeToStockUpdates(
       productId,
       ({ stock }: { stock: number }) => {
-        stockElement.textContent = stock > 0 ? `${stock} piezas` : 'Agotado'
+        stockElement.textContent = stock > 0 ? `${stock} ${piezas}` : agotado
         stockElement.dataset.stock = String(stock)
         window.dispatchEvent(new CustomEvent('product-stock-updated', {
           detail: { productId, stock },

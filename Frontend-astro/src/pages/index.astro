@@ -4,14 +4,13 @@ import Hero from '../components/Hero.astro'
 import Sidebar from '../components/Sidebar.astro'
 import ProductCard from '../components/ProductCard.astro'
 import { fetchProducts } from '../api/catalog'
+import { useTranslations } from '../i18n/ui.js'
 import '../styles/Home.css'
 
+const t = useTranslations(Astro.currentLocale ?? 'es')
 const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 4 })
 ---
-<Layout
-  title="Hilo y Alma | Figuras de crochet en Guadalajara"
-  description="Taller de crochet en Guadalajara: figuras, llaveros y decoración tejidos a mano. Elige una pieza del catálogo o pide una personalizada."
->
+<Layout title={t('home.titulo')} description={t('home.descripcion')}>
   <div class="container home">
     <Hero />
 
@@ -19,7 +18,7 @@ const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pag
       <Sidebar />
 
       <main class="home__main">
-        <h2 class="home__section-title">Piezas destacadas</h2>
+        <h2 class="home__section-title">{t('home.destacadas')}</h2>
         <div class="home__grid">
           {featured.map((product) => <ProductCard product={product} />)}
         </div>
@@ -30,20 +29,13 @@ const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pag
 
     <section class="home__context">
       <div>
-        <h2>Hecho por encargo</h2>
-        <p>
-          Cada figura empieza a tejerse cuando confirmas tu
-          pedido. Por eso el tiempo de entrega varía según la pieza y las
-          personalizaciones que elijas, lo verás reflejado en cada producto.
-        </p>
+        <h2>{t('home.encargo.titulo')}</h2>
+        <p>{t('home.encargo.texto')}</p>
       </div>
       <div>
-        <h2>Personaliza tu producto</h2>
-        <p>
-          Desde la página de cada producto puedes escribir una indicación de
-          personalización y elegir un empaque de regalo antes de pasar al carrito.
-        </p>
+        <h2>{t('home.personaliza.titulo')}</h2>
+        <p>{t('home.personaliza.texto')}</p>
       </div>
     </section>
   </div>
-</Layout>
+</Layout>src/components/Hero.astro

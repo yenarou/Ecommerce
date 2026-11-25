@@ -1,7 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import Checkout from '../components/Checkout.jsx'
+
+const locale = Astro.currentLocale ?? 'es'
 ---
 <Layout title="Checkout | Hilo y Alma">
-  <Checkout client:only="react" />
+  <Checkout client:only="react" locale={locale} />
 </Layout>

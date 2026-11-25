@@ -1,0 +1,20 @@
+---
+import './LanguageSelector.css'
+import { idiomas, useTranslations, quitarPrefijo, rutaLocal } from '../i18n/ui.js'
+
+const locale = Astro.currentLocale ?? 'es'
+const t = useTranslations(locale)
+const base = quitarPrefijo(Astro.url.pathname) + Astro.url.search
+---
+<nav class="lang" aria-label={t('nav.idioma')}>
+  {Object.entries(idiomas).map(([codigo, nombre]) => (
+    <a
+      href={rutaLocal(codigo, base)}
+      hreflang={codigo}
+      lang={codigo}
+      title={nombre}
+      class:list={['lang__link', { 'lang__link--activo': codigo === locale }]}
+      aria-current={codigo === locale ? 'true' : undefined}
+    >{codigo.toUpperCase()}</a>
+  ))}
+</nav>
