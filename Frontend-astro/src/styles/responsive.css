@@ -196,5 +196,8 @@ html .footer__legal {
   html .auth-page,
   html .checkout-page--confirm { padding-block: var(--space-3); }
   html .notify-btn,
-  html .install-btn { bottom: max(8px, env(safe-area-inset-bottom)); }
+  html .install-btn {
+    position: static;
+    margin: var(--space-2) 0 0 max(var(--space-3), env(safe-area-inset-left));
+  }
 }
