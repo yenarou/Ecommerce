@@ -1,9 +1,10 @@
+﻿import { getRelativeLocaleUrl } from 'astro:i18n'
 import { useState } from 'react'
 import { login } from '../api/auth'
 import { useAuth } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import GoogleButton from './GoogleButton.jsx'
-import { useTranslations, rutaLocal } from '../i18n/ui.js'
+import { useTranslations } from '../i18n/ui.js'
 import '../styles/Auth.css'
 
 export default function LoginForm({ locale = 'es' }) {
@@ -26,7 +27,7 @@ export default function LoginForm({ locale = 'es' }) {
       const user = await login(form.email, form.password)
       setUser(user)
       await useCartStore.getState().loadFromServer()
-      window.location.href = user.rol === 'Admin' ? '/admin' : rutaLocal(locale, '/')
+      window.location.href = user.rol === 'Admin' ? '/admin' : getRelativeLocaleUrl(locale, '/')
     } catch (err) {
       setError(err.message || t('au.errLogin'))
       setLoading(false)
@@ -58,7 +59,7 @@ export default function LoginForm({ locale = 'es' }) {
       <GoogleButton locale={locale} />
 
       <p className="auth-page__switch">
-        {t('au.sinCuenta')} <a href={rutaLocal(locale, '/registro')}>{t('au.registrate')}</a>
+        {t('au.sinCuenta')} <a href={getRelativeLocaleUrl(locale, '/registro')}>{t('au.registrate')}</a>
       </p>
     </div>
   )

@@ -1,7 +1,8 @@
+﻿import { getRelativeLocaleUrl } from 'astro:i18n'
 import { useEffect, useState } from 'react'
 import { getOrders } from '../api/orders'
 import { useAuth } from '../stores/auth'
-import { useTranslations, rutaLocal, traducirProducto } from '../i18n/ui.js'
+import { useTranslations, traducirProducto } from '../i18n/ui.js'
 import '../styles/Orders.css'
 
 function getStatusValue(status) {
@@ -60,7 +61,7 @@ export default function Orders({ locale = 'es' }) {
       {!token ? (
         <div className="orders-page__message">
           <p>{t('ord.necesitaLogin')}</p>
-          <a className="btn btn-primary" href={rutaLocal(locale, '/login')}>{t('auth.login')}</a>
+          <a className="btn btn-primary" href={getRelativeLocaleUrl(locale, '/login')}>{t('auth.login')}</a>
         </div>
       ) : loading ? (
         <p className="orders-page__message" role="status">{t('ord.cargando')}</p>
@@ -71,7 +72,7 @@ export default function Orders({ locale = 'es' }) {
       ) : orders.length === 0 ? (
         <div className="orders-page__message">
           <p>{t('ord.vacio')}</p>
-          <a className="btn btn-primary" href={rutaLocal(locale, '/')}>{t('ord.explorar')}</a>
+          <a className="btn btn-primary" href={getRelativeLocaleUrl(locale, '/')}>{t('ord.explorar')}</a>
         </div>
       ) : (
         <div className="orders-list">

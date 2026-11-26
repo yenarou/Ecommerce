@@ -1,8 +1,9 @@
+﻿import { getRelativeLocaleUrl } from 'astro:i18n'
 import { useEffect } from 'react'
 import { useAuth } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { getMe } from '../api/auth'
-import { useTranslations, rutaLocal } from '../i18n/ui.js'
+import { useTranslations } from '../i18n/ui.js'
 
 export default function AuthLinks({ locale = 'es' }) {
   const t = useTranslations(locale)
@@ -27,9 +28,9 @@ export default function AuthLinks({ locale = 'es' }) {
   if (!user) {
     return (
       <div className="topbar__auth">
-        <a href={rutaLocal(locale, '/login')} className="topbar__nav-link">{t('auth.login')}</a>
-        <a href={rutaLocal(locale, '/ordenes')} className="topbar__nav-link">{t('auth.ordenes')}</a>
-        <a href={rutaLocal(locale, '/registro')} className="topbar__nav-link">{t('auth.registro')}</a>
+        <a href={getRelativeLocaleUrl(locale, '/login')} className="topbar__nav-link">{t('auth.login')}</a>
+        <a href={getRelativeLocaleUrl(locale, '/ordenes')} className="topbar__nav-link">{t('auth.ordenes')}</a>
+        <a href={getRelativeLocaleUrl(locale, '/registro')} className="topbar__nav-link">{t('auth.registro')}</a>
       </div>
     )
   }
@@ -37,7 +38,7 @@ export default function AuthLinks({ locale = 'es' }) {
   return (
     <div className="topbar__auth">
       <span className="topbar__user">{t('auth.hola')} {user.username}</span>
-      <a href={rutaLocal(locale, '/ordenes')} className="topbar__nav-link">{t('auth.ordenes')}</a>
+      <a href={getRelativeLocaleUrl(locale, '/ordenes')} className="topbar__nav-link">{t('auth.ordenes')}</a>
       {user?.rol === 'Admin' && (
         <a href="/admin" className="topbar__nav-link">{t('auth.admin')}</a>
       )}
