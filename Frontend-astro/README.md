@@ -58,6 +58,12 @@ Prueba la versión de producción con `npm run build` y `npm run preview`. En Ch
 
 ### Uso sin conexión
 
-En producción, el Service Worker precarga el shell (HTML, CSS, JS e iconos). Inicio, categorías y fichas usan red primero y muestran la última versión visitada si no hay conexión; los demás destinos muestran un aviso cuando no están guardados. Los recursos estáticos usan caché primero.
+En producción, el Service Worker precarga el shell (HTML, CSS, JS e iconos). La estrategia depende del flujo de compra:
+
+- **Red primero** para inicio, colecciones, fichas y la página del carrito. Si no responde la red, muestra la última página visitada; el carrito y sus cambios se guardan en este dispositivo.
+- **Caché primero** para CSS, JavaScript, fuentes, iconos e imágenes.
+- **Solo red** para cuentas, órdenes, administración, checkout, pagos y API. No se reutilizan páginas privadas ni se confirma una compra sin conexión.
+
+Al instalarse, el Service Worker también guarda el inicio y la página del carrito para que el usuario pueda llegar al carrito local aunque todavía no lo hubiera abierto. Al estar offline aparece un aviso persistente: los precios y existencias pueden estar desactualizados, y se confirman al volver la conexión. El checkout bloquea el envío si se pierde la red; el carrito local se conserva. Si una página no está guardada, `offline.html` explica qué se puede hacer y cómo volver al catálogo o al carrito.
 
 Para comprobarlo, inicia una compilación y el servidor de vista previa (`npm run build` y `npm run preview`), visita la tienda y una categoría o producto y espera a que el Service Worker se active. En Chrome DevTools, abre **Network**, marca **Offline** y recarga esas páginas; luego visita una ruta no guardada para ver `offline.html`. El Service Worker requiere HTTPS o `localhost` y no se habilita con `astro dev`.

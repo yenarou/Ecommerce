@@ -24,11 +24,16 @@ const initialForm = {
   paymentMethod: 'card',
 }
 
+const offlineCheckoutMessage =
+  'El checkout necesita conexión para confirmar existencias, crear el pedido y procesar el pago. Tu carrito sigue guardado en este dispositivo.'
+
 export default function Checkout() {
   const { items, totals, clearCart } = useCart()
   const [form, setForm] = useState(initialForm)
   const [placed, setPlaced] = useState(false)
   const [orderInfo, setOrderInfo] = useState(null)
+  const [isOnline, setIsOnline] = useState(true)
+  const [checkoutMessage, setCheckoutMessage] = useState('')
   const user = useAuth((s) => s.user)
   const logout = useAuth((s) => s.logout)
 
@@ -43,6 +48,22 @@ export default function Checkout() {
     setSavedAddresses(saved)
     setAddressChoice(saved.length ? saved[0].id : 'new')
   }, [userId])
+
+  useEffect(() => {
+    const updateConnection = () => {
+      const online = navigator.onLine
+      setIsOnline(online)
+      setCheckoutMessage(online ? '' : offlineCheckoutMessage)
+    }
+    updateConnection()
+    window.addEventListener('online', updateConnection)
+    window.addEventListener('offline', updateConnection)
+
+    return () => {
+      window.removeEventListener('online', updateConnection)
+      window.removeEventListener('offline', updateConnection)
+    }
+  }, [])
 
   function handleRemoveAddress(id){
     removeAddress(userId, id)
@@ -85,6 +106,11 @@ export default function Checkout() {
   }
 
   async function handleCardSubmit(formData, additionalData) {
+    if (!navigator.onLine) {
+      setCheckoutMessage(offlineCheckoutMessage)
+      return
+    }
+
     try {
       const res = await payOrder({
         orderId: orderInfo.id,
@@ -103,6 +129,10 @@ export default function Checkout() {
       })
       goToResult(res.payOrder)
     } catch (err) {
+      if (!navigator.onLine) {
+        setCheckoutMessage(offlineCheckoutMessage)
+        return
+      }
       alert(err.message || 'No se pudo procesar el pago')
       throw err
     }
@@ -110,6 +140,12 @@ export default function Checkout() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+
+    if (!navigator.onLine) {
+      setCheckoutMessage(offlineCheckoutMessage)
+      return
+    }
+    setCheckoutMessage('')
 
     if (!user) {
       alert('Debes iniciar sesión para realizar un pedido')
@@ -159,6 +195,10 @@ export default function Checkout() {
       goToResult(res.payOrder)
 
     } catch (err) {
+      if (!navigator.onLine) {
+        setCheckoutMessage(offlineCheckoutMessage)
+        return
+      }
       alert(err.message || 'Error al crear el pedido')
     }
   }
@@ -202,11 +242,15 @@ export default function Checkout() {
       <div className="container checkout-page">
         <h1 className="checkout-page__title">Pago con tarjeta</h1>
         <p>Total a pagar: ${orderInfo.total.toFixed(2)} MXN</p>
-        <CardPayment
-          initialization={{ amount: orderInfo.total, payer: { email: form.email } }}
-          onSubmit={handleCardSubmit}
-          onError={(e) => console.error(e)}
-        />
+        {!isOnline ? (
+          <p className="checkout-form__offline-message" role="status">{offlineCheckoutMessage}</p>
+        ) : (
+          <CardPayment
+            initialization={{ amount: orderInfo.total, payer: { email: form.email } }}
+            onSubmit={handleCardSubmit}
+            onError={(e) => console.error(e)}
+          />
+        )}
       </div>
     )
   }
@@ -317,9 +361,12 @@ export default function Checkout() {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-primary checkout-form__submit">
+          <button type="submit" className="btn btn-primary checkout-form__submit" disabled={!isOnline}>
             Confirmar pedido = ${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}
           </button>
+          {checkoutMessage && (
+            <p className="checkout-form__offline-message" role="status">{checkoutMessage}</p>
+          )}
         </form>
 
         <aside className="checkout-summary stitch-border">

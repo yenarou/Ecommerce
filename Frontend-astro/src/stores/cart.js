@@ -140,6 +140,8 @@ export const useCartStore = create(
       clearCart: () => set({ items: [] }),
 
       sync: async () => {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) return
+
         const state = useCartStore.getState()
         const user = useAuth.getState().user
         if (user && user.token) {

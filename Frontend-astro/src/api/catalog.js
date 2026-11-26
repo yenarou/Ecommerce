@@ -95,11 +95,11 @@ export function subscribeToStockUpdates(productId, onStockUpdated, onError = con
   let disposed = false
 
   function reportError(error) {
-    if (!disposed) onError(error)
+    if (!disposed && navigator.onLine) onError(error)
   }
 
   function connect() {
-    if (disposed) return
+    if (disposed || !navigator.onLine) return
 
     const currentSocket = new WebSocket(getGraphQLWebSocketUrl(), 'graphql-transport-ws')
     socket = currentSocket
@@ -159,11 +159,14 @@ export function subscribeToStockUpdates(productId, onStockUpdated, onError = con
     })
 
     currentSocket.addEventListener('error', () => {
-      reportError(new Error('No fue posible conectar con las actualizaciones de inventario.'))
+      if (socket === currentSocket) {
+        reportError(new Error('No fue posible conectar con las actualizaciones de inventario.'))
+      }
     })
 
     currentSocket.addEventListener('close', (event) => {
       if (!disposed && socket === currentSocket) {
+        if (!navigator.onLine) return
         reportError(new Error(`La conexión de inventario se cerró inesperadamente (${event.code}).`))
         reconnectTimer = setTimeout(connect, reconnectDelay)
         reconnectDelay = Math.min(reconnectDelay * 2, 30000)
@@ -171,10 +174,34 @@ export function subscribeToStockUpdates(productId, onStockUpdated, onError = con
     })
   }
 
-  connect()
+  function pauseWhileOffline() {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+    const currentSocket = socket
+    socket = null
+    if (currentSocket?.readyState === WebSocket.OPEN || currentSocket?.readyState === WebSocket.CONNECTING) {
+      currentSocket.close()
+    }
+  }
+
+  function resumeWhenOnline() {
+    if (disposed || socket?.readyState === WebSocket.OPEN || socket?.readyState === WebSocket.CONNECTING) {
+      return
+    }
+    clearTimeout(reconnectTimer)
+    reconnectTimer = null
+    reconnectDelay = 1000
+    connect()
+  }
+
+  window.addEventListener('offline', pauseWhileOffline)
+  window.addEventListener('online', resumeWhenOnline)
+  if (navigator.onLine) connect()
 
   return () => {
     disposed = true
+    window.removeEventListener('offline', pauseWhileOffline)
+    window.removeEventListener('online', resumeWhenOnline)
     clearTimeout(reconnectTimer)
     if (socket?.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ id: subscriptionId, type: 'complete' }))

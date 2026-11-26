@@ -69,6 +69,14 @@
   width: 100%;
 }
 
+.checkout-form__offline-message {
+  margin-top: var(--space-2);
+  padding: var(--space-2);
+  border-left: 3px solid var(--color-thread);
+  background: var(--color-paper-soft);
+  color: var(--color-ink);
+}
+
 .checkout-summary {
   background: var(--color-paper-soft);
   padding: var(--space-4);

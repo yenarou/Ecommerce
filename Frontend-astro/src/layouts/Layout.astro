@@ -3,6 +3,7 @@ import '../styles/tokens.css'
 import TopBar from '../components/TopBar.astro'
 import Footer from '../components/Footer.astro'
 import CartBootstrap from '../components/CartBootstrap.jsx'
+import OfflineNotice from '../components/OfflineNotice.jsx'
 
 const {
   title = 'Hilo y Alma',
@@ -46,6 +47,7 @@ const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).toStr
     </script>
   </head>
   <body>
+    <OfflineNotice client:load />
     <CartBootstrap client:idle />
     <TopBar />
     <slot />

@@ -7,12 +7,37 @@ import { CacheFirst, NetworkFirst, NetworkOnly } from '@vite-pwa/workbox-swkit/s
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
-const catalogPagePath = /^\/(?:$|categoria\/[^/]+\/?$|products\/[^/]+\/?$)/
+const storePagePath = /^\/(?:$|carrito\/?$|categoria\/[^/]+\/?$|products\/[^/]+\/?$)/
 const isSameOrigin = ({ url }) => url.origin === self.location.origin
 const isNavigation = ({ request }) => request.mode === 'navigate'
 
+async function cacheOfflineEntryPoints() {
+  const cache = await caches.open('catalog-pages')
+
+  for (const pathname of ['/', '/carrito']) {
+    const request = new Request(new URL(pathname, self.location.origin), {
+      credentials: 'same-origin',
+    })
+
+    try {
+      const response = await fetch(request)
+      if (!response.ok) {
+        console.warn(`No se pudo guardar ${pathname} para uso sin conexión (HTTP ${response.status}).`)
+        continue
+      }
+      await cache.put(request, response)
+    } catch (error) {
+      console.warn(`No se pudo guardar ${pathname} para uso sin conexión.`, error)
+    }
+  }
+}
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(cacheOfflineEntryPoints())
+})
+
 registerRoute(
-  (request) => isSameOrigin(request) && isNavigation(request) && catalogPagePath.test(request.url.pathname),
+  (request) => isSameOrigin(request) && isNavigation(request) && storePagePath.test(request.url.pathname),
   new NetworkFirst({
     cacheName: 'catalog-pages',
     networkTimeoutSeconds: 3,
