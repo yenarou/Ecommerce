@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro'
 import AddToCartForm from '../../components/AddToCartForm.jsx'
 import { fetchProductById } from '../../api/catalog'
-import { t } from '../../i18n'
+import { localizeCategory, t } from '../../i18n'
 import '../../styles/ProductDetail.css'
 
 const locale = 'es'
@@ -10,6 +10,7 @@ const { id } = Astro.params
 const product = id ? await fetchProductById(id) : null
 if (!product) Astro.response.status = 404
 const category = product?.category
+const displayCategory = localizeCategory(category, locale)
 const productDescription = product
   ? `${product.name}: ${product.description || t(locale, 'product.defaultDescription')}`
   : t(locale, 'product.notFound')
@@ -40,7 +41,7 @@ const productJsonLd = product ? {
   <div class="container product-detail">
     <nav class="product-detail__crumbs" aria-label="Ruta de navegación">
       <a href="/">{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span>{' '}
-      {category && <a href={`/categoria/${category.slug}`}>{category.name}</a>}{' '}
+      {displayCategory && <a href={`/categoria/${category.slug}`}>{displayCategory.name}</a>}{' '}
       <span aria-hidden="true">/</span> {product.name}
     </nav>
 

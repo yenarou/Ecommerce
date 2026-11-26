@@ -106,6 +106,11 @@ export const messages = {
       defaultDescription: 'Pieza hecha a mano con acabado artesanal y posibilidad de personalización.',
     },
     catalog: {
+      categories: {
+      figuras: { name: 'Figuras' },
+      llaveros: { name: 'Llaveros' },
+      decoracion: { name: 'Decoración' },
+      },
       products: {
         'Shy-Guy': { name: 'Shy-Guy', description: 'Es un personaje tejido a mano de 15cm de alto.' },
         Mario: { name: 'Mario', description: 'Fontanero tejido a mano.' },
@@ -114,6 +119,7 @@ export const messages = {
         'Ramo de flores': { name: 'Ramo de flores', description: 'Flores de crochet.' },
         'Mandalas colgantes': { name: 'Mandalas colgantes', description: 'Decoración de mandalas.' },
       },
+      
     },
     addToCart: {
       personalization: 'Personalización',
@@ -345,6 +351,11 @@ export const messages = {
       defaultDescription: 'Handmade piece with a crafted finish and customization options.',
     },
     catalog: {
+      categories: {
+        figuras: { name: 'Figures' },
+        llaveros: { name: 'Keychains' },
+        decoracion: { name: 'Home Décor' },
+      },
       products: {
         'Shy-Guy': { name: 'Shy-Guy', description: 'A 15 cm tall character, hand-crocheted with care.' },
         Mario: { name: 'Mario', description: 'A hand-crocheted plumber.' },
@@ -584,6 +595,11 @@ export const messages = {
       defaultDescription: '手工制作，做工精致，并可按需定制。',
     },
     catalog: {
+        categories: {
+          figuras: { name: '玩偶' },
+          llaveros: { name: '钥匙扣' },
+          decoracion: { name: '家居装饰' },
+        },
       products: {
         'Shy-Guy': { name: 'Shy-Guy', description: '手工钩织的角色，高 15 厘米。' },
         Mario: { name: '马里奥', description: '手工钩织的水管工。' },

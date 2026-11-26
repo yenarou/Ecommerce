@@ -50,7 +50,11 @@
 
 @media (min-width: 768px) {
   .category-detail__layout {
-    grid-template-columns: minmax(160px, 200px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .category-detail__grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   }
 }
 

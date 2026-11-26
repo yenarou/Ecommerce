@@ -50,3 +50,36 @@ export function t(locale, id, values = {}) {
     return String(values[key])
   })
 }
+
+export function localizeCategory(category, locale) {
+  if (!category) return category
+
+  const categoryTranslations = messages[locale]?.catalog?.categories
+  if (!categoryTranslations) return category
+
+  const bySlug = categoryTranslations[category.slug]
+  if (bySlug) {
+    return { ...category, name: bySlug.name }
+  }
+
+  const spanishCategories = messages.es?.catalog?.categories || {}
+  const matchingSlug = Object.entries(spanishCategories).find(([, value]) => (
+    value.name === category.name
+  ))?.[0]
+  const translation = matchingSlug ? categoryTranslations[matchingSlug] : null
+
+  return translation
+    ? { ...category, name: translation.name }
+    : category
+}
+
+export function categorySlugFromName(categoryName) {
+  if (!categoryName) return null
+
+  const spanishCategories = messages.es?.catalog?.categories || {}
+  const matchingSlug = Object.entries(spanishCategories).find(([, value]) => (
+    value.name === categoryName
+  ))?.[0]
+
+  return matchingSlug || null
+}

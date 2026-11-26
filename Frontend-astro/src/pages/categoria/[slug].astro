@@ -3,7 +3,7 @@ import Layout from '../../layouts/Layout.astro'
 import Sidebar from '../../components/Sidebar.astro'
 import ProductCard from '../../components/ProductCard.astro'
 import { fetchCategoryBySlug } from '../../api/catalog'
-import { t } from '../../i18n'
+import { localizeCategory, t } from '../../i18n'
 import '../../styles/CategoryDetail.css'
 
 const locale = 'es'
@@ -11,25 +11,26 @@ const { slug } = Astro.params
 const category = slug ? await fetchCategoryBySlug(slug) : null
 if (!category) Astro.response.status = 404
 const products: any[] = category?.products ?? []
+const displayCategory = localizeCategory(category, locale)
 const pageDescription = category
-  ? t(locale, 'category.description', { name: category.name })
+  ? t(locale, 'category.description', { name: displayCategory.name })
   : t(locale, 'category.notFoundDescription')
 ---
 <Layout
-  title={category ? t(locale, 'site.titleWithName', { name: category.name }) : t(locale, 'category.notFound')}
+  title={category ? t(locale, 'site.titleWithName', { name: displayCategory.name }) : t(locale, 'category.notFound')}
   description={pageDescription}
   canonical={category ? `https://www.hilo-yalma.com/categoria/${category.slug}` : 'https://www.hilo-yalma.com'}
 >
   {category ? (
   <div class="container category-detail">
     <nav class="category-detail__crumbs" aria-label={t(locale, 'category.breadcrumb')}>
-      <a href="/">{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span> {category.name}
+      <a href="/">{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span> {displayCategory.name}
     </nav>
 
     <div class="category-detail__layout">
       <Sidebar locale={locale} />
       <main class="category-detail__main">
-        <h1 class="category-detail__title">{category.name}</h1>
+        <h1 class="category-detail__title">{displayCategory.name}</h1>
         <p class="category-detail__description">{category.description}</p>
 
         <hr class="stitch-divider" />

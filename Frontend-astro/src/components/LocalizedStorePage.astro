@@ -10,7 +10,7 @@ import Orders from './Orders.jsx'
 import PagoResultado from './PagoResultado.jsx'
 import AddToCartForm from './AddToCartForm.jsx'
 import { fetchCategoryBySlug, fetchProductById } from '../api/catalog'
-import { localizedPath, localizeProduct, t } from '../i18n'
+import { localizedPath, localizeCategory, localizeProduct, t } from '../i18n'
 import '../styles/CategoryDetail.css'
 import '../styles/ProductDetail.css'
 
@@ -20,6 +20,8 @@ const [route, value] = segments
 const category = route === 'categoria' && value ? await fetchCategoryBySlug(value) : null
 const product = route === 'products' && value ? await fetchProductById(value) : null
 const displayProduct = localizeProduct(product, locale)
+const displayCategory = localizeCategory(category, locale)
+const displayProductCategory = localizeCategory(product?.category, locale)
 if ((route === 'categoria' && !category) || (route === 'products' && !product)) Astro.response.status = 404
 const routeTitleIds = {
   carrito: 'site.cartTitle',
@@ -32,7 +34,7 @@ const routeTitleIds = {
   'pago/pendiente': 'site.paymentTitle',
 }
 const routeKey = segments.join('/')
-const pageTitle = category ? t(locale, 'site.titleWithName', { name: category.name })
+const pageTitle = displayCategory ? t(locale, 'site.titleWithName', { name: displayCategory.name })
   : displayProduct ? t(locale, 'site.titleWithName', { name: displayProduct.name })
     : routeTitleIds[routeKey] ? t(locale, routeTitleIds[routeKey]) : t(locale, 'site.pageNotFound')
 const productJsonLd = product ? {
@@ -53,13 +55,13 @@ const productJsonLd = product ? {
 } : null
 ---
 {route === 'categoria' && category ? (
-  <Layout title={pageTitle} description={t(locale, 'category.description', { name: category.name })} canonical={`https://www.hilo-yalma.com${localizedPath(locale, `/categoria/${category.slug}`)}`}>
+  <Layout title={pageTitle} description={t(locale, 'category.description', { name: displayCategory.name })} canonical={`https://www.hilo-yalma.com${localizedPath(locale, `/categoria/${category.slug}`)}`}>
     <div class="container category-detail">
-      <nav class="category-detail__crumbs" aria-label={t(locale, 'category.breadcrumb')}><a href={localizedPath(locale, '/')}>{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span> {category.name}</nav>
+      <nav class="category-detail__crumbs" aria-label={t(locale, 'category.breadcrumb')}><a href={localizedPath(locale, '/')}>{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span> {displayCategory.name}</nav>
       <div class="category-detail__layout">
         <Sidebar locale={locale} />
         <main class="category-detail__main">
-          <h1 class="category-detail__title">{category.name}</h1>
+          <h1 class="category-detail__title">{displayCategory.name}</h1>
           <p class="category-detail__description">{category.description}</p>
           <hr class="stitch-divider" />
           {category.products?.length ? (
@@ -74,7 +76,7 @@ const productJsonLd = product ? {
     <div class="container product-detail">
       <nav class="product-detail__crumbs" aria-label={t(locale, 'product.breadcrumb')}>
         <a href={localizedPath(locale, '/')}>{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span>{' '}
-        {product.category && <><a href={localizedPath(locale, `/categoria/${product.category.slug}`)}>{product.category.name}</a>{' '}</>}
+        {product.category && <><a href={localizedPath(locale, `/categoria/${product.category.slug}`)}>{displayProductCategory.name}</a>{' '}</>}
         <span aria-hidden="true">/</span> {displayProduct.name}
       </nav>
       <div class="product-detail__layout">
