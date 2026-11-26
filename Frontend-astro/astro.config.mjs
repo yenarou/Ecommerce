@@ -7,10 +7,11 @@ export default defineConfig({
   site: process.env.SITE_URL ?? 'http://localhost:15174',
   output: 'server',
     i18n: {
-    defaultLocale: 'es',
-    locales: ['es', 'en'],
-    routing: { prefixDefaultLocale: false },
-  },
+      defaultLocale: 'es',
+      locales: ['es', 'en'],
+      fallback: { en: 'es' },
+      routing: { prefixDefaultLocale: false, fallbackType: 'rewrite' },
+    },
   adapter: node({ mode: 'standalone' }),
   integrations: [
     react(),
