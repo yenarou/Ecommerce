@@ -105,6 +105,16 @@ export const messages = {
       notFoundTitle: 'Producto no encontrado',
       defaultDescription: 'Pieza hecha a mano con acabado artesanal y posibilidad de personalización.',
     },
+    catalog: {
+      products: {
+        'Shy-Guy': { name: 'Shy-Guy', description: 'Es un personaje tejido a mano de 15cm de alto.' },
+        Mario: { name: 'Mario', description: 'Fontanero tejido a mano.' },
+        'Snoop Dogg': { name: 'Snoop Dogg', description: 'Perro blanco y negro tejido.' },
+        'Flor del sol': { name: 'Flor del sol', description: 'Flor tejida.' },
+        'Ramo de flores': { name: 'Ramo de flores', description: 'Flores de crochet.' },
+        'Mandalas colgantes': { name: 'Mandalas colgantes', description: 'Decoración de mandalas.' },
+      },
+    },
     addToCart: {
       personalization: 'Personalización',
       placeholder: 'Opcional: describe cómo quieres personalizar este producto',
@@ -334,6 +344,16 @@ export const messages = {
       notFoundTitle: 'Product not found',
       defaultDescription: 'Handmade piece with a crafted finish and customization options.',
     },
+    catalog: {
+      products: {
+        'Shy-Guy': { name: 'Shy-Guy', description: 'A 15 cm tall character, hand-crocheted with care.' },
+        Mario: { name: 'Mario', description: 'A hand-crocheted plumber.' },
+        'Snoop Dogg': { name: 'Snoop Dogg', description: 'A hand-crocheted black-and-white dog.' },
+        'Flor del sol': { name: 'Sunflower', description: 'A crocheted flower.' },
+        'Ramo de flores': { name: 'Flower bouquet', description: 'A bouquet of crochet flowers.' },
+        'Mandalas colgantes': { name: 'Hanging mandalas', description: 'Crocheted mandalas for home décor.' },
+      },
+    },
     addToCart: {
       personalization: 'Personalization',
       placeholder: 'Optional: describe how you would like this item customized',
@@ -562,6 +582,16 @@ export const messages = {
       notFound: '未找到商品。',
       notFoundTitle: '未找到商品',
       defaultDescription: '手工制作，做工精致，并可按需定制。',
+    },
+    catalog: {
+      products: {
+        'Shy-Guy': { name: 'Shy-Guy', description: '手工钩织的角色，高 15 厘米。' },
+        Mario: { name: '马里奥', description: '手工钩织的水管工。' },
+        'Snoop Dogg': { name: 'Snoop Dogg', description: '手工钩织的黑白小狗。' },
+        'Flor del sol': { name: '向日葵', description: '一朵钩织花。' },
+        'Ramo de flores': { name: '花束', description: '钩织花束。' },
+        'Mandalas colgantes': { name: '曼陀罗挂饰', description: '用于家居装饰的钩织曼陀罗。' },
+      },
     },
     addToCart: {
       personalization: '个性化定制',

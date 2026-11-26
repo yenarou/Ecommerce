@@ -22,6 +22,19 @@ export function stripLocalePrefix(pathname) {
   return pathname.slice(locale.length + 1) || '/'
 }
 
+export function localizeProduct(product, locale) {
+  if (!product) return product
+
+  const translation = messages[locale]?.catalog?.products?.[product.name]
+  if (!translation) return product
+
+  return {
+    ...product,
+    name: translation.name,
+    description: translation.description,
+  }
+}
+
 export function t(locale, id, values = {}) {
   const language = Object.hasOwn(messages, locale) ? locale : 'es'
   const message = id.split('.').reduce((value, part) => value?.[part], messages[language])

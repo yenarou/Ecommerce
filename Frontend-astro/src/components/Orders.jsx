@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getOrders } from '../api/orders'
 import { useAuth } from '../stores/auth'
-import { localePrefix, t } from '../i18n'
+import { localePrefix, localizeProduct, t } from '../i18n'
 import '../styles/Orders.css'
 
 const knownStatuses = new Set(['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'])
@@ -95,6 +95,7 @@ export default function Orders({ locale = 'es' }) {
                 <ul className="order-card__items">
                   {order.items.map((item, index) => {
                     const image = item.product?.images?.[0]
+                    const displayProduct = localizeProduct(item.product, locale)
 
                     return (
                       <li className="order-item" key={item.id}>
@@ -102,7 +103,7 @@ export default function Orders({ locale = 'es' }) {
                           <img
                             className="order-item__image"
                             src={image.url}
-                            alt={image.alt || item.product.name}
+                            alt={displayProduct.name}
                           />
                         ) : (
                           <div className="order-item__image order-item__image--empty" aria-hidden="true">
@@ -110,7 +111,7 @@ export default function Orders({ locale = 'es' }) {
                           </div>
                         )}
                         <div className="order-item__product">
-                          <h3>{item.product?.name || t(locale, 'orders.article', { number: index + 1 })}</h3>
+                          <h3>{displayProduct?.name || t(locale, 'orders.article', { number: index + 1 })}</h3>
                           {item.product && (
                             <p className="price">
                               ${Number(item.product.price).toFixed(2)} {item.product.currency} {t(locale, 'orders.each')}

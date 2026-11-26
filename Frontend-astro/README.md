@@ -58,7 +58,7 @@ Prueba la versión de producción con `npm run build` y `npm run preview`. En Ch
 
 ### Diseño adaptable e idiomas
 
-Astro i18n usa español como idioma predeterminado (`/`), inglés bajo `/en/` y chino simplificado bajo `/zh-CN/`; el selector del encabezado conserva la ruta al cambiar de idioma y las páginas publican alternates `hreflang`. Los textos visibles están centralizados por idioma en `src/i18n/messages.js`; los componentes usan claves como `cart.title` mediante `t(locale, id)` de `src/i18n/index.js`. Las páginas de inicio y rutas localizadas comparten componentes, así que para agregar un idioma basta con incorporar su catálogo, añadirlo a la configuración i18n y crear dos rutas delgadas para la página de inicio y las demás páginas.
+Astro i18n usa español como idioma predeterminado (`/`), inglés bajo `/en/` y chino simplificado bajo `/zh-CN/`; el selector del encabezado conserva la ruta al cambiar de idioma y las páginas publican alternates `hreflang`. Los textos visibles están centralizados por idioma en `src/i18n/messages.js`; los componentes usan claves como `cart.title` mediante `t(locale, id)` de `src/i18n/index.js`. Los nombres y descripciones del catálogo también se localizan desde ese archivo; los productos nuevos que aún no tengan traducción conservan su texto original. Las páginas de inicio y rutas localizadas comparten componentes, así que para agregar un idioma basta con incorporar su catálogo, añadirlo a la configuración i18n y crear dos rutas delgadas para la página de inicio y las demás páginas.
 
 El diseño parte de pantallas pequeñas y adapta su distribución en 360, 768 y 1200 px, incluye áreas seguras y contempla alturas dinámicas y orientación horizontal.
 

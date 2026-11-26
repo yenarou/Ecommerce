@@ -7,7 +7,7 @@ import { getSavedAddresses, saveAddress, removeAddress } from '../lib/savedAddre
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
-import { localePrefix, t } from '../i18n'
+import { localePrefix, localizeProduct, t } from '../i18n'
 
 if (import.meta.env.PUBLIC_MP_PUBLIC_KEY) {
   const paymentLocale = typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en-US' : 'es-MX'
@@ -156,7 +156,9 @@ export default function Checkout({ locale = 'es' }) {
 
     const sinStock = items.find((it) => it.quantity > it.product.stock)
     if (sinStock) {
-      alert(t(locale, 'checkout.insufficientStock', { name: sinStock.product.name }))
+      alert(t(locale, 'checkout.insufficientStock', {
+        name: localizeProduct(sinStock.product, locale).name,
+      }))
       return
     }
 
@@ -374,10 +376,11 @@ export default function Checkout({ locale = 'es' }) {
           <ul className="checkout-summary__list">
             {items.map((item) => {
               const unitPrice = item.product.price
+              const displayProduct = localizeProduct(item.product, locale)
               return (
                 <li key={item.id}>
                   <span>
-                    {item.product.name} × {item.quantity}
+                    {displayProduct.name} × {item.quantity}
                     {(item.customization_text || item.wrap) && (
                       <span className="checkout-summary__custom">
                         {item.customization_text && ` · ${t(locale, 'checkout.personalization', { text: item.customization_text })}`}
