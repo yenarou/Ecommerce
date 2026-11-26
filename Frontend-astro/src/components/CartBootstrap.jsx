@@ -13,11 +13,39 @@ export default function CartBootstrap() {
       return
     }
 
-    loadFromServer().then(
-      () => setError(''),
-      (loadError) =>
-        setError(loadError.message || 'No se pudo cargar el carrito de tu cuenta.'),
-    )
+    let active = true
+    const loadCart = () => {
+      if (!navigator.onLine) {
+        setError('')
+        return
+      }
+
+      loadFromServer().then(
+        () => {
+          if (active) setError('')
+        },
+        (loadError) => {
+          if (active) {
+            setError(
+              navigator.onLine
+                ? loadError.message || 'No se pudo cargar el carrito de tu cuenta.'
+                : '',
+            )
+          }
+        },
+      )
+    }
+    const handleOffline = () => setError('')
+
+    window.addEventListener('online', loadCart)
+    window.addEventListener('offline', handleOffline)
+    loadCart()
+
+    return () => {
+      active = false
+      window.removeEventListener('online', loadCart)
+      window.removeEventListener('offline', handleOffline)
+    }
   }, [token, loadFromServer])
 
   if (!error) return null
