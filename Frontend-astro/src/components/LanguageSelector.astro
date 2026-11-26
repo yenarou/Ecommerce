@@ -1,6 +1,7 @@
 ---
 import './LanguageSelector.css'
-import { idiomas, useTranslations, quitarPrefijo, rutaLocal } from '../i18n/ui.js'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import { idiomas, useTranslations, quitarPrefijo } from '../i18n/ui.js'
 
 const locale = Astro.currentLocale ?? 'es'
 const t = useTranslations(locale)
@@ -9,7 +10,7 @@ const base = quitarPrefijo(Astro.url.pathname) + Astro.url.search
 <nav class="lang" aria-label={t('nav.idioma')}>
   {Object.entries(idiomas).map(([codigo, nombre]) => (
     <a
-      href={rutaLocal(codigo, base)}
+      href={getRelativeLocaleUrl(codigo, base)}
       hreflang={codigo}
       lang={codigo}
       title={nombre}
