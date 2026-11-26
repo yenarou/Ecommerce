@@ -1,7 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro'
 import PagoResultado from '../../components/PagoResultado.jsx'
+import { t } from '../../i18n'
 ---
-<Layout title="Pago | Hilo y Alma">
+<Layout title={t('es', 'site.paymentTitle')}>
   <PagoResultado client:only="react" estado="pendiente" />
 </Layout>

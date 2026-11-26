@@ -7,7 +7,7 @@ import { CacheFirst, NetworkFirst, NetworkOnly } from '@vite-pwa/workbox-swkit/s
 precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
-const storePagePath = /^\/(?:$|carrito\/?$|categoria\/[^/]+\/?$|products\/[^/]+\/?$)/
+const storePagePath = /^\/(?:(?:en|zh-CN)\/)?(?:$|carrito\/?$|categoria\/[^/]+\/?$|products\/[^/]+\/?$)/
 const isSameOrigin = ({ url }) => url.origin === self.location.origin
 const isNavigation = ({ request }) => request.mode === 'navigate'
 const appAssetPath = /\.(?:css|js|mjs|woff2?)$/i
@@ -15,7 +15,7 @@ const appAssetPath = /\.(?:css|js|mjs|woff2?)$/i
 async function cacheOfflineEntryPoints() {
   const cache = await caches.open('catalog-pages')
 
-  for (const pathname of ['/', '/carrito']) {
+  for (const pathname of ['/', '/carrito', '/en/', '/en/carrito', '/zh-CN/', '/zh-CN/carrito']) {
     const request = new Request(new URL(pathname, self.location.origin), {
       credentials: 'same-origin',
     })

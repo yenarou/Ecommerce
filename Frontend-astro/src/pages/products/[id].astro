@@ -2,15 +2,17 @@
 import Layout from '../../layouts/Layout.astro'
 import AddToCartForm from '../../components/AddToCartForm.jsx'
 import { fetchProductById } from '../../api/catalog'
+import { t } from '../../i18n'
 import '../../styles/ProductDetail.css'
 
+const locale = 'es'
 const { id } = Astro.params
 const product = id ? await fetchProductById(id) : null
 if (!product) Astro.response.status = 404
 const category = product?.category
 const productDescription = product
-  ? `${product.name}: ${product.description || 'Pieza hecha a mano con acabado artesanal y posibilidad de personalización.'}`
-  : 'Producto no encontrado.'
+  ? `${product.name}: ${product.description || t(locale, 'product.defaultDescription')}`
+  : t(locale, 'product.notFound')
 const productJsonLd = product ? {
   '@context': 'https://schema.org',
   '@type': 'Product',
@@ -29,7 +31,7 @@ const productJsonLd = product ? {
 } : null
 ---
 <Layout
-  title={product ? `${product.name} | Hilo y Alma` : 'Producto no encontrado'}
+  title={product ? t(locale, 'site.titleWithName', { name: product.name }) : t(locale, 'product.notFoundTitle')}
   description={productDescription}
   canonical={product ? `https://www.hilo-yalma.com/products/${product.id}` : 'https://www.hilo-yalma.com'}
   type="product"
@@ -37,7 +39,7 @@ const productJsonLd = product ? {
   {product ? (
   <div class="container product-detail">
     <nav class="product-detail__crumbs" aria-label="Ruta de navegación">
-      <a href="/">Inicio</a> <span aria-hidden="true">/</span>{' '}
+      <a href="/">{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span>{' '}
       {category && <a href={`/categoria/${category.slug}`}>{category.name}</a>}{' '}
       <span aria-hidden="true">/</span> {product.name}
     </nav>
@@ -72,24 +74,24 @@ const productJsonLd = product ? {
 
         <dl class="product-detail__facts">
           <div>
-            <dt>Disponibilidad</dt>
+            <dt>{t(locale, 'product.availability')}</dt>
             <dd
               id="product-stock"
               data-product-id={product.id}
               data-stock={product.stock}
               aria-live="polite"
-            >{product.stock > 0 ? `${product.stock} piezas` : 'Agotado'}</dd>
+            >{product.stock > 0 ? t(locale, 'product.pieces', { count: product.stock }) : t(locale, 'product.soldOut')}</dd>
           </div>
         </dl>
 
         <hr class="stitch-divider" />
 
-        <AddToCartForm client:load product={product} />
+        <AddToCartForm client:load product={product} locale={locale} />
       </div>
     </div>
   </div>
   ) : (
-    <main class="container"><h1>Producto no encontrado</h1></main>
+    <main class="container"><h1>{t(locale, 'product.notFoundTitle')}</h1></main>
   )}
 
   {productJsonLd && (
@@ -99,6 +101,7 @@ const productJsonLd = product ? {
 
 <script>
   import { subscribeToStockUpdates } from '../../api/catalog'
+  import { t } from '../../i18n'
 
   const stockElement = document.querySelector('#product-stock')
   const productId = stockElement?.getAttribute('data-product-id')
@@ -107,7 +110,7 @@ const productJsonLd = product ? {
     subscribeToStockUpdates(
       productId,
       ({ stock }) => {
-        stockElement.textContent = stock > 0 ? `${stock} piezas` : 'Agotado'
+        stockElement.textContent = stock > 0 ? t('es', 'product.pieces', { count: stock }) : t('es', 'product.soldOut')
         stockElement.dataset.stock = String(stock)
         window.dispatchEvent(new CustomEvent('product-stock-updated', {
           detail: { productId, stock },

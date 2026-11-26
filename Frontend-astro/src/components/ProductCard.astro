@@ -1,9 +1,11 @@
 ---
 import './ProductCard.css'
+import { localePrefix, t } from '../i18n'
 
-const { product } = Astro.props
+const { product, locale = 'es' } = Astro.props
+const root = localePrefix(locale)
 ---
-<a href={`/products/${product.id}`} class="product-card" aria-label={`Ver producto ${product.name}`}>
+<a href={`${root}/products/${product.id}`} class="product-card" aria-label={t(locale, 'productCard.view', { name: product.name })}>
   <div class="product-card__image">
     <img
       src={product.images[0]?.url}
@@ -13,8 +15,8 @@ const { product } = Astro.props
       loading="lazy"
       decoding="async"
     />
-    {product.stock <= 3 && product.stock > 0 && <span class="product-card__tag">Últimas piezas</span>}
-    {product.stock == 0 && <span class="product-card__tag">No disponible</span>}
+    {product.stock <= 3 && product.stock > 0 && <span class="product-card__tag">{t(locale, 'productCard.lastPieces')}</span>}
+    {product.stock == 0 && <span class="product-card__tag">{t(locale, 'productCard.unavailable')}</span>}
   </div>
   <div class="product-card__body">
     <h3 class="product-card__name">{product.name}</h3>

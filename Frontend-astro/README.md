@@ -56,6 +56,14 @@ magick public/icons/hilo-y-alma-cat.jpg -alpha on -fuzz 5% -fill none -draw 'col
 
 Prueba la versión de producción con `npm run build` y `npm run preview`. En Chrome abre DevTools → Application → Manifest para revisar nombre, modo standalone, colores e iconos; después ejecuta Lighthouse con la categoría PWA. Desde Chrome/Android, usa **Instalar Hilo y Alma** o **Agregar a pantalla principal**. La instalación requiere un contexto seguro (HTTPS o `localhost`).
 
+### Diseño adaptable e idiomas
+
+Astro i18n usa español como idioma predeterminado (`/`), inglés bajo `/en/` y chino simplificado bajo `/zh-CN/`; el selector del encabezado conserva la ruta al cambiar de idioma y las páginas publican alternates `hreflang`. Los textos visibles están centralizados por idioma en `src/i18n/messages.js`; los componentes usan claves como `cart.title` mediante `t(locale, id)` de `src/i18n/index.js`. Las páginas de inicio y rutas localizadas comparten componentes, así que para agregar un idioma basta con incorporar su catálogo, añadirlo a la configuración i18n y crear dos rutas delgadas para la página de inicio y las demás páginas.
+
+El diseño parte de pantallas pequeñas y adapta su distribución en 360, 768 y 1200 px, incluye áreas seguras y contempla alturas dinámicas y orientación horizontal.
+
+Para probar la experiencia real, instala la versión de producción y abre **Hilo y Alma** desde su acceso instalado (no en una pestaña del navegador). Comprueba inicio, catálogo y carrito en portrait y landscape, cambiando el ancho alrededor de 360, 768 y 1200 px; no debe aparecer desplazamiento horizontal.
+
 ### Uso sin conexión
 
 En producción, el Service Worker precarga el shell (HTML, CSS, JS e iconos). La estrategia depende del flujo de compra:
@@ -64,6 +72,6 @@ En producción, el Service Worker precarga el shell (HTML, CSS, JS e iconos). La
 - **Caché primero** para CSS, JavaScript, fuentes e imágenes. Al actualizar la app, se conservan temporalmente los CSS y JS antiguos que podrían seguir usando páginas de producto guardadas.
 - **Solo red** para cuentas, órdenes, administración, checkout, pagos y API. No se reutilizan páginas privadas ni se confirma una compra sin conexión.
 
-Al instalarse, el Service Worker también guarda el inicio y la página del carrito para que el usuario pueda llegar al carrito local aunque todavía no lo hubiera abierto. Al estar offline aparece un aviso persistente: los precios y existencias pueden estar desactualizados, y se confirman al volver la conexión. El checkout bloquea el envío si se pierde la red; el carrito local se conserva. Si una página no está guardada, `offline.html` explica qué se puede hacer y cómo volver al catálogo o al carrito.
+Al instalarse, el Service Worker también guarda los inicios en español, inglés y chino simplificado, además de las páginas de carrito para que el usuario pueda llegar al carrito local aunque todavía no lo hubiera abierto. Al estar offline aparece un aviso persistente: los precios y existencias pueden estar desactualizados, y se confirman al volver la conexión. El checkout bloquea el envío si se pierde la red; el carrito local se conserva. Si una página no está guardada, `offline.html` explica qué se puede hacer y cómo volver al catálogo o al carrito.
 
 Para comprobarlo, inicia una compilación y el servidor de vista previa (`npm run build` y `npm run preview`), visita la tienda y una categoría o producto y espera a que el Service Worker se active. En Chrome DevTools, abre **Network**, marca **Offline** y recarga esas páginas; luego visita una ruta no guardada para ver `offline.html`. El Service Worker requiere HTTPS o `localhost` y no se habilita con `astro dev`.

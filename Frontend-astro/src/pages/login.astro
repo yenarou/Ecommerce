@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import LoginForm from '../components/LoginForm.jsx'
+import { t } from '../i18n'
 ---
-<Layout title="Iniciar sesión | Hilo y Alma">
+<Layout title={t('es', 'site.loginTitle')}>
   <LoginForm client:load />
 </Layout>

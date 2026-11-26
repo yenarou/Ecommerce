@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import Cart from '../components/Cart.jsx'
+import { t } from '../i18n'
 ---
-<Layout title="Carrito | Hilo y Alma">
+<Layout title={t('es', 'site.cartTitle')}>
   <Cart client:only="react" />
 </Layout>

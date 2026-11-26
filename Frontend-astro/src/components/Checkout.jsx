@@ -7,9 +7,11 @@ import { getSavedAddresses, saveAddress, removeAddress } from '../lib/savedAddre
 import '../styles/Checkout.css'
 import { useAuth } from '../stores/auth'
 import { getMe } from '../api/auth'
+import { localePrefix, t } from '../i18n'
 
 if (import.meta.env.PUBLIC_MP_PUBLIC_KEY) {
-  initMercadoPago(import.meta.env.PUBLIC_MP_PUBLIC_KEY, { locale: 'es-MX' })
+  const paymentLocale = typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en-US' : 'es-MX'
+  initMercadoPago(import.meta.env.PUBLIC_MP_PUBLIC_KEY, { locale: paymentLocale })
 }
 
 const initialForm = {
@@ -24,12 +26,11 @@ const initialForm = {
   paymentMethod: 'card',
 }
 
-const offlineCheckoutMessage =
-  'El checkout necesita conexión para confirmar existencias, crear el pedido y procesar el pago. Tu carrito sigue guardado en este dispositivo.'
-
-export default function Checkout() {
+export default function Checkout({ locale = 'es' }) {
+  const root = localePrefix(locale)
+  const offlineCheckoutMessage = t(locale, 'checkout.offline')
   const { items, totals, clearCart } = useCart()
-  const [form, setForm] = useState(initialForm)
+  const [form, setForm] = useState({ ...initialForm, country: t(locale, 'checkout.defaultCountry') })
   const [placed, setPlaced] = useState(false)
   const [orderInfo, setOrderInfo] = useState(null)
   const [isOnline, setIsOnline] = useState(true)
@@ -91,18 +92,18 @@ export default function Checkout() {
 
   function goToResult(result) {
     if (result.paid) {
-      window.location.href = '/pago/exito'
+      window.location.href = `${root}/pago/exito`
       return
     }
     if (result.status === 'failed') {
       const motivo = result.statusDetail ? `?motivo=${encodeURIComponent(result.statusDetail)}` : ''
-      window.location.href = `/pago/error${motivo}`
+      window.location.href = `${root}/pago/error${motivo}`
       return
     }
     const q = new URLSearchParams()
     if (result.reference) q.set('ref', result.reference)
     if (result.ticketUrl) q.set('ticket', result.ticketUrl)
-    window.location.href = `/pago/pendiente?${q.toString()}`
+    window.location.href = `${root}/pago/pendiente?${q.toString()}`
   }
 
   async function handleCardSubmit(formData, additionalData) {
@@ -133,7 +134,7 @@ export default function Checkout() {
         setCheckoutMessage(offlineCheckoutMessage)
         return
       }
-      alert(err.message || 'No se pudo procesar el pago')
+      alert(err.message || t(locale, 'checkout.paymentError'))
       throw err
     }
   }
@@ -148,14 +149,14 @@ export default function Checkout() {
     setCheckoutMessage('')
 
     if (!user) {
-      alert('Debes iniciar sesión para realizar un pedido')
-      window.location.href = '/login'
+      alert(t(locale, 'checkout.signInRequired'))
+      window.location.href = `${root}/login`
       return
     }
 
     const sinStock = items.find((it) => it.quantity > it.product.stock)
     if (sinStock) {
-      alert(`No hay suficiente stock de "${sinStock.product.name}"`)
+      alert(t(locale, 'checkout.insufficientStock', { name: sinStock.product.name }))
       return
     }
 
@@ -199,14 +200,14 @@ export default function Checkout() {
         setCheckoutMessage(offlineCheckoutMessage)
         return
       }
-      alert(err.message || 'Error al crear el pedido')
+      alert(err.message || t(locale, 'checkout.createOrderError'))
     }
   }
   if (!user && !placed) {
     return (
       <div className="container checkout-page">
-        <p>Para confirmar tu pedido necesitas iniciar sesión.</p>
-        <a href="/login" className="btn btn-primary">Iniciar sesión</a>
+        <p>{t(locale, 'checkout.signInPrompt')}</p>
+        <a href={`${root}/login`} className="btn btn-primary">{t(locale, 'checkout.signIn')}</a>
       </div>
     )
   }
@@ -214,9 +215,9 @@ export default function Checkout() {
   if (items.length === 0 && !placed) {
     return (
       <div className="container checkout-page">
-        <p>Tu carrito está vacío.</p>
-        <a href="/" className="btn btn-primary">
-          Ver colecciones
+        <p>{t(locale, 'checkout.emptyCart')}</p>
+        <a href={`${root}/`} className="btn btn-primary">
+          {t(locale, 'checkout.browse')}
         </a>
       </div>
     )
@@ -225,13 +226,12 @@ export default function Checkout() {
   if (placed) {
     return (
       <div className="container checkout-page checkout-page--confirm">
-        <h1>¡Pedido recibido!</h1>
+        <h1>{t(locale, 'checkout.orderReceived')}</h1>
         <p>
-          Te escribiremos a <strong>{form.email || 'tu correo'}</strong> para confirmar tiempos de
-          tejido y entrega.
+          {t(locale, 'checkout.emailIntro')} <strong>{form.email || t(locale, 'checkout.yourEmail')}</strong> {t(locale, 'checkout.emailOutro')}
         </p>
-        <button className="btn btn-primary" onClick={() => window.location.href = '/'}>
-          Volver al inicio
+        <button className="btn btn-primary" onClick={() => window.location.href = `${root}/`}>
+          {t(locale, 'checkout.returnHome')}
         </button>
       </div>
     )
@@ -240,8 +240,8 @@ export default function Checkout() {
   if (orderInfo) {
     return (
       <div className="container checkout-page">
-        <h1 className="checkout-page__title">Pago con tarjeta</h1>
-        <p>Total a pagar: ${orderInfo.total.toFixed(2)} MXN</p>
+        <h1 className="checkout-page__title">{t(locale, 'checkout.cardTitle')}</h1>
+        <p>{t(locale, 'checkout.totalDue')} ${orderInfo.total.toFixed(2)} MXN</p>
         {!isOnline ? (
           <p className="checkout-form__offline-message" role="status">{offlineCheckoutMessage}</p>
         ) : (
@@ -257,20 +257,20 @@ export default function Checkout() {
 
   return (
     <div className="container checkout-page">
-      <h1 className="checkout-page__title">Checkout</h1>
+      <h1 className="checkout-page__title">{t(locale, 'checkout.title')}</h1>
 
       <div className="checkout-page__layout">
         <form className="checkout-form" onSubmit={handleSubmit}>
-          <h2>Datos de envío</h2>
+          <h2>{t(locale, 'checkout.shippingDetails')}</h2>
 
           <div className="checkout-form__field">
-            <label htmlFor="fullName">Nombre completo</label>
+            <label htmlFor="fullName">{t(locale, 'checkout.fullName')}</label>
             <input type="text" id="fullName" name="fullName" required value={form.fullName} onChange={handleChange} />
           </div>
 
           <div className="checkout-form__row">
             <div className="checkout-form__field">
-              <label htmlFor="email">Correo</label>
+              <label htmlFor="email">{t(locale, 'checkout.email')}</label>
               <input
                 id="email"
                 name="email"
@@ -281,8 +281,8 @@ export default function Checkout() {
               />
             </div>
             <div className="checkout-form__field">
-              <label htmlFor="phone">Teléfono</label>
-              <input type="tel" maxLength="10" minLength="10" pattern="[0-9]{10}" placeholder="Ej: 3312345678" id="phone" name="phone" required value={form.phone} onChange={handleChange} />
+              <label htmlFor="phone">{t(locale, 'checkout.phone')}</label>
+              <input type="tel" maxLength="10" minLength="10" pattern="[0-9]{10}" placeholder={t(locale, 'checkout.phoneExample')} id="phone" name="phone" required value={form.phone} onChange={handleChange} />
             </div>
           </div>
 
@@ -291,7 +291,7 @@ export default function Checkout() {
 
           {savedAddresses.length > 0 && (
             <div className="checkout-form__field">
-              <label>Dirección de envío</label>
+              <label>{t(locale, 'checkout.shippingAddress')}</label>
 
               {savedAddresses.map((a) => (
                 <div key={a.id} className="saved-address">
@@ -299,14 +299,14 @@ export default function Checkout() {
                     <input className="mfn" type="radio" name="addressChoice" checked={addressChoice === a.id} onChange={() => setAddressChoice(a.id)}/>{' '}
                     {a.street}, {a.city}, {a.state}, {a.zipCode}, {a.country}
                   </label>
-                  <button type="button" className="saved-address__remove" onClick={() => handleRemoveAddress(a.id)}>Eliminar</button>
+                  <button type="button" className="saved-address__remove" onClick={() => handleRemoveAddress(a.id)}>{t(locale, 'checkout.remove')}</button>
                 </div>
               ))}
 
               <div className="saved-address">
                 <label className="liveAid">
                   <input className="mfn" type="radio" name="addressChoice" checked={addressChoice === 'new'} onChange={() => setAddressChoice('new')}/>{' '}
-                  Ingresar una nueva dirección
+                  {t(locale, 'checkout.enterNewAddress')}
                 </label>
               </div>
 
@@ -316,53 +316,53 @@ export default function Checkout() {
           {addressChoice === 'new' && (
             <>
               <div className="checkout-form__field">
-                <label htmlFor="address">Dirección</label>
-                <input type="text" autoComplete="address-line1" placeholder="Av. Juárez 123" id="address" name="address" required value={form.address} onChange={handleChange} />
+                <label htmlFor="address">{t(locale, 'checkout.streetAddress')}</label>
+                <input type="text" autoComplete="address-line1" placeholder={t(locale, 'checkout.streetExample')} id="address" name="address" required value={form.address} onChange={handleChange} />
               </div>
 
               <div className="checkout-form__field">
-                <label htmlFor="city">Ciudad</label>
-                <input type="text" id="city" autoComplete="address-level2" placeholder="Ej: Guadalajara" name="city" required value={form.city} onChange={handleChange} />
+                <label htmlFor="city">{t(locale, 'checkout.city')}</label>
+                <input type="text" id="city" autoComplete="address-level2" placeholder={t(locale, 'checkout.cityExample')} name="city" required value={form.city} onChange={handleChange} />
               </div>
 
               <div className="checkout-form__row">
                 <div className="checkout-form__field">
-                <label htmlFor="state">Estado</label>
+                <label htmlFor="state">{t(locale, 'checkout.state')}</label>
                 <input type="text" id="state" name="state" required value={form.state} onChange={handleChange} />
               </div>
 
               <div className="checkout-form__field">
-                <label htmlFor="zipCode">Código Postal</label>
+                <label htmlFor="zipCode">{t(locale, 'checkout.zipCode')}</label>
                 <input type="text" id="zipCode" name="zipCode" required value={form.zipCode} onChange={handleChange} />
               </div>
               </div>
 
               <div className="checkout-form__field">
-                <label htmlFor="country">País</label>
+                <label htmlFor="country">{t(locale, 'checkout.country')}</label>
                 <input type="text" id="country" name="country" required value={form.country} onChange={handleChange} />
               </div>
 
               <label className="checkout-form__check">
                 <input type="checkbox" checked={saveForLater} onChange={(e) => setSaveForLater(e.target.checked)}/>{' '}
-                Guardar esta dirección para mi próxima compra
+                {t(locale, 'checkout.saveAddress')}
               </label>
             </>
           )}
 
 
 
-          <h2>Pago</h2>
+          <h2>{t(locale, 'checkout.payment')}</h2>
           <div className="checkout-form__field">
-            <label htmlFor="paymentMethod">Método de pago</label>
+            <label htmlFor="paymentMethod">{t(locale, 'checkout.paymentMethod')}</label>
             <select id="paymentMethod" name="paymentMethod" value={form.paymentMethod} onChange={handleChange}>
-              <option value="card">Tarjeta de crédito o débito</option>
-              <option value="spei">Transferencia SPEI</option>
-              <option value="oxxo">Efectivo en OXXO</option>
+              <option value="card">{t(locale, 'checkout.card')}</option>
+              <option value="spei">{t(locale, 'checkout.spei')}</option>
+              <option value="oxxo">{t(locale, 'checkout.oxxo')}</option>
             </select>
           </div>
 
           <button type="submit" className="btn btn-primary checkout-form__submit" disabled={!isOnline}>
-            Confirmar pedido = ${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}
+            {t(locale, 'checkout.placeOrder')} = ${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}
           </button>
           {checkoutMessage && (
             <p className="checkout-form__offline-message" role="status">{checkoutMessage}</p>
@@ -370,7 +370,7 @@ export default function Checkout() {
         </form>
 
         <aside className="checkout-summary stitch-border">
-          <h2 className="checkout-summary__title">Tu pedido</h2>
+          <h2 className="checkout-summary__title">{t(locale, 'checkout.yourOrder')}</h2>
           <ul className="checkout-summary__list">
             {items.map((item) => {
               const unitPrice = item.product.price
@@ -380,8 +380,8 @@ export default function Checkout() {
                     {item.product.name} × {item.quantity}
                     {(item.customization_text || item.wrap) && (
                       <span className="checkout-summary__custom">
-                        {item.customization_text && ` · Personalización: ${item.customization_text}`}
-                        {item.wrap && ' · Envolver para regalo'}
+                        {item.customization_text && ` · ${t(locale, 'checkout.personalization', { text: item.customization_text })}`}
+                        {item.wrap && ` · ${t(locale, 'checkout.giftWrapping')}`}
                       </span>
                     )}
                   </span>
@@ -391,7 +391,7 @@ export default function Checkout() {
             })}
           </ul>
           <div className="checkout-summary__total">
-            <span>Total</span>
+            <span>{t(locale, 'checkout.total')}</span>
             <span>${totals.subtotal.toFixed(2)} {items[0]?.product.currency || 'MXN'}</span>
           </div>
         </aside>

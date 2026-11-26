@@ -2,21 +2,42 @@
 import './TopBar.css'
 import CartCount from './CartCount.jsx'
 import AuthLinks from './AuthLinks.jsx'
+import { localizedPath, stripLocalePrefix, t } from '../i18n'
+const locale = Astro.props.locale ?? 'es'
+const pathWithoutLocale = stripLocalePrefix(Astro.url.pathname)
+const languageOptions = [
+  { locale: 'es', code: 'header.spanishCode', label: 'header.toSpanish' },
+  { locale: 'en', code: 'header.englishCode', label: 'header.toEnglish' },
+  { locale: 'zh-CN', code: 'header.chineseCode', label: 'header.toChinese' },
+]
 ---
 <header class="topbar">
   <div class="container topbar__inner">
-    <a href="/" class="topbar__brand">
+    <a href={localizedPath(locale, '/')} class="topbar__brand">
       <span class="topbar__brand-mark" aria-hidden="true">✳</span>
       <span>Hilo <em>y</em> Alma</span>
     </a>
 
     <div class="topbar__right">
-  <AuthLinks client:idle />
-  <a href="/carrito" class="topbar__cart">
-    <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
-    <span>Carrito</span>
-    <CartCount client:idle />
-  </a>
+      <AuthLinks client:idle locale={locale} />
+      <a href={localizedPath(locale, '/carrito')} class="topbar__cart">
+        <img class="topbar__cart-image" src="/images/carrito.png" alt="" />
+        <span>{t(locale, 'header.cart')}</span>
+        <CartCount client:idle />
+      </a>
+      <nav class="topbar__languages" aria-label={t(locale, 'header.language')}>
+        {languageOptions.map((option) => (
+          <a
+            class="topbar__language"
+            href={localizedPath(option.locale, pathWithoutLocale)}
+            lang={option.locale}
+            aria-label={t(locale, option.label)}
+            aria-current={option.locale === locale ? 'page' : undefined}
+          >
+            {t(locale, option.code)}
+          </a>
+        ))}
+      </nav>
     </div>
-</div>
+  </div>
 </header>

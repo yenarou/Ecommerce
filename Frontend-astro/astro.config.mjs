@@ -8,6 +8,13 @@ import { AstroPWAIntegration } from '@vite-pwa/astro';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://www.hilo-yalma.com',
+  i18n: {
+    defaultLocale: 'es',
+    locales: ['es', 'en', 'zh-CN'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   output: 'server',
   adapter: node({ mode: 'standalone' }),
   integrations: [

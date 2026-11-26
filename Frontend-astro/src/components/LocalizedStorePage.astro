@@ -1,0 +1,134 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Sidebar from './Sidebar.astro'
+import ProductCard from './ProductCard.astro'
+import Cart from './Cart.jsx'
+import Checkout from './Checkout.jsx'
+import LoginForm from './LoginForm.jsx'
+import RegisterForm from './RegisterForm.jsx'
+import Orders from './Orders.jsx'
+import PagoResultado from './PagoResultado.jsx'
+import AddToCartForm from './AddToCartForm.jsx'
+import { fetchCategoryBySlug, fetchProductById } from '../api/catalog'
+import { localizedPath, t } from '../i18n'
+import '../styles/CategoryDetail.css'
+import '../styles/ProductDetail.css'
+
+const { locale, slug } = Astro.props
+const segments = (slug ?? '').split('/').filter(Boolean)
+const [route, value] = segments
+const category = route === 'categoria' && value ? await fetchCategoryBySlug(value) : null
+const product = route === 'products' && value ? await fetchProductById(value) : null
+if ((route === 'categoria' && !category) || (route === 'products' && !product)) Astro.response.status = 404
+const routeTitleIds = {
+  carrito: 'site.cartTitle',
+  checkout: 'site.checkoutTitle',
+  login: 'site.loginTitle',
+  registro: 'site.registerTitle',
+  ordenes: 'site.ordersTitle',
+  'pago/exito': 'site.paymentTitle',
+  'pago/error': 'site.paymentTitle',
+  'pago/pendiente': 'site.paymentTitle',
+}
+const routeKey = segments.join('/')
+const pageTitle = category ? t(locale, 'site.titleWithName', { name: category.name })
+  : product ? t(locale, 'site.titleWithName', { name: product.name })
+    : routeTitleIds[routeKey] ? t(locale, routeTitleIds[routeKey]) : t(locale, 'site.pageNotFound')
+const productJsonLd = product ? {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.description,
+  sku: product.id,
+  image: product.images?.map((img) => img.url) || [],
+  brand: { '@type': 'Brand', name: 'Hilo y Alma' },
+  offers: {
+    '@type': 'Offer',
+    price: product.price,
+    priceCurrency: product.currency,
+    availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: `https://www.hilo-yalma.com${localizedPath(locale, `/products/${product.id}`)}`,
+  },
+} : null
+---
+{route === 'categoria' && category ? (
+  <Layout title={pageTitle} description={t(locale, 'category.description', { name: category.name })} canonical={`https://www.hilo-yalma.com${localizedPath(locale, `/categoria/${category.slug}`)}`}>
+    <div class="container category-detail">
+      <nav class="category-detail__crumbs" aria-label={t(locale, 'category.breadcrumb')}><a href={localizedPath(locale, '/')}>{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span> {category.name}</nav>
+      <div class="category-detail__layout">
+        <Sidebar locale={locale} />
+        <main class="category-detail__main">
+          <h1 class="category-detail__title">{category.name}</h1>
+          <p class="category-detail__description">{category.description}</p>
+          <hr class="stitch-divider" />
+          {category.products?.length ? (
+            <div class="category-detail__grid">{category.products.map((item) => <ProductCard product={item} locale={locale} />)}</div>
+          ) : <p class="category-detail__empty">{t(locale, 'category.empty')}</p>}
+        </main>
+      </div>
+    </div>
+  </Layout>
+) : route === 'products' && product ? (
+  <Layout title={pageTitle} description={`${product.name}: ${product.description || t(locale, 'product.defaultDescription')}`} canonical={`https://www.hilo-yalma.com${localizedPath(locale, `/products/${product.id}`)}`} type="product">
+    <div class="container product-detail">
+      <nav class="product-detail__crumbs" aria-label={t(locale, 'product.breadcrumb')}>
+        <a href={localizedPath(locale, '/')}>{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span>{' '}
+        {product.category && <><a href={localizedPath(locale, `/categoria/${product.category.slug}`)}>{product.category.name}</a>{' '}</>}
+        <span aria-hidden="true">/</span> {product.name}
+      </nav>
+      <div class="product-detail__layout">
+        <div class="product-detail__gallery">
+          <div class="product-detail__main-image"><img src={product.images[0]?.url} alt={product.images[0]?.alt || product.name} width="1200" height="1200" loading="eager" decoding="async" /></div>
+          {product.images.length > 1 && <div class="product-detail__thumbs">{product.images.slice(1).map((img) => <div class="product-detail__thumb"><img src={img.url} alt={img.alt} width="800" height="800" loading="lazy" decoding="async" /></div>)}</div>}
+        </div>
+        <div class="product-detail__info">
+          <h1 class="product-detail__name">{product.name}</h1>
+          <p class="price product-detail__price">${product.price.toFixed(2)} {product.currency}</p>
+          <p class="product-detail__description">{product.description}</p>
+          <dl class="product-detail__facts"><div><dt>{t(locale, 'product.availability')}</dt><dd id="product-stock" data-locale={locale} data-product-id={product.id} data-stock={product.stock} aria-live="polite">{product.stock > 0 ? t(locale, 'product.pieces', { count: product.stock }) : t(locale, 'product.soldOut')}</dd></div></dl>
+          <hr class="stitch-divider" />
+          <AddToCartForm client:load product={product} locale={locale} />
+        </div>
+      </div>
+    </div>
+  </Layout>
+) : route === 'carrito' ? (
+  <Layout title={pageTitle}><Cart client:only="react" locale={locale} /></Layout>
+) : route === 'checkout' ? (
+  <Layout title={pageTitle}><Checkout client:only="react" locale={locale} /></Layout>
+) : route === 'login' ? (
+  <Layout title={pageTitle}><LoginForm client:load locale={locale} /></Layout>
+) : route === 'registro' ? (
+  <Layout title={pageTitle}><RegisterForm client:load locale={locale} /></Layout>
+) : route === 'ordenes' ? (
+  <Layout title={pageTitle}><Orders client:only="react" locale={locale} /></Layout>
+) : route === 'pago' && ['exito', 'error', 'pendiente'].includes(value) ? (
+  <Layout title={pageTitle}><PagoResultado client:only="react" estado={value} locale={locale} /></Layout>
+) : (
+  <Layout title={pageTitle}><main class="container"><h1>{t(locale, 'site.pageNotFound')}</h1></main></Layout>
+)}
+
+{productJsonLd && <script type="application/ld+json" set:html={JSON.stringify(productJsonLd)} />}
+
+<script>
+  import { subscribeToStockUpdates } from '../api/catalog'
+  import { t } from '../i18n'
+
+  const stockElement = document.querySelector('#product-stock')
+  const productId = stockElement?.getAttribute('data-product-id')
+  const locale = stockElement?.getAttribute('data-locale') ?? 'es'
+
+  if (stockElement && productId) {
+    subscribeToStockUpdates(
+      productId,
+      ({ stock }) => {
+        stockElement.textContent = stock > 0 ? t(locale, 'product.pieces', { count: stock }) : t(locale, 'product.soldOut')
+        stockElement.dataset.stock = String(stock)
+        window.dispatchEvent(new CustomEvent('product-stock-updated', {
+          detail: { productId, stock },
+        }))
+      },
+      (error) => console.error('Could not update product inventory.', error),
+    )
+  }
+</script>

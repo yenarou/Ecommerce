@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { localePrefix, t } from '../i18n'
 import '../styles/OfflineNotice.css'
 
-export default function OfflineNotice() {
+export default function OfflineNotice({ locale = 'es' }) {
+  const root = localePrefix(locale)
   const [isOffline, setIsOffline] = useState(false)
 
   useEffect(() => {
@@ -23,15 +25,13 @@ export default function OfflineNotice() {
       <div className="offline-notice__content">
         <div>
           <p>
-            <strong>Estás sin conexión.</strong> Puedes consultar las piezas que ya visitaste y
-            seguir usando el carrito guardado en este dispositivo.
+            <strong>{t(locale, 'offline.title')}</strong> {t(locale, 'offline.description')}
           </p>
           <p className="offline-notice__detail">
-            El precio y las existencias se confirmarán al volver la conexión. No se procesan
-            pedidos ni pagos sin internet.
+            {t(locale, 'offline.details')}
           </p>
         </div>
-        <a href="/carrito">Abrir carrito</a>
+        <a href={`${root}/carrito`}>{t(locale, 'offline.openCart')}</a>
       </div>
     </aside>
   )

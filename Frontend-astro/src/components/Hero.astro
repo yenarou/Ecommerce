@@ -1,17 +1,18 @@
 ---
 import './Hero.css'
+import { t } from '../i18n'
+const locale = Astro.props.locale ?? 'es'
 ---
 <section class="hero">
   <div class="hero__text">
-    <p class="hero__eyebrow">Taller de crochet · Guadalajara</p>
+    <p class="hero__eyebrow">{t(locale, 'hero.eyebrow')}</p>
     <h1 class="hero__title">
-      Pequeñas piezas,
+      {t(locale, 'hero.titleFirst')}
       <br />
-      hechas para quedarse.
+      {t(locale, 'hero.titleSecond')}
     </h1>
     <p class="hero__subtitle">
-      Figuras, llaveros y decoración tejidos a mano, con tiempo y atención
-      al detalle. Elige una pieza o hazla tuya.
+      {t(locale, 'hero.subtitle')}
     </p>
   </div>
   <div class="hero__image" aria-hidden="true">

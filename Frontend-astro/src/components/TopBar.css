@@ -1,5 +1,6 @@
 .topbar {
   min-height: 72px;
+  padding-top: env(safe-area-inset-top, 0px);
   background: rgba(246, 241, 231, 0.94);
   border-bottom: 1px solid var(--color-line-strong);
   backdrop-filter: blur(10px);
@@ -10,9 +11,10 @@
 
 .topbar__inner {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-2);
+  flex-wrap: wrap;
   padding-block: var(--space-2);
 }
 
@@ -112,10 +114,7 @@
   color: var(--color-thread);
 }
 
-@media (max-width: 780px) {
-  .topbar__inner {
-    flex-wrap: wrap;
-  }
+@media (max-width: 767px) {
   .topbar__nav {
     order: 3;
     width: 100%;
@@ -127,7 +126,10 @@
 .topbar__right {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-2);
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .topbar__auth {
@@ -135,6 +137,7 @@
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .topbar__user {
@@ -152,4 +155,68 @@
   color: var(--color-thread);
   cursor: pointer;
   text-decoration: underline;
+}
+
+.topbar__languages {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.topbar__language {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+  font-size: var(--step--1);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.topbar__language[aria-current='page'] {
+  background: var(--color-ink);
+  color: var(--color-paper-soft);
+}
+
+@media (min-width: 768px) {
+  .topbar__inner {
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: nowrap;
+  }
+}
+
+@media (max-width: 767px) {
+  .topbar__inner {
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+  }
+
+  .topbar__brand {
+    font-size: var(--step-1);
+  }
+
+  .topbar__right {
+    gap: var(--space-1);
+  }
+
+  .topbar__auth {
+    gap: var(--space-1) var(--space-2);
+    font-size: var(--step--1);
+  }
+
+  .topbar__cart {
+    padding: 0.25rem 0.35rem;
+    font-size: var(--step--1);
+  }
+
+  .topbar__cart-image {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
 }

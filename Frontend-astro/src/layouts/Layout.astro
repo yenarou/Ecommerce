@@ -4,40 +4,51 @@ import TopBar from '../components/TopBar.astro'
 import Footer from '../components/Footer.astro'
 import CartBootstrap from '../components/CartBootstrap.jsx'
 import OfflineNotice from '../components/OfflineNotice.jsx'
+import { localizedPath, stripLocalePrefix, t } from '../i18n'
 
 const {
   title = 'Hilo y Alma',
-  description = 'Taller de crochet con piezas hechas a mano, personalizadas y enviadas con atención.',
+  description,
   image = '/images/heroImg2.png',
   canonical,
   type = 'website',
 } = Astro.props
 
+const locale = Astro.currentLocale ?? 'es'
+const pageDescription = description ?? t(locale, 'site.description')
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://www.hilo-yalma.com'
 const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).toString()
 const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).toString()
+const pathWithoutLocale = stripLocalePrefix(Astro.url.pathname)
+const spanishUrl = new URL(localizedPath('es', pathWithoutLocale), siteUrl).toString()
+const englishUrl = new URL(localizedPath('en', pathWithoutLocale), siteUrl).toString()
+const chineseUrl = new URL(localizedPath('zh-CN', pathWithoutLocale), siteUrl).toString()
 ---
 <!doctype html>
-<html lang="es">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={pageDescription} />
     <meta name="theme-color" content="#8b3a3a" />
     <meta name="robots" content="index,follow" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="es" href={spanishUrl} />
+    <link rel="alternate" hreflang="en" href={englishUrl} />
+    <link rel="alternate" hreflang="zh-CN" href={chineseUrl} />
+    <link rel="alternate" hreflang="x-default" href={spanishUrl} />
     <link rel="icon" type="image/png" href="/icons/pwa-192x192.png" />
     <link rel="apple-touch-icon" href="/icons/pwa-192x192.png" />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={pageDescription} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:site_name" content="Hilo y Alma" />
-    <meta property="og:locale" content="es_MX" />
+    <meta property="og:locale" content={locale === 'en' ? 'en_US' : locale === 'zh-CN' ? 'zh_CN' : 'es_MX'} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
+    <meta name="twitter:description" content={pageDescription} />
     <meta name="twitter:image" content={ogImage} />
     <title>{title}</title>
     <script>
@@ -47,10 +58,10 @@ const ogImage = image.startsWith('http') ? image : new URL(image, siteUrl).toStr
     </script>
   </head>
   <body>
-    <OfflineNotice client:load />
+    <OfflineNotice client:load locale={locale} />
     <CartBootstrap client:idle />
-    <TopBar />
+    <TopBar locale={locale} />
     <slot />
-    <Footer />
+    <Footer locale={locale} />
   </body>
 </html>

@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro'
 import Orders from '../components/Orders.jsx'
+import { t } from '../i18n'
 ---
-<Layout title="Mis órdenes | Hilo y Alma">
+<Layout title={t('es', 'site.ordersTitle')}>
   <Orders client:only="react" />
 </Layout>

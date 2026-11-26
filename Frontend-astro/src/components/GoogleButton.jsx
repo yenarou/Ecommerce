@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { getGoogleUrl } from '../api/auth'
+import { t } from '../i18n'
 
-export default function GoogleButton() {
+export default function GoogleButton({ locale = 'es' }) {
   const [error, setError] = useState('')
 
   async function handleClick() {
@@ -9,7 +10,7 @@ export default function GoogleButton() {
     try {
       const url = await getGoogleUrl()
       if (!url) {
-        setError('El inicio con Google aún no está disponible.')
+        setError(t(locale, 'auth.googleUnavailable'))
         return
       }
       window.location.href = url
@@ -21,7 +22,7 @@ export default function GoogleButton() {
   return (
     <>
       <button type="button" className="btn auth-google" onClick={handleClick}>
-        Continuar con Google
+        {t(locale, 'auth.continueGoogle')}
       </button>
       {error && <p className="auth-form__error" role="alert">{error}</p>}
     </>

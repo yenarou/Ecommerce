@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Hero from './Hero.astro'
+import Sidebar from './Sidebar.astro'
+import ProductCard from './ProductCard.astro'
+import { fetchProducts } from '../api/catalog'
+import { localizedPath, t } from '../i18n'
+import '../styles/Home.css'
+
+const locale = Astro.props.locale ?? 'es'
+const { items: featured }: { items: any[] } = await fetchProducts({ page: 1, pageSize: 3 })
+const pageDescription = t(locale, 'site.homeDescription')
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://www.hilo-yalma.com'
+const canonical = new URL(localizedPath(locale, '/'), siteUrl).toString()
+---
+<Layout title={t(locale, 'site.homeTitle')} description={pageDescription} canonical={canonical}>
+  <div class="container home">
+    <Hero locale={locale} />
+
+    <div class="home__layout">
+      <Sidebar locale={locale} />
+      <main class="home__main">
+        <h2 class="home__section-title">{t(locale, 'home.featured')}</h2>
+        <div class="home__grid">
+          {featured.map((product) => <ProductCard product={product} locale={locale} />)}
+        </div>
+      </main>
+    </div>
+
+    <hr class="stitch-divider" />
+
+    <section class="home__context">
+      <div>
+        <h2>{t(locale, 'home.madeToOrderTitle')}</h2>
+        <p>{t(locale, 'home.madeToOrderDescription')}</p>
+      </div>
+      <div>
+        <h2>{t(locale, 'home.customizeTitle')}</h2>
+        <p>{t(locale, 'home.customizeDescription')}</p>
+      </div>
+    </section>
+
+    <section class="home__delivery">
+      <p class="home__delivery-label">{t(locale, 'home.delivery')}</p>
+      <h2>{t(locale, 'home.deliveryTitle')}</h2>
+      <div class="home__map-wrap">
+        <iframe
+          title={t(locale, 'home.mapTitle')}
+          src="https://www.openstreetmap.org/export/embed.html?bbox=-103.4326%2C20.692%2C-103.3499%2C20.7348&layer=mapnik&marker=20.714%2C-103.391"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </section>
+  </div>
+</Layout>

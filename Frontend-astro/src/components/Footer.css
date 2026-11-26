@@ -3,6 +3,8 @@
   color: var(--color-paper);
   margin-top: var(--space-5);
   padding-top: var(--space-5);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  width: 100%;
 }
 
 .footer__inner {
@@ -24,7 +26,24 @@
 
 .footer__cols {
   display: flex;
-  gap: var(--space-5);
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .footer__cols {
+    gap: var(--space-5);
+  }
+
+  .footer__inner {
+    align-items: flex-start;
+  }
+}
+
+@media (min-width: 1200px) {
+  .footer__inner {
+    gap: var(--space-6);
+  }
 }
 
 .footer__col-title {

@@ -3,29 +3,31 @@ import Layout from '../../layouts/Layout.astro'
 import Sidebar from '../../components/Sidebar.astro'
 import ProductCard from '../../components/ProductCard.astro'
 import { fetchCategoryBySlug } from '../../api/catalog'
+import { t } from '../../i18n'
 import '../../styles/CategoryDetail.css'
 
+const locale = 'es'
 const { slug } = Astro.params
 const category = slug ? await fetchCategoryBySlug(slug) : null
 if (!category) Astro.response.status = 404
 const products: any[] = category?.products ?? []
 const pageDescription = category
-  ? `Explora la colección ${category.name} en Hilo y Alma: piezas únicas de crochet y opciones de personalización.`
-  : 'Colección no encontrada en Hilo y Alma.'
+  ? t(locale, 'category.description', { name: category.name })
+  : t(locale, 'category.notFoundDescription')
 ---
 <Layout
-  title={category ? `${category.name} | Hilo y Alma` : 'Colección no encontrada'}
+  title={category ? t(locale, 'site.titleWithName', { name: category.name }) : t(locale, 'category.notFound')}
   description={pageDescription}
   canonical={category ? `https://www.hilo-yalma.com/categoria/${category.slug}` : 'https://www.hilo-yalma.com'}
 >
   {category ? (
   <div class="container category-detail">
-    <nav class="category-detail__crumbs" aria-label="Ruta de navegación">
-      <a href="/">Inicio</a> <span aria-hidden="true">/</span> {category.name}
+    <nav class="category-detail__crumbs" aria-label={t(locale, 'category.breadcrumb')}>
+      <a href="/">{t(locale, 'category.home')}</a> <span aria-hidden="true">/</span> {category.name}
     </nav>
 
     <div class="category-detail__layout">
-      <Sidebar />
+      <Sidebar locale={locale} />
       <main class="category-detail__main">
         <h1 class="category-detail__title">{category.name}</h1>
         <p class="category-detail__description">{category.description}</p>
@@ -34,17 +36,17 @@ const pageDescription = category
 
         {products.length === 0 ? (
           <p class="category-detail__empty">
-            Todavía no hay piezas publicadas en esta colección.
+            {t(locale, 'category.empty')}
           </p>
         ) : (
           <div class="category-detail__grid">
-            {products.map((product) => <ProductCard product={product} />)}
+            {products.map((product) => <ProductCard product={product} locale={locale} />)}
           </div>
         )}
       </main>
     </div>
   </div>
   ) : (
-    <main class="container"><h1>Colección no encontrada</h1></main>
+    <main class="container"><h1>{t(locale, 'category.notFound')}</h1></main>
   )}
 </Layout>

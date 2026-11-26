@@ -1,16 +1,19 @@
 ---
 import { fetchCategories } from '../api/catalog'
 import './Sidebar.css'
+import { localePrefix, t } from '../i18n'
 
 const categories: any[] = await fetchCategories()
+const locale = Astro.props.locale ?? 'es'
+const root = localePrefix(locale)
 ---
-<aside class="sidebar" aria-label="Filtros y colecciones">
+<aside class="sidebar" aria-label={t(locale, 'sidebar.label')}>
   <div class="sidebar__block">
-    <h2 class="sidebar__title">Colecciones</h2>
+    <h2 class="sidebar__title">{t(locale, 'sidebar.collections')}</h2>
     <ul class="sidebar__list">
       {categories.map((cat) => (
         <li>
-          <a href={`/categoria/${cat.slug}`} class="sidebar__link">{cat.name}</a>
+          <a href={`${root}/categoria/${cat.slug}`} class="sidebar__link">{cat.name}</a>
         </li>
       ))}
     </ul>

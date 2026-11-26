@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAuth } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
+import { t } from '../i18n'
 
 export default function GoogleCallback() {
     useEffect(() => {
@@ -38,5 +39,5 @@ export default function GoogleCallback() {
         void completeLogin()
     }, [])
 
-    return <p>Iniciando sesión...</p>
+    return <p>{t('es', 'auth.signingIn')}</p>
 }
