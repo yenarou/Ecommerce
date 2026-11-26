@@ -61,7 +61,7 @@ Prueba la versión de producción con `npm run build` y `npm run preview`. En Ch
 En producción, el Service Worker precarga el shell (HTML, CSS, JS e iconos). La estrategia depende del flujo de compra:
 
 - **Red primero** para inicio, colecciones, fichas y la página del carrito. Si no responde la red, muestra la última página visitada; el carrito y sus cambios se guardan en este dispositivo.
-- **Caché primero** para CSS, JavaScript, fuentes, iconos e imágenes.
+- **Caché primero** para CSS, JavaScript, fuentes e imágenes. Al actualizar la app, se conservan temporalmente los CSS y JS antiguos que podrían seguir usando páginas de producto guardadas.
 - **Solo red** para cuentas, órdenes, administración, checkout, pagos y API. No se reutilizan páginas privadas ni se confirma una compra sin conexión.
 
 Al instalarse, el Service Worker también guarda el inicio y la página del carrito para que el usuario pueda llegar al carrito local aunque todavía no lo hubiera abierto. Al estar offline aparece un aviso persistente: los precios y existencias pueden estar desactualizados, y se confirman al volver la conexión. El checkout bloquea el envío si se pierde la red; el carrito local se conserva. Si una página no está guardada, `offline.html` explica qué se puede hacer y cómo volver al catálogo o al carrito.

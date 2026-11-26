@@ -10,6 +10,7 @@ cleanupOutdatedCaches()
 const storePagePath = /^\/(?:$|carrito\/?$|categoria\/[^/]+\/?$|products\/[^/]+\/?$)/
 const isSameOrigin = ({ url }) => url.origin === self.location.origin
 const isNavigation = ({ request }) => request.mode === 'navigate'
+const appAssetPath = /\.(?:css|js|mjs|woff2?)$/i
 
 async function cacheOfflineEntryPoints() {
   const cache = await caches.open('catalog-pages')
@@ -32,8 +33,45 @@ async function cacheOfflineEntryPoints() {
   }
 }
 
+async function preservePrecachedAppAssets() {
+  try {
+    const appAssets = await caches.open('app-assets')
+    const cacheNames = await caches.keys()
+
+    // Product HTML can outlive a deployment, so keep its hashed CSS/JS before Workbox prunes old precache entries.
+    for (const cacheName of cacheNames) {
+      if (!cacheName.startsWith('workbox-precache-v2-')) continue
+
+      const precache = await caches.open(cacheName)
+      for (const request of await precache.keys()) {
+        const url = new URL(request.url)
+        if (url.origin !== self.location.origin || !appAssetPath.test(url.pathname)) continue
+
+        const response = await precache.match(request)
+        if (!response) continue
+
+        url.searchParams.delete('__WB_REVISION__')
+        try {
+          await appAssets.put(new Request(url, { credentials: 'same-origin' }), response)
+        } catch (error) {
+          console.warn(`No se pudo conservar el recurso ${url.pathname} para uso sin conexión.`, error)
+        }
+      }
+    }
+
+    const keys = await appAssets.keys()
+    const expiredKeys = keys.slice(0, Math.max(0, keys.length - 200))
+    await Promise.all(expiredKeys.map((request) => appAssets.delete(request)))
+  } catch (error) {
+    console.warn('No se pudieron conservar los estilos y scripts de páginas guardadas.', error)
+  }
+}
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(cacheOfflineEntryPoints())
+  event.waitUntil(Promise.all([
+    cacheOfflineEntryPoints(),
+    preservePrecachedAppAssets(),
+  ]))
 })
 
 registerRoute(
@@ -46,18 +84,22 @@ registerRoute(
 )
 
 registerRoute(
+  ({ request, url }) => request.method === 'GET'
+    && url.origin === self.location.origin
+    && ['font', 'script', 'style'].includes(request.destination),
+  new CacheFirst({
+    cacheName: 'app-assets',
+    plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 })],
+  }),
+)
+
+registerRoute(
   (request) => isSameOrigin(request) && isNavigation(request),
   new NetworkOnly(),
 )
 
 registerRoute(
-  ({ request, url }) => request.method === 'GET' && (
-    request.destination === 'image'
-    || (
-      url.origin === self.location.origin
-      && ['font', 'script', 'style'].includes(request.destination)
-    )
-  ),
+  ({ request }) => request.method === 'GET' && request.destination === 'image',
   new CacheFirst({
     cacheName: 'static-assets',
     plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 30 * 24 * 60 * 60 })],
