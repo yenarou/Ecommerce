@@ -78,7 +78,6 @@ registerRoute(
   (request) => isSameOrigin(request) && isNavigation(request) && storePagePath.test(request.url.pathname),
   new NetworkFirst({
     cacheName: 'catalog-pages',
-    networkTimeoutSeconds: 3,
     plugins: [new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 7 * 24 * 60 * 60 })],
   }),
 )
