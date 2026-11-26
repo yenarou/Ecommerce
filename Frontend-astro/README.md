@@ -54,4 +54,10 @@ magick public/icons/hilo-y-alma-cat.jpg -alpha on -fuzz 5% -fill none -draw 'col
 magick public/icons/hilo-y-alma-cat.jpg -alpha on -fuzz 5% -fill none -draw 'color 0,0 floodfill' -resize '80%x80%' -gravity center -background '#efe6d6' -extent 512x512 public/icons/pwa-maskable-512x512.png
 ```
 
-Prueba la versión de producción con `npm run build` y `npm run preview`. En Chrome abre DevTools → Application → Manifest para revisar nombre, modo standalone, colores e iconos; después ejecuta Lighthouse con la categoría PWA. Desde Chrome/Android, usa **Instalar Hilo y Alma** o **Agregar a pantalla principal**. La instalación requiere un contexto seguro (HTTPS o `localhost`); la funcionalidad offline completa no forma parte de esta práctica.
+Prueba la versión de producción con `npm run build` y `npm run preview`. En Chrome abre DevTools → Application → Manifest para revisar nombre, modo standalone, colores e iconos; después ejecuta Lighthouse con la categoría PWA. Desde Chrome/Android, usa **Instalar Hilo y Alma** o **Agregar a pantalla principal**. La instalación requiere un contexto seguro (HTTPS o `localhost`).
+
+### Uso sin conexión
+
+En producción, el Service Worker precarga el shell (HTML, CSS, JS e iconos). Inicio, categorías y fichas usan red primero y muestran la última versión visitada si no hay conexión; los demás destinos muestran un aviso cuando no están guardados. Los recursos estáticos usan caché primero.
+
+Para comprobarlo, inicia una compilación y el servidor de vista previa (`npm run build` y `npm run preview`), visita la tienda y una categoría o producto y espera a que el Service Worker se active. En Chrome DevTools, abre **Network**, marca **Offline** y recarga esas páginas; luego visita una ruta no guardada para ver `offline.html`. El Service Worker requiere HTTPS o `localhost` y no se habilita con `astro dev`.

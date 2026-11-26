@@ -14,9 +14,8 @@ export default defineConfig({
     react(),
     AstroPWAIntegration({
       registerType: 'autoUpdate',
-      generateSW: {
-        navigateFallback: null
-      },
+      strategies: 'buildSW',
+      filename: 'sw.js',
       manifest: {
         name: 'Hilo y Alma',
         short_name: 'Hilo y Alma',
@@ -47,7 +46,21 @@ export default defineConfig({
             purpose: 'maskable'
           }
         ]
-      }
+      },
+      buildSW: {
+        swSrc: 'src/sw.js',
+        globPatterns: ['**/*.{js,css,html,ico,svg,woff2}', 'icons/*.png'],
+        manifestTransforms: [
+          (entries) => ({
+            manifest: entries.map((entry) => (
+              entry.url === 'offline' ? { ...entry, url: '/offline.html' } : entry
+            )),
+            warnings: [],
+          }),
+        ],
+      },
+      devOptions: { enabled: false },
     })
-  ]
+  ],
+  build: { inlineStylesheets: 'never' },
 });
